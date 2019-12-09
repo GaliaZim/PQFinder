@@ -58,6 +58,17 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
                 }
             }
         }
+        for (int childIndex = numberOfChildren; childIndex >= 0; childIndex--) {
+            System.out.println(childIndex + ": ");
+            for (int kT = 0; kT < treeDeletionLimit + 1; kT++) {
+                for (int kS = 0; kS < stringDeletionLimit + 1; kS++) {
+                    Backtrack backtrack = dPTable[childIndex][kT][kS];
+                    if(!backtrack.getScore().equals(Double.NEGATIVE_INFINITY))
+                        System.out.println(kT + "," + kS + ": " + backtrack);
+                }
+            }
+            System.out.println();
+        }
         buildResult();
     }
 
@@ -68,9 +79,9 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
             for (int kT = 1; kT <= treeDeletionLimit; kT++) {
                 dPTable[0][kT][kS] = new Backtrack(Double.NEGATIVE_INFINITY);
             }
-            dPTable[0][0][kS] = new Backtrack(0.0);
-
+            dPTable[0][0][kS] = new Backtrack(0.0, 0, kS-1, 0);
         }
+        dPTable[0][0][0] = new Backtrack(0.0);
     }
 
     private void calculateCumulativeSpans() {
@@ -113,25 +124,46 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
             for (int kS = 0; kS <= stringDeletionLimit; kS++) {
                 backtrack = dPTable[numberOfChildren][kT][kS];
                 nodeMapping = new Mapping(node, stringAbsoluteIndex, kS, kT, backtrack.getScore());
-                if(!nodeMapping.getScore().equals(Double.NEGATIVE_INFINITY)) {
-                    int childIndex = numberOfChildren;
-                    int endIndexForChildMapping = nodeMapping.getEndIndex();
-                    do {
-                        Node child = this.node.getChildren().get(childIndex - 1);
-                        int childMappingStart = calcStartIndex(endIndexForChildMapping, kS, kT, child);
-                        childMapping = new Mapping(child, childMappingStart, nodeMapping.getEndIndex(),
-                                kS-backtrack.getPreviousStringDeletions(),
-                                kT-backtrack.getPreviousTreeDeletions());
-                        nodeMapping.addChildMapping(childMapping);
-                        childIndex = backtrack.getChildIndex();
-                        endIndexForChildMapping = childMappingStart;
-                        backtrack = dPTable[childIndex][backtrack.getPreviousTreeDeletions()]
-                                [backtrack.getPreviousStringDeletions()];
-                    } while(!backtrack.isFirst());
-                }
+                if(!nodeMapping.getScore().equals(Double.NEGATIVE_INFINITY))
+                    addChildrenMappings(nodeMapping, kT, kS);
                 mappingsByEndPoints.get(nodeMapping.getEndIndex()).add(nodeMapping);
             }
         }
+    }
+
+    private void addChildrenMappings(Mapping nodeMapping, int kT, int kS) {
+        Backtrack backtrack;
+        int endIndex;
+        int prevKT, prevKS, prevChildIndex;
+        int childIndex = numberOfChildren;
+        backtrack = dPTable[childIndex][kT][kS];
+        do {
+            endIndex = stringAbsoluteIndex - 1 + spans[childIndex] - kT + kS;
+            prevKT = backtrack.getPreviousTreeDeletions();
+            prevKS = backtrack.getPreviousStringDeletions();
+            prevChildIndex = backtrack.getPreviousChildIndex();
+            if(childIndex == prevChildIndex) {
+                nodeMapping.addDeletedStringIndex(endIndex);
+            } else {
+                Node childNode = this.node.getChildren().get(childIndex - 1);
+                int kTDiff = kT - prevKT;
+                if((kTDiff == childNode.getSpan())
+                        & (kS == prevKS)) {
+                    nodeMapping.addDeletedChild(childNode);
+                } else {
+                    int kSDiff = kS - prevKS;
+                    Mapping childMapping = mappingsByChildren.get(childIndex).get(endIndex).stream()
+                            .filter(m ->
+                                    (m.getTreeDeletions() == kTDiff) & (m.getStringDeletions() == kSDiff))
+                            .findFirst().orElse(null);
+                    nodeMapping.addChildMapping(childMapping);
+                }
+            }
+            childIndex = prevChildIndex;
+            kT = prevKT;
+            kS = prevKS;
+            backtrack = dPTable[childIndex][kT][kS];
+        } while(!backtrack.isFirst());
     }
 
     private void initMappingsByEndPoints() {

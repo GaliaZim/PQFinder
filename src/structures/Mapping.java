@@ -42,12 +42,9 @@ public class Mapping {
     }
 
     public void addChildMapping(Mapping mapping) {
-        Mapping previousNodeMapping = childrenMappings.stream().filter(m -> m.getNode().equals(node))
-                .findFirst().orElse(null);
-        if(previousNodeMapping == null)
-            childrenMappings.add(mapping);
-        else
-            previousNodeMapping.startIndex = mapping.startIndex;
+        if(mapping == null)
+            throw new IllegalArgumentException("Cannot add NULL as a child mapping of " + node.toString());
+        this.childrenMappings.add(mapping);
     }
 
     public void addDeletedChild(Node child) {
