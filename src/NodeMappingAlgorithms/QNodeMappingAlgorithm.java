@@ -37,19 +37,20 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
                         dPTable[childIndex][kT][kS] = new Backtrack(Double.NEGATIVE_INFINITY);
                         continue;
                     }
+                    max = new Backtrack(Double.NEGATIVE_INFINITY);
                     if(endPoint == 0) {
-                        if(kS == 0)
-                            dPTable[childIndex][kT][kS] = new Backtrack(0.0);
-                        else
+                        if(kS != 0) {
                             dPTable[childIndex][kT][kS] = new Backtrack(Double.NEGATIVE_INFINITY);
-                        continue;
-                    }
-                    max = findMaxMappingByEndPoint(dPTable, childIndex, kT, kS,
-                            getChildMappingsAtEndPoint(children.get(childIndex-1), endPoint));
-                    //deletion from the string
-                    if(kS > 0 && dPTable[childIndex][kT][kS - 1].compareTo(max) > 0) {
-                        max = new Backtrack(dPTable[childIndex][kT][kS - 1].getScore(),
-                                kT, kS - 1, childIndex);
+                            continue;
+                        }
+                    } else {
+                        max = findMaxMappingByEndPoint(dPTable, childIndex, kT, kS,
+                                getChildMappingsAtEndPoint(children.get(childIndex - 1), endPoint));
+                        //deletion from the string
+                        if (kS > 0 && dPTable[childIndex][kT][kS - 1].compareTo(max) > 0) {
+                            max = new Backtrack(dPTable[childIndex][kT][kS - 1].getScore(),
+                                    kT, kS - 1, childIndex);
+                        }
                     }
                     //deletion from the tree
                     int childNodeSpan = spans[childIndex] - spans[childIndex - 1];
@@ -189,7 +190,7 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
                 Node childNode = children.get(childIndex - 1);
                 int kTDiff = kT - prevKT;
                 if((kTDiff == childNode.getSpan())
-                        & (kS == prevKS)) { //TODO: Fix. doesn't add all deletions
+                        & (kS == prevKS)) {
                     nodeMapping.addDeletedChild(childNode);
                 } else {
                     int kSDiff = kS - prevKS;
