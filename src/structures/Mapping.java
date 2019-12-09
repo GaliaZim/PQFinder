@@ -11,6 +11,8 @@ public class Mapping {
     private int treeDeletions;
     private Double score;
     private List<Mapping> childrenMappings;
+    private List<Node> deletedChildren;
+    private List<Integer> deletedStringIndeices;
 
     public Mapping(Node node, int startIndex, int endIndex, int stringDeletions, int treeDeletions, Double score) {
         this.node = node;
@@ -19,7 +21,9 @@ public class Mapping {
         this.stringDeletions = stringDeletions;
         this.treeDeletions = treeDeletions;
         this.score = score;
-        childrenMappings = new LinkedList<>();
+        this.childrenMappings = new LinkedList<>();
+        this.deletedChildren = new LinkedList<>();
+        this.deletedStringIndeices = new LinkedList<>();
     }
 
     public Mapping(Node node, int startIndex, int stringDeletions, int treeDeletions, Double score) {
@@ -46,6 +50,14 @@ public class Mapping {
             previousNodeMapping.startIndex = mapping.startIndex;
     }
 
+    public void addDeletedChild(Node child) {
+        this.deletedChildren.add(child);
+    }
+
+    public void addDeletedStringIndex(int index) {
+        this.deletedStringIndeices.add(index);
+    }
+
     public Node getNode() {
         return node;
     }
@@ -68,6 +80,14 @@ public class Mapping {
 
     public List<Mapping> getChildrenMappings() {
         return childrenMappings;
+    }
+
+    public List<Node> getDeletedChildren() {
+        return deletedChildren;
+    }
+
+    public List<Integer> getDeletedStringIndeices() {
+        return deletedStringIndeices;
     }
 
     public String toString() {
