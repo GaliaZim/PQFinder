@@ -37,7 +37,7 @@ public class LeafMappingAlgorithm extends NodeMappingAlgorithm {
                 score = substitutionFunction.apply(node.getCog(),string.charAt(i-1));
             mapping = new Mapping(node, i, i, 0, 0, score);
             mappings.add(mapping);
-            mappingsByEndPoints.put(i, mappings);
+            resultMappingsByEndPoints.put(i, mappings);
         }
     }
 }

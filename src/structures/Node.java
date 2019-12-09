@@ -1,5 +1,6 @@
 package structures;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -65,5 +66,11 @@ public class Node {
                 ", type=" + type +
                 ", cog='" + cog + '\'' +
                 '}';
+    }
+
+    public List<Node> getChildrenReversed() {
+        List<Node> reversedChildren = new LinkedList<>(children);
+        Collections.reverse(reversedChildren);
+        return reversedChildren;
     }
 }

@@ -13,7 +13,7 @@ public abstract class NodeMappingAlgorithm {
     int treeDeletionLimit;
     int stringDeletionLimit;
     //endPoint --> list of mappings
-    HashMap<Integer, List<Mapping>> mappingsByEndPoints;
+    HashMap<Integer, List<Mapping>> resultMappingsByEndPoints;
     //TODO: score + backtracking
 
 
@@ -23,12 +23,12 @@ public abstract class NodeMappingAlgorithm {
         this.node = node;
         this.treeDeletionLimit = treeDeletionLimit;
         this.stringDeletionLimit = stringDeletionLimit;
-        mappingsByEndPoints = new HashMap<>(); //TODO: capacity
+        resultMappingsByEndPoints = new HashMap<>(); //TODO: capacity
     }
 
     public abstract void runAlgorithm();
 
-    public HashMap<Integer, List<Mapping>> getMappingsByEndPoints() {
-        return mappingsByEndPoints;
+    public HashMap<Integer, List<Mapping>> getResultMappingsByEndPoints() {
+        return resultMappingsByEndPoints;
     }
 }
