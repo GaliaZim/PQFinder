@@ -35,7 +35,15 @@ public class Backtrack implements Comparable<Backtrack>{
         return this.previourTableIndices.treeDeletions;
     }
 
-    public int getChildIndex() { return this.previourTableIndices.childIndex; }
+    public int getPreviousChildIndex() { return this.previourTableIndices.childIndex; }
+
+    @Override
+    public String toString() {
+        return "Backtrack{" +
+                "score=" + score +
+                ", previourTableIndices=" + previourTableIndices +
+                '}';
+    }
 
     private class TableIndices {
         int treeDeletions;
@@ -46,6 +54,15 @@ public class Backtrack implements Comparable<Backtrack>{
             this.treeDeletions = treeDeletions;
             this.stringDeletions = stringDeletions;
             this.childIndex = childIndex;
+        }
+
+        @Override
+        public String toString() {
+            return "TableIndices{" +
+                    "treeDeletions=" + treeDeletions +
+                    ", stringDeletions=" + stringDeletions +
+                    ", childIndex=" + childIndex +
+                    '}';
         }
     }
 }

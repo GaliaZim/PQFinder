@@ -57,4 +57,13 @@ public class Node {
         this.children.add(child);
         numberOfChildren ++;
     }
+
+    @Override
+    public String toString() {
+        return "Node{" +
+                "index=" + index +
+                ", type=" + type +
+                ", cog='" + cog + '\'' +
+                '}';
+    }
 }
