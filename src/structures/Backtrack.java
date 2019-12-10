@@ -2,16 +2,20 @@ package structures;
 
 public class Backtrack implements Comparable<Backtrack>{
     private Double score;
-    private TableIndices previourTableIndices;
+    private TableIndices previousTableIndices;
 
     public Backtrack(Double score, int treeDeletions, int stringDeletions, int childIndex) {
         this.score = score;
-        this.previourTableIndices = new TableIndices(treeDeletions, stringDeletions, childIndex);
+        this.previousTableIndices = new TableIndices(treeDeletions, stringDeletions, childIndex);
     }
 
     public Backtrack(Double score) {
         this.score = score;
-        this.previourTableIndices = null;
+        this.previousTableIndices = null;
+    }
+
+    public static Backtrack max(Backtrack backtrack1, Backtrack backtrack2) {
+        return backtrack1.compareTo(backtrack2) > 0 ? backtrack1 : backtrack2;
     }
 
     @Override
@@ -24,36 +28,38 @@ public class Backtrack implements Comparable<Backtrack>{
     }
 
     public boolean isFirst() {
-        return previourTableIndices == null;
+        return previousTableIndices == null;
     }
 
     public int getPreviousStringDeletions() {
-        return this.previourTableIndices.stringDeletions;
+        return this.previousTableIndices.stringDeletions;
     }
 
     public int getPreviousTreeDeletions() {
-        return this.previourTableIndices.treeDeletions;
+        return this.previousTableIndices.treeDeletions;
     }
 
-    public int getPreviousChildIndex() { return this.previourTableIndices.childIndex; }
+    public int getPreviousChildIndex() { return this.previousTableIndices.thirdDimension; }
+
+    public int getSubsetIndex() { return this.previousTableIndices.thirdDimension; }
 
     @Override
     public String toString() {
         return "Backtrack{" +
                 "score=" + score +
-                ", previourTableIndices=" + previourTableIndices +
+                ", previousTableIndices=" + previousTableIndices +
                 '}';
     }
 
     private class TableIndices {
         int treeDeletions;
         int stringDeletions;
-        int childIndex;
+        int thirdDimension;
 
-        TableIndices(int treeDeletions, int stringDeletions, int childIndex) {
+        TableIndices(int treeDeletions, int stringDeletions, int thirdDimension) {
             this.treeDeletions = treeDeletions;
             this.stringDeletions = stringDeletions;
-            this.childIndex = childIndex;
+            this.thirdDimension = thirdDimension;
         }
 
         @Override
@@ -61,7 +67,7 @@ public class Backtrack implements Comparable<Backtrack>{
             return "TableIndices{" +
                     "treeDeletions=" + treeDeletions +
                     ", stringDeletions=" + stringDeletions +
-                    ", childIndex=" + childIndex +
+                    ", thirdDimension=" + thirdDimension +
                     '}';
         }
     }

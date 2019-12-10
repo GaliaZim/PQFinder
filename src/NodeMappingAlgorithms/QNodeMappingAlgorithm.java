@@ -209,13 +209,6 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
         } while(!backtrack.isFirst());
     }
 
-    private void initMappingsByEndPoints() {
-        int noDeletionEndPoint = stringAbsoluteIndex - 1 + node.getSpan();
-        IntStream.rangeClosed(noDeletionEndPoint - treeDeletionLimit,
-                noDeletionEndPoint + stringDeletionLimit)
-                .forEach(endPoint -> resultMappingsByEndPoints.put(endPoint, new LinkedList<>()));
-    }
-
     private int calcStartIndex(int endIndex, int kS, int kT, Node node) {
         return 1 + endIndex - (node.getSpan() + kS - kT);
     }

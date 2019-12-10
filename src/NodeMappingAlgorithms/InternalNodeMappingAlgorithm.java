@@ -5,7 +5,9 @@ import structures.Node;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
     //childIndex -> endPoint -> list of mappings
@@ -33,5 +35,12 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
 
     public int getStringEndIndex() {
         return stringEndIndex;
+    }
+
+    void initMappingsByEndPoints() {
+        int noDeletionEndPoint = stringAbsoluteIndex - 1 + node.getSpan();
+        IntStream.rangeClosed(noDeletionEndPoint - treeDeletionLimit,
+                noDeletionEndPoint + stringDeletionLimit)
+                .forEach(endPoint -> resultMappingsByEndPoints.put(endPoint, new LinkedList<>()));
     }
 }
