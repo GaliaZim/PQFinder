@@ -6,34 +6,30 @@ import structures.Mapping;
 import structures.Node;
 
 import java.util.*;
+import java.util.function.BiFunction;
 
 public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
     private Backtrack[][][] dPTable;
-    private int numberOfChildren;
     private int numberOfSubsets;
     private int[] subsetSpans;
 
     public PNodeMappingAlgorithm(String string, Node node, int treeDeletionLimit,
                                  int stringDeletionLimit,
-                                 ArrayList<HashMap<Integer, List<Mapping>>> mappingsByChildren,
-                                 int stringStartIndex, int stringEndIndex) {
-        super(string, node, treeDeletionLimit, stringDeletionLimit,
-                mappingsByChildren, stringStartIndex, stringEndIndex);
-        this.numberOfChildren = node.getNumberOfChildren();
+                                 BiFunction<String, Character, Double> substitutionFunction) {
+        super(string, node, treeDeletionLimit, stringDeletionLimit, substitutionFunction);
         this.numberOfSubsets = (int) Math.pow(2,numberOfChildren);
-        this.dPTable = new Backtrack[treeDeletionLimit+1][stringDeletionLimit+1][numberOfSubsets];
         this.subsetSpans = new int[numberOfSubsets];
     }
 
     @Override
-    public void runAlgorithm() {
-        init();
+    protected void map(int stringStartIndex, int stringEndIndex) {
+        initDPTable();
         Backtrack max;
         int endPoint;
         for (int setIndex = 0; setIndex < numberOfSubsets; setIndex++) {
             for (int kS = 0; kS <= stringDeletionLimit; kS++) {
                 for (int kT = 0; kT <= treeDeletionLimit; kT++) {
-                    endPoint = getEndPoint(kT, kS, setIndex);
+                    endPoint = getEndPoint(stringStartIndex, kT, kS, setIndex);
                     if(endPoint <= stringEndIndex) {
                         max = this.dPTable[kT][kS][setIndex];
                         if(max == null)
@@ -49,37 +45,39 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
             }
         }
         printDPTable();
-        buildResult();
+        buildResult(stringStartIndex, stringEndIndex);
     }
 
-    private void buildResult() {
+    private void buildResult(int stringStartIndex, int stringEndIndex) {
         Mapping nodeMapping;
         Backtrack backtrack;
-        int endPoint;
-        initMappingsByEndPoints();
+        int endPoint, length;
+        mappingsStartingAtSameIndexByEndPoints =
+                createMappingsByEndPoints(stringStartIndex, stringEndIndex);
         int allChildrenSetIndex = numberOfSubsets - 1;
         for (int kT = 0; kT <= treeDeletionLimit; kT++) {
             for (int kS = 0; kS <= stringDeletionLimit; kS++) {
                 backtrack = dPTable[kT][kS][allChildrenSetIndex];
-                endPoint = getEndPoint(kT, kS, allChildrenSetIndex);
-                if (endPoint > 0 & endPoint <= this.stringEndIndex) {
-                    nodeMapping = new Mapping(node, this.stringStartIndex, kS, kT, backtrack.getScore());
+                endPoint = getEndPoint(stringStartIndex, kT, kS, allChildrenSetIndex);
+                length = getLength(kT, kS, allChildrenSetIndex);
+                if (length > 0 & endPoint <= stringEndIndex) {
+                    nodeMapping = new Mapping(node, stringStartIndex, kS, kT, backtrack.getScore());
                     if (!nodeMapping.getScore().equals(Double.NEGATIVE_INFINITY))
-                        addChildrenMappings(nodeMapping, kT, kS);
-                    resultMappingsByEndPoints.get(nodeMapping.getEndIndex()).add(nodeMapping);
+                        addChildrenMappings(nodeMapping, kT, kS, stringStartIndex);
+                    mappingsStartingAtSameIndexByEndPoints.get(nodeMapping.getEndIndex()).add(nodeMapping);
                 }
             }
         }
     }
 
-    private void addChildrenMappings(Mapping nodeMapping, int kT, int kS) {
+    private void addChildrenMappings(Mapping nodeMapping, int kT, int kS, int stringStartIndex) {
         Backtrack backtrack;
         int endPoint;
         int prevKT, prevKS, prevSetIndex;
         int setIndex = numberOfSubsets - 1;
         backtrack = dPTable[kT][kS][setIndex];
         do {
-            endPoint = getEndPoint(kT, kS, setIndex);
+            endPoint = getEndPoint(stringStartIndex, kT, kS, setIndex);
             prevKT = backtrack.getPreviousTreeDeletions();
             prevKS = backtrack.getPreviousStringDeletions();
             prevSetIndex = backtrack.getPreviousChildIndex();
@@ -113,9 +111,7 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
         Set<Integer> childrenSet = ChildrenSubsetEncoding.indexToChildrenSet(setIndex);
         Backtrack max = new Backtrack(Double.NEGATIVE_INFINITY);
         int setWithoutChildIndex;
-        if(length > 0
-//                & getEndPoint <= this.stringEndIndex
-        ) {
+        if(length > 0) {
             for (Integer childIndex : childrenSet) {
                 setWithoutChildIndex = ChildrenSubsetEncoding.getSetIndexWithoutChild(setIndex, childIndex);
                 max = Backtrack.max(max,
@@ -156,8 +152,8 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
         return max;
     }
 
-    private void init() {
-        calculateSubsetSpans();
+    private void initDPTable() {
+        this.dPTable = new Backtrack[treeDeletionLimit+1][stringDeletionLimit+1][numberOfSubsets];
         //init DPTable entries of empty subset
         int emptySetIndex = ChildrenSubsetEncoding.childrenSubsetToIndex(Collections.emptySet());
         for (int kS = 0; kS <= stringDeletionLimit; kS++) {
@@ -179,18 +175,17 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
                 }
             }
         }
-        printDPTable();
     }
 
     private int getLength(int kT, int kS, int setIndex) {
         return this.subsetSpans[setIndex] + kS - kT;
     }
 
-    private int getEndPoint(int kT, int kS, int setIndex) {
-        return this.stringStartIndex - 1 + getLength(kT, kS, setIndex);
+    private int getEndPoint(int stringStartIndex, int kT, int kS, int setIndex) {
+        return stringStartIndex - 1 + getLength(kT, kS, setIndex);
     }
 
-    private void calculateSubsetSpans() {
+    protected void calculateSpans() {
         for (int subsetIndex = 0; subsetIndex < numberOfSubsets; subsetIndex++) {
             Set<Integer> childrenSet = ChildrenSubsetEncoding.indexToChildrenSet(subsetIndex);
             for (Integer childIndex : childrenSet)

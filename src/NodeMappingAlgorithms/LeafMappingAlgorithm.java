@@ -8,11 +8,9 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 public class LeafMappingAlgorithm extends NodeMappingAlgorithm {
-    private BiFunction<String,Character,Double> substitutionFunction;
 
     public LeafMappingAlgorithm(String string, Node node, int treeDeletionLimit, int stringDeletionLimit, BiFunction<String,Character,Double> substitutionFunction) {
-        super(string, node, treeDeletionLimit, stringDeletionLimit);
-        this.substitutionFunction = substitutionFunction;
+        super(string, node, treeDeletionLimit, stringDeletionLimit, substitutionFunction);
     }
 
     @Override
