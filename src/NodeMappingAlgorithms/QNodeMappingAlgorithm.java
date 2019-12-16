@@ -3,7 +3,6 @@ package NodeMappingAlgorithms;
 import structures.*;
 
 import java.util.*;
-import java.util.stream.IntStream;
 
 public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
     private Backtrack[][][] dPTableLTR;
@@ -13,11 +12,11 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
     private int numberOfChildren;
 
 
-    public QNodeMappingAlgorithm(String string, int stringAbsoluteIndex, Node node, int treeDeletionLimit,
+    public QNodeMappingAlgorithm(String string, Node node, int treeDeletionLimit,
                                  int stringDeletionLimit,
                                  ArrayList<HashMap<Integer, List<Mapping>>> mappingsByChildren,
                                  int stringStartIndex, int stringEndIndex) {
-        super(string, stringAbsoluteIndex, node, treeDeletionLimit, stringDeletionLimit,
+        super(string, node, treeDeletionLimit, stringDeletionLimit,
                 mappingsByChildren, stringStartIndex, stringEndIndex);
         numberOfChildren = node.getNumberOfChildren();
         spansLTR = new int[numberOfChildren+1];
@@ -27,42 +26,48 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
     }
 
     private void oneDirectionMapping(Backtrack[][][] dPTable, int[] spans, List<Node> children) {
-        int endPoint;
+        int endPoint, length;
         Backtrack max;
         for (int childIndex = 1; childIndex <= numberOfChildren; childIndex++) {
             for (int kS = 0; kS <= stringDeletionLimit; kS++) {
                 for (int kT = 0; kT <= treeDeletionLimit; kT++) {
-                    endPoint = spans[childIndex] - kT + kS;
-                    if(endPoint < 0 | endPoint > this.getStringEndIndex()) {
-                        dPTable[childIndex][kT][kS] = new Backtrack(Double.NEGATIVE_INFINITY);
-                        continue;
-                    }
-                    max = new Backtrack(Double.NEGATIVE_INFINITY);
-                    if(endPoint == 0) {
-                        if(kS != 0) {
-                            dPTable[childIndex][kT][kS] = new Backtrack(Double.NEGATIVE_INFINITY);
-                            continue;
+                    length = getLength(spans[childIndex], kT, kS);
+                    endPoint = getEndPoint(spans[childIndex], kT, kS);
+                    //If there are too many deletions considering the substring's length, leave the entry null
+                    if(endPoint <= this.stringEndIndex & endPoint >= 0) {
+                        max = new Backtrack(Double.NEGATIVE_INFINITY);
+                        if(!(length == 0 & kS != 0)) { //if length==0 & ks!=0 --> illegal entry gets -infinity
+                            //choose from child's mappings
+                            if (length > 0) {
+                                max = findMaxMappingByEndPoint(dPTable, childIndex, kT, kS,
+                                        getChildMappingsAtEndPoint(children.get(childIndex - 1), endPoint));
+                            }
+                            //deletion from the string
+                            if (kS > 0 && dPTable[childIndex][kT][kS - 1].compareTo(max) > 0) {
+                                max = new Backtrack(dPTable[childIndex][kT][kS - 1].getScore(),
+                                        kT, kS - 1, childIndex);
+                            }
+                            //deletion from the tree
+                            int childNodeSpan = spans[childIndex] - spans[childIndex - 1];
+                            if (kT >= childNodeSpan
+                                    && dPTable[childIndex - 1][kT - childNodeSpan][kS].compareTo(max) > 0) {
+                                max = new Backtrack(dPTable[childIndex - 1][kT - childNodeSpan][kS].getScore(),
+                                        kT - childNodeSpan, kS, childIndex - 1);
+                            }
                         }
-                    } else {
-                        max = findMaxMappingByEndPoint(dPTable, childIndex, kT, kS,
-                                getChildMappingsAtEndPoint(children.get(childIndex - 1), endPoint));
-                        //deletion from the string
-                        if (kS > 0 && dPTable[childIndex][kT][kS - 1].compareTo(max) > 0) {
-                            max = new Backtrack(dPTable[childIndex][kT][kS - 1].getScore(),
-                                    kT, kS - 1, childIndex);
-                        }
+                        dPTable[childIndex][kT][kS] = max;
                     }
-                    //deletion from the tree
-                    int childNodeSpan = spans[childIndex] - spans[childIndex - 1];
-                    if(kT >= childNodeSpan
-                            && dPTable[childIndex-1][kT - childNodeSpan][kS].compareTo(max) > 0) {
-                        max = new Backtrack(dPTable[childIndex-1][kT - childNodeSpan][kS].getScore(),
-                                kT - childNodeSpan, kS, childIndex-1);
-                    }
-                    dPTable[childIndex][kT][kS] = max;
                 }
             }
         }
+    }
+
+    private int getEndPoint(int span, int kT, int kS) {
+        return this.stringStartIndex - 1 + getLength(span, kT, kS);
+    }
+
+    private int getLength(int span, int kT, int kS) {
+        return span - kT + kS;
     }
 
     private List<Mapping> getChildMappingsAtEndPoint(Node child, int endPoint) {
@@ -94,7 +99,7 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
         List<Node> childrenReversed = node.getChildrenReversed();
         init(dPTableRTL, spansRTL, childrenReversed);
         oneDirectionMapping(dPTableRTL,spansRTL, childrenReversed);
-        printDPTable(dPTableRTL);
+//        printDPTable(dPTableRTL);
 
         buildResult(childrenReversed);
     }
@@ -148,26 +153,30 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
         Backtrack backtrackLTR;
         Backtrack backtrackRTL;
         Backtrack backtrack;
+        int endPoint;
         initMappingsByEndPoints();
         for (int kT = 0; kT <= treeDeletionLimit; kT++) {
             for (int kS = 0; kS <= stringDeletionLimit; kS++) {
-                backtrackLTR = dPTableLTR[numberOfChildren][kT][kS];
-                backtrackRTL = dPTableRTL[numberOfChildren][kT][kS];
-                if(backtrackLTR.getScore().compareTo(backtrackRTL.getScore()) > 0) {
-                    dPTable = dPTableLTR;
-                    spans = spansLTR;
-                    backtrack = backtrackLTR;
-                    children = node.getChildren();
-                } else {
-                    dPTable = dPTableRTL;
-                    spans = spansRTL;
-                    backtrack = backtrackRTL;
-                    children = reversedChildren;
+                endPoint = getEndPoint(spansLTR[numberOfChildren], kT, kS);
+                if (endPoint > 0 & endPoint <= this.stringEndIndex) {
+                    backtrackLTR = dPTableLTR[numberOfChildren][kT][kS];
+                    backtrackRTL = dPTableRTL[numberOfChildren][kT][kS];
+                    if (backtrackLTR.getScore().compareTo(backtrackRTL.getScore()) > 0) {
+                        dPTable = dPTableLTR;
+                        spans = spansLTR;
+                        backtrack = backtrackLTR;
+                        children = node.getChildren();
+                    } else {
+                        dPTable = dPTableRTL;
+                        spans = spansRTL;
+                        backtrack = backtrackRTL;
+                        children = reversedChildren;
+                    }
+                    nodeMapping = new Mapping(node, stringStartIndex, kS, kT, backtrack.getScore());
+                    if (!nodeMapping.getScore().equals(Double.NEGATIVE_INFINITY))
+                        addChildrenMappings(dPTable, nodeMapping, children, kT, kS, spans);
+                    resultMappingsByEndPoints.get(nodeMapping.getEndIndex()).add(nodeMapping);
                 }
-                nodeMapping = new Mapping(node, stringAbsoluteIndex, kS, kT, backtrack.getScore());
-                if(!nodeMapping.getScore().equals(Double.NEGATIVE_INFINITY))
-                    addChildrenMappings(dPTable, nodeMapping, children, kT, kS, spans);
-                resultMappingsByEndPoints.get(nodeMapping.getEndIndex()).add(nodeMapping);
             }
         }
     }
@@ -175,17 +184,17 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
 
     private void addChildrenMappings(Backtrack[][][] dPTable, Mapping nodeMapping, List<Node> children, int kT, int kS, int[] spans) {
         Backtrack backtrack;
-        int endIndex;
+        int endPoint;
         int prevKT, prevKS, prevChildIndex;
         int childIndex = numberOfChildren;
         backtrack = dPTable[childIndex][kT][kS];
         do {
-            endIndex = stringAbsoluteIndex - 1 + spans[childIndex] - kT + kS;
+            endPoint = getEndPoint(spans[childIndex], kT, kS);
             prevKT = backtrack.getPreviousTreeDeletions();
             prevKS = backtrack.getPreviousStringDeletions();
             prevChildIndex = backtrack.getPreviousChildIndex();
             if(childIndex == prevChildIndex) {
-                nodeMapping.addDeletedStringIndex(endIndex);
+                nodeMapping.addDeletedStringIndex(endPoint);
             } else {
                 Node childNode = children.get(childIndex - 1);
                 int kTDiff = kT - prevKT;
@@ -195,7 +204,7 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
                 } else {
                     int kSDiff = kS - prevKS;
                     int realChildIndex = node.getChildren().indexOf(childNode) + 1; //TODO: do it better
-                    Mapping childMapping = mappingsByChildren.get(realChildIndex).get(endIndex).stream()
+                    Mapping childMapping = mappingsByChildren.get(realChildIndex).get(endPoint).stream()
                             .filter(m ->
                                     (m.getTreeDeletions() == kTDiff) & (m.getStringDeletions() == kSDiff))
                             .findFirst().orElse(null);

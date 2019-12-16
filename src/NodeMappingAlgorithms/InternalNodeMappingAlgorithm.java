@@ -12,14 +12,15 @@ import java.util.stream.IntStream;
 public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
     //childIndex -> endPoint -> list of mappings
     ArrayList<HashMap<Integer, List<Mapping>>> mappingsByChildren;
-    private int stringStartIndex;
-    private int stringEndIndex;
+    int stringStartIndex;
+    int stringEndIndex;
 
-    public InternalNodeMappingAlgorithm(String string, int stringAbsoluteIndex, Node node, int treeDeletionLimit,
+    //TODO: Deal with dT limit > span of node and dS limit > substring length
+    public InternalNodeMappingAlgorithm(String string, Node node, int treeDeletionLimit,
                                         int stringDeletionLimit,
                                         ArrayList<HashMap<Integer, List<Mapping>>> mappingsByChildren,
                                         int stringStartIndex, int stringEndIndex) {
-        super(string, stringAbsoluteIndex, node, treeDeletionLimit, stringDeletionLimit);
+        super(string, node, treeDeletionLimit, stringDeletionLimit);
         this.mappingsByChildren = mappingsByChildren;
         this.stringStartIndex = stringStartIndex;
         this.stringEndIndex = stringEndIndex;
@@ -38,9 +39,9 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
     }
 
     void initMappingsByEndPoints() {
-        int noDeletionEndPoint = stringAbsoluteIndex - 1 + node.getSpan();
-        IntStream.rangeClosed(noDeletionEndPoint - treeDeletionLimit,
-                noDeletionEndPoint + stringDeletionLimit)
+        int noDeletionEndPoint = stringStartIndex - 1 + node.getSpan();
+        IntStream.rangeClosed(Math.max(noDeletionEndPoint - treeDeletionLimit, 1),
+                Math.min(noDeletionEndPoint + stringDeletionLimit, this.stringEndIndex))
                 .forEach(endPoint -> resultMappingsByEndPoints.put(endPoint, new LinkedList<>()));
     }
 }

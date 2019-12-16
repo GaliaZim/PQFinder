@@ -11,7 +11,7 @@ public class LeafMappingAlgorithm extends NodeMappingAlgorithm {
     private BiFunction<String,Character,Double> substitutionFunction;
 
     public LeafMappingAlgorithm(String string, Node node, int treeDeletionLimit, int stringDeletionLimit, BiFunction<String,Character,Double> substitutionFunction) {
-        super(string, 1, node, treeDeletionLimit, stringDeletionLimit);
+        super(string, node, treeDeletionLimit, stringDeletionLimit);
         this.substitutionFunction = substitutionFunction;
     }
 

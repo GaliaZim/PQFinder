@@ -9,7 +9,6 @@ import java.util.List;
 public abstract class NodeMappingAlgorithm {
     String string;
     Node node;
-    int stringAbsoluteIndex;
     int treeDeletionLimit;
     int stringDeletionLimit;
     //endPoint --> list of mappings
@@ -17,9 +16,8 @@ public abstract class NodeMappingAlgorithm {
     //TODO: score + backtracking
 
 
-    public NodeMappingAlgorithm(String string, int stringAbsoluteIndex, Node node, int treeDeletionLimit, int stringDeletionLimit) {
+    public NodeMappingAlgorithm(String string, Node node, int treeDeletionLimit, int stringDeletionLimit) {
         this.string = string;
-        this.stringAbsoluteIndex = stringAbsoluteIndex;
         this.node = node;
         this.treeDeletionLimit = treeDeletionLimit;
         this.stringDeletionLimit = stringDeletionLimit;
