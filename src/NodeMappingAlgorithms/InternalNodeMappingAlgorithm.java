@@ -23,11 +23,9 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
         this.mappingsByChildren = new ArrayList<>(numberOfChildren);
     }
 
-    HashMap<Integer, List<Mapping>> createMappingsByEndPoints(int stringStartIndex, int stringEndIndex) {
+    HashMap<Integer, List<Mapping>> createMappingsByEndPoints(int smallestEndPoint, int largestEndPoint) {
         HashMap<Integer, List<Mapping>> mappingsByEndPoint = new HashMap<>();
-        int noDeletionEndPoint = stringStartIndex - 1 + node.getSpan();
-        IntStream.rangeClosed(Math.max(noDeletionEndPoint - treeDeletionLimit, 1),
-                Math.min(noDeletionEndPoint + stringDeletionLimit, stringEndIndex))
+        IntStream.rangeClosed(smallestEndPoint, largestEndPoint)
                 .forEach(endPoint -> mappingsByEndPoint.put(endPoint, new LinkedList<>()));
         return mappingsByEndPoint;
     }
@@ -35,11 +33,16 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
     public void runAlgorithm() {
         callAndCollectChildrenMappings();
         calculateSpans();
-        int length = string.length();
-        resultMappingsByEndPoints = createMappingsByEndPoints(1, length);
-        for (int startIndex = 1; startIndex < length; startIndex++) {
+        int maxLength = node.getSpan() + stringDeletionLimit;
+        int minLength = node.getSpan() - treeDeletionLimit;
+        int stringLastIndex = string.length();
+        int smallestEndPoint = Math.max(minLength, 1);
+        //TODO: make sure the restriction doesn't damage the next tiers in the tree
+        resultMappingsByEndPoints = createMappingsByEndPoints(smallestEndPoint, stringLastIndex);
+        int largestStartIndex = Math.max(stringLastIndex - minLength + 1, 1);
+        for (int startIndex = 1; startIndex <= largestStartIndex; startIndex++) {
             filterChildrenMappings(startIndex);
-            map(startIndex, length); //TODO: use more accurate endIndex
+            map(startIndex, Math.min(startIndex - 1 + maxLength, stringLastIndex));
             mergeMappings();
         }
     }
