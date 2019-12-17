@@ -45,12 +45,12 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
     }
 
     private void mergeMappings() {
-        //TODO: Think of reversing - outer loop on mappingsStartingAtSameIndexByEndPoints, might be smaller and no need for null check
-        List<Mapping> mappingsToAdd;
-        for (Map.Entry<Integer, List<Mapping>> entry : resultMappingsByEndPoints.entrySet()) {
-            mappingsToAdd = mappingsStartingAtSameIndexByEndPoints.get(entry.getKey());
-            if(mappingsToAdd != null)
-                entry.getValue().addAll(mappingsToAdd);
+        List<Mapping> mappingsToAddTo;
+        for (Map.Entry<Integer, List<Mapping>> entry : mappingsStartingAtSameIndexByEndPoints.entrySet()) {
+            mappingsToAddTo = resultMappingsByEndPoints.get(entry.getKey());
+            if(mappingsToAddTo == null)
+                throw new NoSuchElementException("Missing an end point in the result mappings of node: " + node);
+            mappingsToAddTo.addAll(entry.getValue());
         }
     }
 
