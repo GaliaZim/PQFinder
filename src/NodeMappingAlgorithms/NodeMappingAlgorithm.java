@@ -15,8 +15,6 @@ public abstract class NodeMappingAlgorithm {
     BiFunction<String,Character,Double> substitutionFunction;
     //endPoint --> list of mappings
     HashMap<Integer, List<Mapping>> resultMappingsByEndPoints;
-    //TODO: score + backtracking
-
 
     public NodeMappingAlgorithm(String string, Node node, int treeDeletionLimit, int stringDeletionLimit,
                                 BiFunction<String, Character, Double> substitutionFunction) {

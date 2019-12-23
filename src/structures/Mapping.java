@@ -95,4 +95,25 @@ public class Mapping implements Comparable<Mapping>{
                 node.getCog(), node.getIndex(), startIndex, getEndIndex(),
                 treeDeletions, stringDeletions, score);
     }
+
+    public HashMap<Integer, Node> getLeafMappings() {
+        HashMap<Integer, Node> mappingsToReturn = new HashMap<>();
+        if(node.getType() == NodeType.LEAF)
+            mappingsToReturn.put(startIndex, node);
+        else
+            childrenMappings.forEach(childMapping ->
+                    mappingsToReturn.putAll(childMapping.getLeafMappings()));
+        return mappingsToReturn;
+    }
+
+    @Override
+    public int compareTo(Mapping other) {
+        int diff = this.getScore().compareTo(other.getScore());
+        if(diff == 0) {
+            //if the score is equal, the one with less deletions is better
+            diff = (other.getStringDeletions() + other.getTreeDeletions())
+                    - (this.getStringDeletions() + this.getTreeDeletions());
+        }
+        return diff;
+    }
 }

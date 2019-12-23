@@ -84,7 +84,20 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
         }
     }
 
-    protected abstract void map(int stringStartIndex, int stringEndIndex);
+    /** returns the one-to-one mapping between the leaves and string according to the best
+     * mapping of the tree rooted in this.node */
+    public HashMap<Integer,Node> getBestStringIndexToLeafMapping() {
+        HashMap<Integer, Node> mappingToReturn = null;
+        Optional<Mapping> optionalMaxMapping = resultMappingsByEndPoints.values().stream()
+                .flatMap(Collection::stream).max(Mapping::compareTo);
+        if(optionalMaxMapping.isPresent()) {
+            Mapping maxMapping = optionalMaxMapping.get();
+            System.out.println(maxMapping);
+            mappingToReturn = maxMapping.getLeafMappings();
+        }
+        return mappingToReturn;
+    }
+
     protected abstract void calculateSpans();
     protected abstract void map(int stringStartIndex, int stringEndIndex, int minLength);
 }

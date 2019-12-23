@@ -80,4 +80,29 @@ public class Node {
         Collections.reverse(reversedChildren);
         return reversedChildren;
     }
+
+    public List<Node> getLeafs() {
+        //TODO: calculate as a part of preprocessing
+        if(leafs == null) {
+            if(type == NodeType.LEAF)
+                leafs = Collections.singletonList(this);
+            else
+                leafs = this.children.stream().flatMap(child -> child.getLeafs().stream())
+                        .collect(Collectors.toList());
+        }
+        return leafs;
+    }
+
+    public int getHeight() {
+        //TODO: calculate as a part of preprocessing
+        if(height == null) {
+            if (type == NodeType.LEAF)
+                height = 0;
+            else
+                height = 1 + getChildren().stream().map(Node::getHeight)
+                        .max(Integer::compareTo).orElseThrow(() ->
+                                new IllegalArgumentException("An internal node has no children"));
+        }
+        return height;
+    }
 }
