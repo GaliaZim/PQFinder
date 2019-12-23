@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 public class Node {
     private int index;
-    private int span;
+    private Integer span;
     private List<Node> children;
     private int numberOfChildren;
     private NodeType type;
@@ -14,28 +14,32 @@ public class Node {
     private List<Node> leafs;
     private Integer height;
 
-    public Node(int index, int span, List<Node> children, NodeType type, String cog) {
+    public Node(int index, Integer span, List<Node> children, NodeType type, String cog, Integer height) {
         this.index = index;
         this.span = span;
         this.children = children;
         this.numberOfChildren = children.size();
         this.type = type;
         this.cog = cog;
+        this.height = height;
         this.leafs = null;
-        this.height = null;
     }
 
-    public Node(NodeType type,  String cog, List<Node> children) {
-        this(-1, -1, children, type, cog);
+    public Node(int index, Integer span, List<Node> children, NodeType type, String cog) {
+        this(index, span, children, type, cog, null);
     }
 
-    public Node(int index, int span, NodeType type) {this(index, span, new LinkedList<>(), type);}
+    public Node(int index, NodeType type,  String cog, List<Node> children) {
+        this(index, null, children, type, cog);
+    }
 
-    public Node(int index, int span, NodeType type, String cog) {
+    public Node(int index, Integer span, NodeType type) {this(index, span, new LinkedList<>(), type);}
+
+    public Node(int index, Integer span, NodeType type, String cog) {
         this(index, span, new LinkedList<>(), type, cog);
     }
 
-    public Node(int index, int span, List<Node> children, NodeType type) {
+    public Node(int index, Integer span, List<Node> children, NodeType type) {
         this(index, span, children, type, null);
     }
 
@@ -46,6 +50,8 @@ public class Node {
     }
 
     public int getSpan() {
+        if(span == null)
+            setSpan();
         return span;
     }
 
@@ -82,27 +88,43 @@ public class Node {
     }
 
     public List<Node> getLeafs() {
-        //TODO: calculate as a part of preprocessing
         if(leafs == null) {
-            if(type == NodeType.LEAF)
-                leafs = Collections.singletonList(this);
-            else
-                leafs = this.children.stream().flatMap(child -> child.getLeafs().stream())
-                        .collect(Collectors.toList());
+            setLeafs();
         }
         return leafs;
     }
 
+    private void setLeafs() {
+        if(type == NodeType.LEAF)
+            leafs = Collections.singletonList(this);
+        else
+            leafs = this.children.stream().flatMap(child -> child.getLeafs().stream())
+                    .collect(Collectors.toList());
+    }
+
     public int getHeight() {
-        //TODO: calculate as a part of preprocessing
         if(height == null) {
-            if (type == NodeType.LEAF)
-                height = 0;
-            else
-                height = 1 + getChildren().stream().map(Node::getHeight)
-                        .max(Integer::compareTo).orElseThrow(() ->
-                                new IllegalArgumentException("An internal node has no children"));
+            setHeight();
         }
         return height;
+    }
+
+    private void setHeight() {
+        if(type == NodeType.LEAF)
+            height = 0;
+        else
+            height = 1 + getChildren().stream().map(Node::getHeight)
+                        .max(Integer::compareTo).orElseThrow(() ->
+                                new IllegalArgumentException("An internal node has no children"));
+    }
+
+    private void setSpan() {
+        span = getLeafs().size();
+    }
+
+    public void setUndefinedFields() {
+        setLeafs();
+        setHeight();
+        setSpan();
     }
 }
