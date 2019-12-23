@@ -98,7 +98,7 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
     }
 
     @Override
-    protected void map(int stringStartIndex, int stringEndIndex) {
+    protected void map(int stringStartIndex, int stringEndIndex, int minLength) {
         dPTableLTR = createEmptyDPTable();
         oneDirectionMapping(dPTableLTR, spansLTR, node.getChildren(), stringStartIndex, stringEndIndex);
 
@@ -107,7 +107,7 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
         oneDirectionMapping(dPTableRTL, spansRTL, childrenReversed, stringStartIndex, stringEndIndex);
 //        printDPTable(dPTableRTL);
 
-        buildResult(childrenReversed, stringStartIndex, stringEndIndex);
+        buildResult(childrenReversed, stringStartIndex, stringEndIndex, minLength);
     }
 
     private Backtrack[][][] createEmptyDPTable() {
@@ -151,7 +151,7 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
         return max;
     }
 
-    private void buildResult(List<Node> reversedChildren, int stringStartIndex, int stringEndIndex) {
+    private void buildResult(List<Node> reversedChildren, int stringStartIndex, int stringEndIndex, int minLength) {
         Backtrack[][][] dPTable;
         List<Node> children;
         int[] spans;
@@ -161,7 +161,7 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
         Backtrack backtrack;
         int endPoint, length;
         mappingsStartingAtSameIndexByEndPoints =
-                createMappingsByEndPoints(stringStartIndex, stringEndIndex);
+                createMappingsByEndPoints(stringStartIndex - 1 + minLength, stringEndIndex);
         for (int kT = 0; kT <= treeDeletionLimit; kT++) {
             for (int kS = 0; kS <= stringDeletionLimit; kS++) {
                 endPoint = getEndPoint(stringStartIndex, spansLTR[numberOfChildren], kT, kS);

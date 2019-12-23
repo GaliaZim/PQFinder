@@ -6,8 +6,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.function.BiFunction;
 
-class MappingAlgorithmBuilder {
-    static NodeMappingAlgorithm build(String string, Node node, int treeDeletionLimit,
+public class MappingAlgorithmBuilder {
+    public static NodeMappingAlgorithm build(String string, Node node, int treeDeletionLimit,
                                       int stringDeletionLimit,
                                       BiFunction<String, Character, Double>
                                               substitutionFunction) {

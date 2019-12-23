@@ -1,9 +1,10 @@
 package structures;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Mapping {
+public class Mapping implements Comparable<Mapping>{
     private Node node;
     private int startIndex;
     private int endIndex;
@@ -11,8 +12,8 @@ public class Mapping {
     private int treeDeletions;
     private Double score;
     private List<Mapping> childrenMappings;
-    private List<Node> deletedChildren;
-    private List<Integer> deletedStringIndeices;
+    private List<Node> deletedDescendant;
+    private List<Integer> deletedStringIndices;
 
     public Mapping(Node node, int startIndex, int endIndex, int stringDeletions, int treeDeletions, Double score) {
         this.node = node;
@@ -22,8 +23,8 @@ public class Mapping {
         this.treeDeletions = treeDeletions;
         this.score = score;
         this.childrenMappings = new LinkedList<>();
-        this.deletedChildren = new LinkedList<>();
-        this.deletedStringIndeices = new LinkedList<>();
+        this.deletedDescendant = new LinkedList<>();
+        this.deletedStringIndices = new LinkedList<>();
     }
 
     public Mapping(Node node, int startIndex, int stringDeletions, int treeDeletions, Double score) {
@@ -41,18 +42,20 @@ public class Mapping {
         return endIndex;
     }
 
-    public void addChildMapping(Mapping mapping) {
-        if(mapping == null)
+    public void addChildMapping(Mapping childMapping) {
+        if(childMapping == null)
             throw new IllegalArgumentException("Cannot add NULL as a child mapping of " + node.toString());
-        this.childrenMappings.add(mapping);
+        this.childrenMappings.add(childMapping);
+        this.deletedStringIndices.addAll(childMapping.deletedStringIndices);
+        this.deletedDescendant.addAll(childMapping.deletedDescendant);
     }
 
     public void addDeletedChild(Node child) {
-        this.deletedChildren.add(child);
+        this.deletedDescendant.addAll(child.getLeafs());
     }
 
     public void addDeletedStringIndex(int index) {
-        this.deletedStringIndeices.add(index);
+        this.deletedStringIndices.add(index);
     }
 
     public Node getNode() {
@@ -79,12 +82,12 @@ public class Mapping {
         return childrenMappings;
     }
 
-    public List<Node> getDeletedChildren() {
-        return deletedChildren;
+    public List<Node> getDeletedDescendant() {
+        return deletedDescendant;
     }
 
-    public List<Integer> getDeletedStringIndeices() {
-        return deletedStringIndeices;
+    public List<Integer> getDeletedStringIndices() {
+        return deletedStringIndices;
     }
 
     public String toString() {

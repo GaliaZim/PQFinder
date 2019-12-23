@@ -22,7 +22,7 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
     }
 
     @Override
-    protected void map(int stringStartIndex, int stringEndIndex) {
+    protected void map(int stringStartIndex, int stringEndIndex, int minLength) {
         initDPTable();
         Backtrack max;
         int endPoint;
@@ -45,15 +45,15 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
             }
         }
         printDPTable();
-        buildResult(stringStartIndex, stringEndIndex);
+        buildResult(stringStartIndex, stringEndIndex, minLength);
     }
 
-    private void buildResult(int stringStartIndex, int stringEndIndex) {
+    private void buildResult(int stringStartIndex, int stringEndIndex, int minLength) {
         Mapping nodeMapping;
         Backtrack backtrack;
         int endPoint, length;
         mappingsStartingAtSameIndexByEndPoints =
-                createMappingsByEndPoints(stringStartIndex, stringEndIndex);
+                createMappingsByEndPoints(stringStartIndex - 1 + minLength, stringEndIndex);
         int allChildrenSetIndex = numberOfSubsets - 1;
         for (int kT = 0; kT <= treeDeletionLimit; kT++) {
             for (int kS = 0; kS <= stringDeletionLimit; kS++) {

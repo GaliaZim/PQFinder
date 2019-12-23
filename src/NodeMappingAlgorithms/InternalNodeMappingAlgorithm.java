@@ -34,7 +34,7 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
         callAndCollectChildrenMappings();
         calculateSpans();
         int maxLength = node.getSpan() + stringDeletionLimit;
-        int minLength = node.getSpan() - treeDeletionLimit;
+        int minLength = Math.max(node.getSpan() - treeDeletionLimit, 1);
         int stringLastIndex = string.length();
         int smallestEndPoint = Math.max(minLength, 1);
         //TODO: make sure the restriction doesn't damage the next tiers in the tree
@@ -42,7 +42,7 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
         int largestStartIndex = Math.max(stringLastIndex - minLength + 1, 1);
         for (int startIndex = 1; startIndex <= largestStartIndex; startIndex++) {
             filterChildrenMappings(startIndex);
-            map(startIndex, Math.min(startIndex - 1 + maxLength, stringLastIndex));
+            map(startIndex, Math.min(startIndex - 1 + maxLength, stringLastIndex), minLength);
             mergeMappings();
         }
     }
@@ -51,7 +51,7 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
         List<Mapping> mappingsToAddTo;
         for (Map.Entry<Integer, List<Mapping>> entry : mappingsStartingAtSameIndexByEndPoints.entrySet()) {
             mappingsToAddTo = resultMappingsByEndPoints.get(entry.getKey());
-            if(mappingsToAddTo == null)
+            if(mappingsToAddTo == null) //If this happens the algorithm is wrong
                 throw new NoSuchElementException("Missing an end point in the result mappings of node: " + node);
             mappingsToAddTo.addAll(entry.getValue());
         }
@@ -73,7 +73,6 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
     }
 
     private void filterChildrenMappings(int fromIndex) {
-        //TODO: make sure this doesn't ruin the backtracking through the tree tiers
         //mappings: childIndex -> endpoint -> list of mappings
         for (HashMap<Integer,List<Mapping>> childMappingsByEndPoint : this.mappingsByChildren) {
             if(childMappingsByEndPoint != null) {
@@ -87,4 +86,5 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
 
     protected abstract void map(int stringStartIndex, int stringEndIndex);
     protected abstract void calculateSpans();
+    protected abstract void map(int stringStartIndex, int stringEndIndex, int minLength);
 }

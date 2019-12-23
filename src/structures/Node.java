@@ -1,8 +1,7 @@
 package structures;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class Node {
@@ -12,6 +11,8 @@ public class Node {
     private int numberOfChildren;
     private NodeType type;
     private String cog;
+    private List<Node> leafs;
+    private Integer height;
 
     public Node(int index, int span, List<Node> children, NodeType type, String cog) {
         this.index = index;
@@ -20,6 +21,12 @@ public class Node {
         this.numberOfChildren = children.size();
         this.type = type;
         this.cog = cog;
+        this.leafs = null;
+        this.height = null;
+    }
+
+    public Node(NodeType type,  String cog, List<Node> children) {
+        this(-1, -1, children, type, cog);
     }
 
     public Node(int index, int span, NodeType type) {this(index, span, new LinkedList<>(), type);}
