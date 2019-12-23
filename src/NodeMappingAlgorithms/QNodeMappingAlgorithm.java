@@ -49,20 +49,20 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
                                 max = findMaxMappingByEndPoint(dPTable, childIndex, kT, kS,
                                         getChildMappingsAtEndPoint(childNode, endPoint));
                             }
+                            Backtrack prev;
                             //deletion from the string
                             if (kS > 0) {
-                                if (dPTable[childIndex][kT][kS - 1] == null)
-                                    System.out.println("f");
-                                if (dPTable[childIndex][kT][kS - 1].compareTo(max) > 0) {
-                                    max = new Backtrack(dPTable[childIndex][kT][kS - 1].getScore(),
-                                            kT, kS - 1, childIndex);
-                                }
+                                prev = dPTable[childIndex][kT][kS - 1];
+                                if (prev.compareTo(max) > 0)
+                                    max = new Backtrack(prev.getScore(), kT,
+                                            kS - 1, childIndex);
                             }
                             //deletion from the tree
                             int childNodeSpan = childNode.getSpan();
-                            if (kT >= childNodeSpan
-                                    && dPTable[childIndex - 1][kT - childNodeSpan][kS].compareTo(max) > 0) {
-                                max = new Backtrack(dPTable[childIndex - 1][kT - childNodeSpan][kS].getScore(),
+                            if (kT >= childNodeSpan) {
+                                prev = dPTable[childIndex - 1][kT - childNodeSpan][kS];
+                                if (prev.compareTo(max) > 0)
+                                    max = new Backtrack(prev.getScore(),
                                         kT - childNodeSpan, kS, childIndex - 1);
                             }
                         }
