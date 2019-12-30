@@ -16,8 +16,8 @@ public abstract class NodeMappingAlgorithm {
     //endPoint --> list of mappings
     HashMap<Integer, List<Mapping>> resultMappingsByEndPoints;
 
-    public NodeMappingAlgorithm(String string, Node node, int treeDeletionLimit, int stringDeletionLimit,
-                                BiFunction<String, Character, Double> substitutionFunction) {
+    NodeMappingAlgorithm(String string, Node node, int treeDeletionLimit, int stringDeletionLimit,
+                         BiFunction<String, Character, Double> substitutionFunction) {
         this.string = string;
         this.node = node;
         this.treeDeletionLimit = treeDeletionLimit;
@@ -30,5 +30,26 @@ public abstract class NodeMappingAlgorithm {
 
     public HashMap<Integer, List<Mapping>> getResultMappingsByEndPoints() {
         return resultMappingsByEndPoints;
+    }
+
+    //For debugging
+    public void printResultMappings() {
+        resultMappingsByEndPoints.forEach((endPoint, ls) -> {
+            System.out.println(endPoint + ": ");
+            ls.forEach(mapping -> {
+                System.out.println(mapping);
+                if (!mapping.getScore().equals(Double.NEGATIVE_INFINITY)) {
+                    mapping.getChildrenMappings().forEach(System.out::println);
+                    System.out.println("Deleted:");
+                    System.out.println("Descendants:");
+                    mapping.getDeletedDescendant().forEach(child ->
+                            System.out.println(child.getCog()));
+                    System.out.println("String Indices:");
+                    mapping.getDeletedStringIndices().forEach(System.out::println);
+                }
+                System.out.println("----");
+            });
+            System.out.println("*********");
+        });
     }
 }

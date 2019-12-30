@@ -44,7 +44,6 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
                 }
             }
         }
-        printDPTable();
         buildResult(stringStartIndex, stringEndIndex, minLength);
     }
 
@@ -194,8 +193,8 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
         }
     }
 
+    //For debugging
     private void printDPTable() {
-        //For debugging
         for (int setIndex = numberOfSubsets-1; setIndex >= 0; setIndex--) {
             System.out.println(setIndex + ": ");
             for (int kT = 0; kT < treeDeletionLimit + 1; kT++) {
