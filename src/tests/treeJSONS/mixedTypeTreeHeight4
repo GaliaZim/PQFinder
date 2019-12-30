@@ -1,0 +1,23 @@
+{
+  "root": {
+    "type":"P",
+    "children":[
+      {"type":"P", "children":[
+        {"type":"LEAF", "cog":"cog1"},
+        {"type":"LEAF", "cog":"cog2"},
+        {"type":"LEAF", "cog":"cog3"}
+      ]},
+      {"type":"Q", "children":[
+        {"type":"LEAF", "cog":"cog1"},
+        {"type":"LEAF", "cog":"cog4"}
+      ]},
+      {"type":"P", "children":[
+        {"type":"LEAF", "cog":"cog5"},
+        {"type":"LEAF", "cog":"cog6"},
+        {"type":"Q", "children":[
+          {"type":"LEAF", "cog":"cog3"},
+          {"type":"LEAF", "cog":"cog4"}
+        ]}
+      ]}
+    ]}
+}

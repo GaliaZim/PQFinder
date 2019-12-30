@@ -1,0 +1,9 @@
+{
+  "root": {
+    "type":"P",
+    "children":[
+      {"type":"LEAF", "cog":"cog1", "children":[]},
+      {"type":"LEAF", "cog":"cog2", "children":[]},
+      {"type":"LEAF", "cog":"cog3", "children":[]}
+    ]}
+}
