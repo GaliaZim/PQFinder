@@ -47,8 +47,6 @@ public class PrepareInput {
             }
             index = smallestIndexInChildSubtree;
         }
-        Node node = new Node(index, nodeType, cog, children);
-        node.setUndefinedFields();
-        return node;
+        return new Node(index, nodeType, cog, children, true);
     }
 }

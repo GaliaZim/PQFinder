@@ -14,7 +14,8 @@ public class Node {
     private List<Node> leafs;
     private Integer height;
 
-    public Node(int index, Integer span, List<Node> children, NodeType type, String cog, Integer height) {
+    public Node(int index, Integer span, List<Node> children, NodeType type, String cog, Integer height,
+                List<Node> leafs) {
         this.index = index;
         this.span = span;
         this.children = children;
@@ -22,25 +23,13 @@ public class Node {
         this.type = type;
         this.cog = cog;
         this.height = height;
-        this.leafs = null;
+        this.leafs = leafs;
     }
 
-    public Node(int index, Integer span, List<Node> children, NodeType type, String cog) {
-        this(index, span, children, type, cog, null);
-    }
-
-    public Node(int index, NodeType type,  String cog, List<Node> children) {
-        this(index, null, children, type, cog);
-    }
-
-    public Node(int index, Integer span, NodeType type) {this(index, span, new LinkedList<>(), type);}
-
-    public Node(int index, Integer span, NodeType type, String cog) {
-        this(index, span, new LinkedList<>(), type, cog);
-    }
-
-    public Node(int index, Integer span, List<Node> children, NodeType type) {
-        this(index, span, children, type, null);
+    public Node(int index, NodeType type, String cog, List<Node> children, boolean setUndefined) {
+        this(index, null, children, type, cog, null, null);
+        if(setUndefined)
+            setUndefinedFields();
     }
 
     public String getCog() {return cog;}
@@ -122,7 +111,7 @@ public class Node {
         span = getLeafs().size();
     }
 
-    public void setUndefinedFields() {
+    private void setUndefinedFields() {
         setLeafs();
         setHeight();
         setSpan();
