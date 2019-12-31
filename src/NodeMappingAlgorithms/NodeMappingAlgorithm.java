@@ -32,6 +32,14 @@ public abstract class NodeMappingAlgorithm {
         return resultMappingsByEndPoints;
     }
 
+    public String getString() {
+        return string;
+    }
+
+    public Node getNode() {
+        return node;
+    }
+
     //For debugging
     public void printResultMappings() {
         resultMappingsByEndPoints.forEach((endPoint, ls) -> {
