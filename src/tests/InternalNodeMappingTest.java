@@ -1,9 +1,7 @@
 package tests;
 
-import NodeMappingAlgorithms.InternalNodeMappingAlgorithm;
 import NodeMappingAlgorithms.MappingAlgorithmBuilder;
-import NodeMappingAlgorithms.PNodeMappingAlgorithm;
-import NodeMappingAlgorithms.QNodeMappingAlgorithm;
+import NodeMappingAlgorithms.NodeMappingAlgorithm;
 import helpers.PrepareInput;
 import org.json.simple.parser.ParseException;
 import org.junit.jupiter.api.BeforeAll;
@@ -14,6 +12,8 @@ import structures.Mapping;
 import structures.Node;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -21,6 +21,10 @@ import java.util.stream.Stream;
 
 class InternalNodeMappingTest {
     private static BiFunction<String, Character, Double> substitutionFunction;
+    private final static String treeHeight3JsonPath = ".\\src\\tests\\treeJSONS\\mixedTypeTreeHeight3";
+    private final static String treeHeight4JsonPath = ".\\src\\tests\\treeJSONS\\mixedTypeTreeHeight4";
+    private final static String qNodeTreeHeight1JsonPath = ".\\src\\tests\\treeJSONS\\qNodeOneTier";
+    private final static String pNodeTreeHeight1JsonPath = ".\\src\\tests\\treeJSONS\\pNodeOneTier";
 
     @BeforeAll
     static void classSetUp() {
@@ -32,87 +36,46 @@ class InternalNodeMappingTest {
         };
     }
 
-    private static Stream<Arguments> pNodeMappingOneTierTestProvider() {
-        String treeJsonPath = ".\\src\\tests\\treeJSONS\\pNodeOneTier";
-        Node pNode;
-        try {
-            pNode = PrepareInput.buildTree(treeJsonPath);
-        } catch (IOException | ParseException e) {
-            e.printStackTrace();
-            throw new ExceptionInInitializerError(e);
+    private static Stream<Arguments> internalNodeMappingTest() {
+        List<String> jsonPaths = Arrays.asList(treeHeight3JsonPath, treeHeight4JsonPath,
+                pNodeTreeHeight1JsonPath, qNodeTreeHeight1JsonPath);
+        List<Node> roots = new ArrayList<>();
+        for (String jsonPath : jsonPaths) {
+            try {
+                roots.add(PrepareInput.buildTree(jsonPath));
+            } catch (IOException | ParseException e) {
+                e.printStackTrace();
+            }
         }
-        return Stream.of(
-                Arguments.of(new PNodeMappingAlgorithm("12342314", pNode,
-                        0, 0, substitutionFunction)),
-                Arguments.of(new PNodeMappingAlgorithm("124231452", pNode,
-                        2, 3, substitutionFunction)),
-                Arguments.of(new PNodeMappingAlgorithm("132", pNode,
-                        2, 1, substitutionFunction)),
-                Arguments.of(new PNodeMappingAlgorithm("", pNode,
-                        2, 1, substitutionFunction)),
-                Arguments.of(new PNodeMappingAlgorithm("124231452", pNode,
-                        0, 1, substitutionFunction)),
-                Arguments.of(new PNodeMappingAlgorithm("124231452", pNode,
-                        2, 0, substitutionFunction))
-        );
-    }
 
-    private static Stream<Arguments> qNodeMappingOneTierTestProvider() {
-        String treeJsonPath = ".\\src\\tests\\treeJSONS\\qNodeOneTier";
-        Node qNode;
-        try {
-            qNode = PrepareInput.buildTree(treeJsonPath);
-        } catch (IOException | ParseException e) {
-            e.printStackTrace();
-            throw new ExceptionInInitializerError(e);
-        }
-        return Stream.of(
-                Arguments.of(new QNodeMappingAlgorithm("12342314", qNode,
-                        0, 0, substitutionFunction)),
-                Arguments.of(new QNodeMappingAlgorithm("124231452", qNode,
-                        2, 3, substitutionFunction)),
-                Arguments.of(new QNodeMappingAlgorithm("321", qNode,
-                        2, 1, substitutionFunction)),
-                Arguments.of(new QNodeMappingAlgorithm("", qNode,
-                        2, 1, substitutionFunction)),
-                Arguments.of(new QNodeMappingAlgorithm("124231452", qNode,
-                        0, 1, substitutionFunction)),
-                Arguments.of(new QNodeMappingAlgorithm("124231452", qNode,
-                        2, 0, substitutionFunction))
+        Stream<Arguments> argumentsStream = Stream.of(
+                Arguments.of("5741132534623", 0, 0),
+                Arguments.of("57413722534623", 2, 3),
+                Arguments.of("3216514", 2, 1),
+                Arguments.of("", 2, 1),
+                Arguments.of("124231452", 0, 1),
+                Arguments.of("321654314", 2, 0),
+                Arguments.of("12342314", 0, 0),
+                Arguments.of("124231452", 2, 3),
+                Arguments.of("321", 2, 1),
+                Arguments.of("132", 0, 0)
         );
-    }
 
-    private static Stream<Arguments> severalTiersTreeTestProvider() {
-        String treeJsonPath = ".\\src\\tests\\treeJSONS\\mixedTypeTreeHeight4";
-        Node root;
-        try {
-            root = PrepareInput.buildTree(treeJsonPath);
-        } catch (IOException | ParseException e) {
-            e.printStackTrace();
-            throw new ExceptionInInitializerError(e);
-        }
-        return Stream.of(
-                Arguments.of(MappingAlgorithmBuilder.build("5741132534623", root,
-                        0, 0, substitutionFunction)),
-                Arguments.of(MappingAlgorithmBuilder.build("57413722534623", root,
-                        2, 3, substitutionFunction)),
-                Arguments.of(MappingAlgorithmBuilder.build("3216514", root,
-                        2, 1, substitutionFunction)),
-                Arguments.of(MappingAlgorithmBuilder.build("", root,
-                        2, 1, substitutionFunction)),
-                Arguments.of(MappingAlgorithmBuilder.build("124231452", root,
-                        0, 1, substitutionFunction)),
-                Arguments.of(MappingAlgorithmBuilder.build("321654314", root,
-                        2, 0, substitutionFunction))
-        );
+        return argumentsStream.flatMap(arguments -> {
+            Object[] args = arguments.get();
+            return roots.stream().map(root ->
+                    Arguments.arguments(root, args[0], args[1], args[2]));
+        });
     }
 
     @ParameterizedTest
-    @MethodSource({"pNodeMappingOneTierTestProvider", "qNodeMappingOneTierTestProvider",
-            "severalTiersTreeTestProvider"})
-    void internalNodeMappingTest(InternalNodeMappingAlgorithm algorithm) throws ExceptionInInitializerError {
+    @MethodSource("internalNodeMappingTest")
+    void internalNodeMappingTest(Node root, String string, int treeDeletionLimit, int stringDeletionLimit) throws ExceptionInInitializerError {
+        NodeMappingAlgorithm algorithm =
+                MappingAlgorithmBuilder.build(string, root, treeDeletionLimit, stringDeletionLimit, substitutionFunction);
         algorithm.runAlgorithm();
         HashMap<Integer, List<Mapping>> resultMappingsByEndPoints = algorithm.getResultMappingsByEndPoints();
+//        VisualizeMapping.draw(algorithm.getNode(), algorithm.getString(), algorithm.getBestStringIndexToLeafMapping());
         MappingAssertions.assertGenericMappingMapProperties(resultMappingsByEndPoints);
     }
 }
