@@ -1,5 +1,6 @@
 package NodeMappingAlgorithms;
 
+import org.junit.jupiter.api.Test;
 import structures.Mapping;
 import structures.Node;
 
@@ -14,19 +15,20 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
     int numberOfChildren;
 
     //TODO: Deal with (dT limit > span of node) and (dS limit > substring length). should it be null or -infinity for next level
-    public InternalNodeMappingAlgorithm(String string, Node node, int treeDeletionLimit,
-                                        int stringDeletionLimit,
-                                        BiFunction<String, Character, Double> substitutionFunction) {
+    InternalNodeMappingAlgorithm(String string, Node node, int treeDeletionLimit,
+                                 int stringDeletionLimit,
+                                 BiFunction<String, Character, Double> substitutionFunction) {
         super(string, node, treeDeletionLimit, stringDeletionLimit, substitutionFunction);
         this.mappingsStartingAtSameIndexByEndPoints = new HashMap<>(); //TODO: capacity
         this.numberOfChildren = node.getNumberOfChildren();
-        this.mappingsByChildren = new ArrayList<>(numberOfChildren);
+        this.mappingsByChildren = new ArrayList<>(numberOfChildren + 1);
     }
 
     HashMap<Integer, List<Mapping>> createMappingsByEndPoints(int smallestEndPoint, int largestEndPoint) {
-        HashMap<Integer, List<Mapping>> mappingsByEndPoint = new HashMap<>();
+        HashMap<Integer, List<Mapping>> mappingsByEndPoint =
+                new HashMap<>();
         IntStream.rangeClosed(smallestEndPoint, largestEndPoint)
-                .forEach(endPoint -> mappingsByEndPoint.put(endPoint, new LinkedList<>()));
+                .forEach(endPoint -> mappingsByEndPoint.put(endPoint, new ArrayList<>()));
         return mappingsByEndPoint;
     }
 
@@ -73,7 +75,6 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
     }
 
     private void filterChildrenMappings(int fromIndex) {
-        //mappings: childIndex -> endpoint -> list of mappings
         for (HashMap<Integer,List<Mapping>> childMappingsByEndPoint : this.mappingsByChildren) {
             if(childMappingsByEndPoint != null) {
                 childMappingsByEndPoint.keySet().removeIf(endPoint -> endPoint < fromIndex);

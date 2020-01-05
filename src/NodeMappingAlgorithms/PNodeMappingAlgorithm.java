@@ -10,7 +10,14 @@ import java.util.function.BiFunction;
 
 public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
     private Backtrack[][][] dPTable;
+    /**
+     * The number of subsets of children of {@code node}
+     */
     private int numberOfSubsets;
+    /**
+     * Holds the summation of spans of every subset of children of {@code node} by the set's index as given by
+     * {@code ChildrenSubsetEncoding}
+     */
     private int[] subsetSpans;
 
     public PNodeMappingAlgorithm(String string, Node node, int treeDeletionLimit,
@@ -62,7 +69,7 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
                 if (length > 0 & endPoint <= stringEndIndex) {
                     nodeMapping = new Mapping(node, stringStartIndex, kS, kT, backtrack.getScore());
                     if (!nodeMapping.getScore().equals(Double.NEGATIVE_INFINITY))
-                        addChildrenMappings(nodeMapping, kT, kS, stringStartIndex);
+                        addChildrenMappings(nodeMapping);
                     mappingsStartingAtSameIndexByEndPoints.get(nodeMapping.getEndIndex()).add(nodeMapping);
                 }
             }
@@ -73,6 +80,9 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
         Backtrack backtrack;
         int endPoint;
         int prevKT, prevKS, prevSetIndex;
+        int kT = nodeMapping.getTreeDeletions();
+        int kS = nodeMapping.getStringDeletions();
+        int stringStartIndex = nodeMapping.getStartIndex();
         int setIndex = numberOfSubsets - 1;
         backtrack = dPTable[kT][kS][setIndex];
         do {

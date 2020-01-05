@@ -81,8 +81,8 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
         return span - kT + kS;
     }
 
+    //For debugging
     private void printDPTable(Backtrack[][][] dPTable) {
-        //For debugging
         for (int childIndex = numberOfChildren; childIndex >= 0; childIndex--) {
             System.out.println(childIndex + ": ");
             for (int kT = 0; kT < treeDeletionLimit + 1; kT++) {
@@ -180,7 +180,7 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
                     }
                     nodeMapping = new Mapping(node, stringStartIndex, kS, kT, backtrack.getScore());
                     if (!nodeMapping.getScore().equals(Double.NEGATIVE_INFINITY))
-                        addChildrenMappings(dPTable, nodeMapping, isRTL, kT, kS, spans, stringStartIndex);
+                        addChildrenMappings(dPTable, nodeMapping, isRTL, spans);
                     mappingsStartingAtSameIndexByEndPoints.get(nodeMapping.getEndIndex()).add(nodeMapping);
                 }
             }
@@ -188,10 +188,14 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
     }
 
     private void addChildrenMappings(Backtrack[][][] dPTable, Mapping nodeMapping, boolean rTL,
-                                     int kT, int kS, int[] spans, int stringStartIndex) {
+                                     int[] spans) {
+        //TODO: test change
         Backtrack backtrack;
         int endPoint;
         int prevKT, prevKS, prevChildIndex;
+        int kT = nodeMapping.getTreeDeletions();
+        int kS = nodeMapping.getStringDeletions();
+        int stringStartIndex = nodeMapping.getStartIndex();
         int childIndex = numberOfChildren;
         backtrack = dPTable[childIndex][kT][kS];
         do {
