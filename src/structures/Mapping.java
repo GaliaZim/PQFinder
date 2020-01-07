@@ -57,6 +57,7 @@ public class Mapping implements Comparable<Mapping>{
 
     public Mapping(Node node, int startIndex, int stringDeletions, int treeDeletions, Double score) {
         this(node, startIndex, 0, stringDeletions, treeDeletions, score);
+        this.endIndex = startIndex - 1 + node.getSpan() + stringDeletions - treeDeletions;
     }
 
     public Mapping(Node node, int startIndex, int endIndex, int stringDeletions,
@@ -65,8 +66,6 @@ public class Mapping implements Comparable<Mapping>{
     }
 
     public int getEndIndex() {
-        if(endIndex == 0)
-            endIndex = startIndex - 1 + node.getSpan() + stringDeletions - treeDeletions;
         return endIndex;
     }
 
@@ -76,6 +75,8 @@ public class Mapping implements Comparable<Mapping>{
     public void addChildMapping(Mapping childMapping) {
         if(childMapping == null)
             throw new IllegalArgumentException("Cannot add NULL as a child mapping of " + node.toString());
+        if(existsInChildrenMappings(childMapping.getNode()))
+            throw new IllegalArgumentException(childMapping.getNode() + " already has a chosen mapping");
         this.childrenMappings.add(childMapping);
         this.deletedStringIndices.addAll(childMapping.deletedStringIndices);
         this.deletedDescendant.addAll(childMapping.deletedDescendant);

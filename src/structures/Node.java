@@ -65,11 +65,6 @@ public class Node {
         return type;
     }
 
-    public void addChild(Node child) {
-        this.children.add(child);
-        numberOfChildren ++;
-    }
-
     @Override
     public String toString() {
         return "Node{" +

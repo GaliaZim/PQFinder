@@ -309,7 +309,7 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
             kT = prevKT;
             kS = prevKS;
             backtrack = dPTable[childIndex][kT][kS];
-        } while(!backtrack.isFirst());
+        } while(backtrack.isNotFirst());
     }
 
     /**

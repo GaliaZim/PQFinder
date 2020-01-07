@@ -114,7 +114,7 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
             endPoint = getEndPoint(stringStartIndex, kT, kS, setIndex);
             prevKT = backtrack.getPreviousTreeDeletions();
             prevKS = backtrack.getPreviousStringDeletions();
-            prevSetIndex = backtrack.getPreviousChildIndex();
+            prevSetIndex = backtrack.getPreviousSubsetIndex();
             if(setIndex == prevSetIndex) {
                 nodeMapping.addDeletedStringIndex(endPoint);
             } else {
@@ -137,7 +137,7 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
             kT = prevKT;
             kS = prevKS;
             backtrack = dPTable[kT][kS][setIndex];
-        } while(!backtrack.isFirst());
+        } while(backtrack.isNotFirst());
     }
 
     /**

@@ -63,8 +63,7 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
         int maxLength = node.getSpan() + stringDeletionLimit;
         int minLength = Math.max(node.getSpan() - treeDeletionLimit, 1);
         int stringLastIndex = string.length();
-        int smallestEndPoint = Math.max(minLength, 1);
-        //TODO: make sure the restriction doesn't damage the next tiers in the tree
+        int smallestEndPoint = Math.min(Math.max(minLength, 1), stringLastIndex);
         resultMappingsByEndPoints = createMappingsByEndPoints(smallestEndPoint, stringLastIndex);
         int largestStartIndex = Math.max(stringLastIndex - minLength + 1, 1);
         for (int startIndex = 1; startIndex <= largestStartIndex; startIndex++) {

@@ -26,6 +26,10 @@ public class Backtrack implements Comparable<Backtrack>{
      * @return returns the backtrack with the higher score. If the score is equal, returns {@code backtrack2}
      */
     public static Backtrack max(Backtrack backtrack1, Backtrack backtrack2) {
+        if(backtrack1 == null)
+            return backtrack2;
+        if(backtrack2 == null)
+            return backtrack1;
         return backtrack1.compareTo(backtrack2) > 0 ? backtrack1 : backtrack2;
     }
 
@@ -44,10 +48,10 @@ public class Backtrack implements Comparable<Backtrack>{
     }
 
     /**
-     * @return {@code true} if this backtrack is the first in the backtrack pate, i.e. it has no previous indices
+     * @return {@code true} if this backtrack is not the first in the backtrack pate, i.e. it has previous indices
      */
-    public boolean isFirst() {
-        return previousTableIndices == null;
+    public boolean isNotFirst() {
+        return previousTableIndices != null;
     }
 
     /**
