@@ -23,12 +23,29 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
         encoder = new IndexToChildNodeEncoder(node.getChildren());
     }
 
+    /**
+     * Calculates the summation of spans of the first {@code i} children of
+     * {@code node} from left to right and from right to left, for
+     * {@code 1 <= i <= numberOfChildren}
+     */
     @Override
     protected void calculateSpans() {
         calculateCumulativeSpans(spansLTR, node.getChildren());
         calculateCumulativeSpans(spansRTL, node.getChildrenReversed());
     }
 
+    /**
+     * @param dPTable The dpTable from which to backtrack (according to the direction of the mapping of
+     *                the children)
+     * @param spans the spans array to use according to the direction of the mapping of the children
+     * @param stringStartIndex The first index of {@code string} from which mappings can begin
+     * @param stringEndIndex The last index of {@code string} in which mappings can end
+     * @param rTL {@code true}, if the direction of the mapping of the children is from right to left
+     * Calculates the best mapping between {@code node} and a substring of {@code string} starting at
+     * {@code strngStartIndex} for every deletion combination, where the direction of the mapping of
+     *                        the children is either from left to right or from right to left according
+     *                        to {@code rTL}.
+     */
     private void oneDirectionMapping(Backtrack[][][] dPTable, int[] spans, int stringStartIndex,
                                      int stringEndIndex, boolean rTL) {
         int endPoint, length;
@@ -73,10 +90,26 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
         }
     }
 
+    /**
+     * @param stringStartIndex An index of {@code string}
+     * @param span The total span of a set of nodes
+     * @param kT Number of deletions from the tree
+     * @param kS Number of deletions from the string
+     * @return The end index (inclusive) of a mapping starting at index {@code stringStartIndex}
+     * of a set of nodes with a total span {@code span} with {@code kT} and
+     * {@code kS} deletions.
+     */
     private int getEndPoint(int stringStartIndex, int span, int kT, int kS) {
         return stringStartIndex - 1 + getLength(span, kT, kS);
     }
 
+    /**
+     * @param span The total span of a set of nodes
+     * @param kT Number of deletions from the tree
+     * @param kS Number of deletions from the string
+     * @return The length of a mapping of a set of nodes with a total span {@code span}
+     * with {@code kT} and {@code kS} deletions.
+     */
     private int getLength(int span, int kT, int kS) {
         return span - kT + kS;
     }
@@ -108,6 +141,9 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
         buildResult(stringStartIndex, stringEndIndex, minLength);
     }
 
+    /**
+     * @return An initialized {@code dpTable} according to the Q-node Mapping Algorithm
+     */
     private Backtrack[][][] createEmptyDPTable() {
         Backtrack[][][] dPTable = new Backtrack[numberOfChildren + 1][treeDeletionLimit + 1][stringDeletionLimit + 1];
         for (int kS = 0; kS <= stringDeletionLimit; kS++) {
@@ -120,6 +156,14 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
         return dPTable;
     }
 
+    /**
+     * @param spans An array of size {@code children.size()} in which the result
+     *              will be saved
+     * @param children a list of nodes (children of {@code node})
+     * puts in {@code spans[i]} the summation of spans of the first {@code i} children in
+     *      {@code children}.
+     *      The base case for zero children is a span zero ({@code spans[0]=0})
+     */
     private void calculateCumulativeSpans(int[] spans, List<Node> children) {
         int i = 0;
         int span = 0;
@@ -131,11 +175,24 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
         }
     }
 
+    /**
+     * @param dPTable The dpTable for which the method finds the mapping
+     * @param childIndex An index of a child of {@code node} for which the method finds
+     *                   the mapping
+     * @param kT The maximum number of deletions from the tree
+     * @param kS The maximum number of deletions from the string
+     * @param childMappingsAtEndPoint The mappings of the child from which to choose. All mappings end at
+     *                                the same index
+     * @return A {@code Backtrack} for the best mapping of the child among the optional mappings
+     * according to the method's parameters.
+     */
     private Backtrack findMaxMappingByEndPoint(Backtrack[][][] dPTable, int childIndex, int kT, int kS,
                                                List<Mapping> childMappingsAtEndPoint){
         Backtrack max = new Backtrack(Double.NEGATIVE_INFINITY);
         for(Mapping mapping : childMappingsAtEndPoint) {
+            //if the number of deletions is lower than the limit, consider the mapping
             if(mapping.getStringDeletions() <= kS & mapping.getTreeDeletions() <= kT){
+                //the score for choosing the mapping and adding it to the mappings of previous children
                 Double score =
                         dPTable[childIndex - 1][kT - mapping.getTreeDeletions()]
                                 [kS - mapping.getStringDeletions()].getScore()
@@ -149,6 +206,19 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
         return max;
     }
 
+    /**
+     * @param stringStartIndex An index of {@code string} from which the mapping started
+     * @param stringEndIndex An index of {@code string} in which the mapping ended (as dictated
+     *                       by the deletion limit)
+     * @param minLength The minimal length of a substring mapped to {@code node} as dictated by
+     *                  the deletion limit
+     * Backtracks through the DP table {@code dpTable} and builds the best mapping between
+     * {@code node} and every substring of {@code string} starting at {@code stringStartIndex} with
+     *                  every deletion combination. Every mapping with a score higher than -infinity is
+     *                  built with the mappings of the children of {@code node} that yielded it,
+     *                  including the deleted children and string indices. Puts the result in
+     *                  {@code mappingsStartingAtSameIndexByEndPoints}.
+     */
     private void buildResult(int stringStartIndex, int stringEndIndex, int minLength) {
         Backtrack[][][] dPTable;
         int[] spans;
@@ -160,6 +230,7 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
         int endPoint, length;
         mappingsStartingAtSameIndexByEndPoints =
                 createMappingsByEndPoints(stringStartIndex - 1 + minLength, stringEndIndex);
+        //For every deletion combination
         for (int kT = 0; kT <= treeDeletionLimit; kT++) {
             for (int kS = 0; kS <= stringDeletionLimit; kS++) {
                 endPoint = getEndPoint(stringStartIndex, spansLTR[numberOfChildren], kT, kS);
@@ -167,6 +238,7 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
                 if (length > 0 & endPoint <= stringEndIndex) {
                     backtrackLTR = dPTableLTR[numberOfChildren][kT][kS];
                     backtrackRTL = dPTableRTL[numberOfChildren][kT][kS];
+                    //Choose the mapping with higher score: left to right or right to left
                     if (backtrackLTR.getScore().compareTo(backtrackRTL.getScore()) > 0) {
                         dPTable = dPTableLTR;
                         spans = spansLTR;
@@ -179,6 +251,8 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
                         isRTL = true;
                     }
                     nodeMapping = new Mapping(node, stringStartIndex, kS, kT, backtrack.getScore());
+                    //if the score is not -infinity, calculate the deletions and children mappings
+                    //that yield the node's mapping
                     if (!nodeMapping.getScore().equals(Double.NEGATIVE_INFINITY))
                         addChildrenMappings(dPTable, nodeMapping, isRTL, spans);
                     mappingsStartingAtSameIndexByEndPoints.get(nodeMapping.getEndIndex()).add(nodeMapping);
@@ -187,6 +261,18 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
         }
     }
 
+    /**
+     * @param dPTable The dpTable from which to backtrack (according to the direction of the mapping of
+     *                the children)
+     * @param nodeMapping A mapping of {@code node} built from
+     *                    {@code dpTable[nodeMapping.getTreeDeletions()][nodeMapping.getStringDeletions()]
+     *                    [allChildrenSetIndex]}
+     * @param rTL {@code true} if the direction of the mapping of the children is from right to left
+     * @param spans the spans array to use according to the direction of the mapping of the children
+     * The method backtracks through {@code dpTable} and adds to {@code nodeMapping} the string indices
+     *              that were deleted, the descendants leaves that were deleted and the node's
+     *              children mappings that were chosen to construct {@code nodeMapping}
+     */
     private void addChildrenMappings(Backtrack[][][] dPTable, Mapping nodeMapping, boolean rTL,
                                      int[] spans) {
         //TODO: test change
@@ -226,6 +312,13 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
         } while(!backtrack.isFirst());
     }
 
+    /**
+     * @param childNode A node which is a child of {@code node} and is a member of
+     * {@code node.getChildren()}
+     * @param endPoint An index of {@code string}
+     * @return A list of mappings between {@code childNode} and substrings of {@code string} ending at
+     * {@code endPoint}
+     */
     private List<Mapping> getChildMappingsAtEndPoint(Node childNode, int endPoint) {
         return mappingsByChildren.get(encoder.childNodeToLTRIndex(childNode))
                 .get(endPoint);

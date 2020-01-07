@@ -3,6 +3,10 @@ package helpers;
 import java.util.*;
 
 public class ChildrenSubsetEncoding {
+    /**
+     * @param index An index of a subset of sibling nodes ({@code index >= 0})
+     * @return A set of sibling nodes indices from left to right. The left most sibling has index 1.
+     */
     public static Set<Integer> indexToChildrenSet(int index) {
         Set<Integer> children = new HashSet<>(); //TODO: capacity
         int childIndex = 1;
@@ -15,6 +19,11 @@ public class ChildrenSubsetEncoding {
         return children;
     }
 
+    /**
+     * @param children A set of sibling indices. The set values are integers larger than 0.
+     * @return A subset index matchon the set of sibling indices.
+     * @throws IllegalArgumentException If given an illegal child index
+     */
     public static int childrenSubsetToIndex(Set<Integer> children) {
         int index = 0;
         for (Integer childIndex : children) {
@@ -25,6 +34,12 @@ public class ChildrenSubsetEncoding {
         return index;
     }
 
+    /**
+     * @param setIndex A subset index
+     * @param childIndex A node index
+     * @return An index of a subset that is the subset represented by {@code setIndex} without the
+     * child represented by {@code childIndex}
+     */
     public static int getSetIndexWithoutChild(int setIndex, Integer childIndex) {
         Set<Integer> set = indexToChildrenSet(setIndex);
         if(set.remove(childIndex))
@@ -35,8 +50,8 @@ public class ChildrenSubsetEncoding {
 
     /**
      *
-     * @param originSetIndex
-     * @param newSetIndex
+     * @param originSetIndex A set index
+     * @param newSetIndex A set index
      * @return the index of the child that is in one set and not in the other,
      * and null if there is no such child
      * @throws IllegalArgumentException if there is a difference of more than one child

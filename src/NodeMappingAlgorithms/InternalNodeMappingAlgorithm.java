@@ -10,7 +10,22 @@ import java.util.stream.IntStream;
 
 public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
     //childIndex -> endPoint -> list of mappings
+    /**
+     * {@code mappingsByChildren[childIndex]} -> a hash map where the keys are indices of {@code string}
+     * and the values are lists of mappings between the {@code childIndex} child of the node
+     * and substrings of {@code string} ending at the key index.
+     * {@code mappingsByChildren[0] = null}
+     * The mappings of the first child (from the left) are in {@code mappingsByChildren[1]}
+     * The mappings of the last child (from the left) are in {@code mappingsByChildren[numberOfChildren]}
+     * childIndex -> endpoint -> list of mappings
+     */
     ArrayList<HashMap<Integer, List<Mapping>>> mappingsByChildren;
+    /**
+     * key: an index of {@code string}
+     * value: a list of mappings between {@code node} and substrings of {@code string} ending at {@code key}.
+     * All the mapped substrings start at the same index.
+     * endPoint --> list of mappings
+     */
     HashMap<Integer, List<Mapping>> mappingsStartingAtSameIndexByEndPoints;
     int numberOfChildren;
 
@@ -24,6 +39,12 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
         this.mappingsByChildren = new ArrayList<>(numberOfChildren + 1);
     }
 
+    /**
+     * @param smallestEndPoint the smallest key of the hash map
+     * @param largestEndPoint the largest key of the hash map
+     * @return A hash map where the keys are all the integer values between {@code smallestEndPoint} and
+     * {@code largestEndPoint} (inclusive) and the values are empty lists of mappings.
+     */
     HashMap<Integer, List<Mapping>> createMappingsByEndPoints(int smallestEndPoint, int largestEndPoint) {
         HashMap<Integer, List<Mapping>> mappingsByEndPoint =
                 new HashMap<>();
@@ -32,6 +53,10 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
         return mappingsByEndPoint;
     }
 
+    /**
+     * Recursively calls a mapping algorithm for the children of {@code node}, then calculates its
+     * own mappings as described in the method of the abstract superclass
+     */
     public void runAlgorithm() {
         callAndCollectChildrenMappings();
         calculateSpans();
@@ -49,6 +74,10 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
         }
     }
 
+    /**
+     * Adds all the mappings in {@code mappingsStartingAtSameIndexByEndPoints} to
+     * {@code resultMappingsByEndPoints} according to their end points.
+     */
     private void mergeMappings() {
         List<Mapping> mappingsToAddTo;
         for (Map.Entry<Integer, List<Mapping>> entry : mappingsStartingAtSameIndexByEndPoints.entrySet()) {
@@ -59,6 +88,10 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
         }
     }
 
+    /**
+     * Recursively calls a mapping algorithm for every child of {@code node} and then adds the results in
+     * {@code mappingsByChildren} according to the child's index
+     */
     private void callAndCollectChildrenMappings() {
         NodeMappingAlgorithm childMappingAlgorithm;
         int childIndex = 0;
@@ -74,6 +107,11 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
         }
     }
 
+    /**
+     * @param fromIndex an index of {@code string}
+     * Filters out of {@code mappingsByChildren} all the mappings to substrings that include indices
+     *                  of {@code string } that are smaller than {@code fromIndex}
+     */
     private void filterChildrenMappings(int fromIndex) {
         for (HashMap<Integer,List<Mapping>> childMappingsByEndPoint : this.mappingsByChildren) {
             if(childMappingsByEndPoint != null) {
@@ -85,8 +123,11 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
         }
     }
 
-    /** returns the one-to-one mapping between the leaves and string according to the best
-     * mapping of the tree rooted in this.node */
+    /**
+     * @return the one-to-one mapping between the leaves descendants of {@code node} and
+     * {@code string} according to the best mapping of the tree rooted in {@code node}
+     * Best mapping according to the {@code Mapping::compareTo} method.
+     */
     public HashMap<Integer,Node> getBestStringIndexToLeafMapping() {
         HashMap<Integer, Node> mappingToReturn = null;
         Optional<Mapping> optionalMaxMapping = resultMappingsByEndPoints.values().stream()
@@ -99,6 +140,21 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
         return mappingToReturn;
     }
 
+    /**
+     * Calculate the spans of the children of {@code node} in an accumulative way as dictated by the type of
+     * {@code node} and its mapping algorithm
+     */
     protected abstract void calculateSpans();
+
+    /**
+     * @param stringStartIndex An index of {@code string} from which to start the mapping
+     * @param stringEndIndex An index of {@code string} in which the mapping should end (as dictated
+     *                       by the deletion limit)
+     * @param minLength The minimal length of a substring mapped to {@code node} as dictated by the
+     *                  deletion limit
+     * Calculates all the best mappings between {@code node} and every substring of {@code string} between
+     *                  {@code stringStartIndex} and {@code stringEndIndex} according to the type of
+     *                  {@code node}
+     */
     protected abstract void map(int stringStartIndex, int stringEndIndex, int minLength);
 }

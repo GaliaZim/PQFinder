@@ -5,12 +5,21 @@ import java.util.stream.Collectors;
 
 
 public class Node {
+    /**
+     * The node index in the tree
+     */
     private int index;
     private Integer span;
     private List<Node> children;
     private int numberOfChildren;
     private NodeType type;
+    /**
+     * The label of the leaf node. If it is not a leaf the label is null
+     */
     private String cog;
+    /**
+     * The leafs of the tree rooted in {@code node}
+     */
     private List<Node> leafs;
     private Integer height;
 
@@ -70,6 +79,9 @@ public class Node {
                 '}';
     }
 
+    /**
+     * @return The children of {@code node} from right to left
+     */
     public List<Node> getChildrenReversed() {
         List<Node> reversedChildren = new LinkedList<>(children);
         Collections.reverse(reversedChildren);
@@ -83,6 +95,9 @@ public class Node {
         return leafs;
     }
 
+    /**
+     * Recursively builds the leaf list of {@code node}
+     */
     private void setLeafs() {
         if(type == NodeType.LEAF)
             leafs = Collections.singletonList(this);
@@ -98,6 +113,9 @@ public class Node {
         return height;
     }
 
+    /**
+     * Recursively calculates the height of {@code node} and sets it
+     */
     private void setHeight() {
         if(type == NodeType.LEAF)
             height = 0;
@@ -111,6 +129,9 @@ public class Node {
         span = getLeafs().size();
     }
 
+    /**
+     * Sets the values of {@code this.leafs}, {@code this.height} and {@code this.span}
+     */
     private void setUndefinedFields() {
         setLeafs();
         setHeight();

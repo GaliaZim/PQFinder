@@ -13,6 +13,10 @@ public class LeafMappingAlgorithm extends NodeMappingAlgorithm {
         super(string, node, treeDeletionLimit, stringDeletionLimit, substitutionFunction);
     }
 
+    /**
+     * Adds a mapping between every string index and the leaf node according to the substitution function.
+     * The mapping with the dummy endPoint 0, is given a score of 0.
+     */
     @Override
     public void runAlgorithm() {
         Double score;
@@ -23,6 +27,12 @@ public class LeafMappingAlgorithm extends NodeMappingAlgorithm {
         }
     }
 
+    /**
+     * @param endPoint an index of the string
+     * @param score the score of the mapping
+     * The method adds a mapping between string[{@code endPoint}] and {@code node} with no deletions
+     *              to {@code resultMappingsByEndPoints}
+     */
     private void addMappingByEndPoint(int endPoint, Double score) {
         Mapping mapping = new Mapping(node, endPoint, endPoint, 0, 0, score);
         List<Mapping> mappingList = new ArrayList<>();

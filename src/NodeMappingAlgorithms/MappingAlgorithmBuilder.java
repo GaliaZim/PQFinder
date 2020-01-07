@@ -7,6 +7,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.function.BiFunction;
 
 public class MappingAlgorithmBuilder {
+    /**
+     * @param string A string to map
+     * @param node A node to map
+     * @param treeDeletionLimit The maximum number of deletions from the tree
+     * @param stringDeletionLimit The maximum number of deletions from the string
+     * @param substitutionFunction A substitution function between the string characters and the labels
+     *                             of the leafs of the tree rooted in {@code node}
+     * @return A Node mapping algorithm according to the type of {@code node}
+     */
     public static NodeMappingAlgorithm build(String string, Node node, int treeDeletionLimit,
                                       int stringDeletionLimit,
                                       BiFunction<String, Character, Double>
@@ -33,6 +42,9 @@ public class MappingAlgorithmBuilder {
         return algorithm;
     }
 
+    /**
+     * returns the same as {@code build}, but constructor methods calls are hard coded
+     */
     private static NodeMappingAlgorithm getNodeMappingAlgorithm(String string, Node node, int treeDeletionLimit, int stringDeletionLimit, BiFunction<String, Character, Double> substitutionFunction) {
         NodeMappingAlgorithm algorithm = null;
         switch (node.getType()) {

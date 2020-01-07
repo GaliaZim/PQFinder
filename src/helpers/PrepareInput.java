@@ -49,4 +49,12 @@ public class PrepareInput {
         }
         return new Node(index, nodeType, cog, children, true);
     }
+
+    public static void main(String[] args) {
+        try {
+            buildTree("C:\\Users\\zimga\\Documents\\Research\\exampleTree-height4.json");
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+    }
 }

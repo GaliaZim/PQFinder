@@ -8,12 +8,32 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 public abstract class NodeMappingAlgorithm {
+    /**
+     * The string to map
+     */
     String string;
+    /**
+     * The node to map
+     */
     Node node;
+    /**
+     * The maximum number of deletions from the tree
+     */
     int treeDeletionLimit;
+    /**
+     * The maximum number of deletions from the string
+     */
     int stringDeletionLimit;
+    /**
+     * {@code substitutionFunction(A,B)} returns the score for substituting the leaf symbol A with
+     * the character B of {@code string}.
+     */
     BiFunction<String,Character,Double> substitutionFunction;
-    //endPoint --> list of mappings
+    /**
+     * key: an index of {@code string}
+     * value: a list of mappings between {@code node} and substrings of {@code string} ending at {@code key}.
+     * endPoint --> list of mappings
+     */
     HashMap<Integer, List<Mapping>> resultMappingsByEndPoints;
 
     NodeMappingAlgorithm(String string, Node node, int treeDeletionLimit, int stringDeletionLimit,
@@ -26,16 +46,30 @@ public abstract class NodeMappingAlgorithm {
         resultMappingsByEndPoints = new HashMap<>(); //TODO: capacity
     }
 
+    /**
+     * Puts all the mappings between {@code node} and every possible (according to {@code treeDeletionLimit}
+     * and {@code stringDeletionLimit}) substring of {@code string} in {@code resultMappingsByEndPoints}
+     * by the end point of the substring.
+     */
     public abstract void runAlgorithm();
 
+    /**
+     * @return All the mappings as calculated by {@code runAlgorithm} hashed by their end points.
+     */
     public HashMap<Integer, List<Mapping>> getResultMappingsByEndPoints() {
         return resultMappingsByEndPoints;
     }
 
+    /**
+     * @return The string to be mapped
+     */
     public String getString() {
         return string;
     }
 
+    /**
+     * @return The node to be mapped
+     */
     public Node getNode() {
         return node;
     }

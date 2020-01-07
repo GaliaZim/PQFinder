@@ -40,10 +40,14 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
                     if(endPoint <= stringEndIndex) {
                         max = this.dPTable[kT][kS][setIndex];
                         if(max == null)
+                            //if this DP table entry was not set as part of the initialization
                             max = new Backtrack(Double.NEGATIVE_INFINITY);
                         if (setIndex > 0) //Not an empty set
+                            //choose a child to map
                             max = findMaxMappingByEndPoint(setIndex, kT, kS, endPoint);
-                        if (kS > 0 && dPTable[kT][kS - 1][setIndex].compareTo(max) >= 0)
+                        if (kS > 0 //it's an option to delete from the string
+                                // and deleting from the string gives a higher score
+                                && dPTable[kT][kS - 1][setIndex].compareTo(max) >= 0)
                             max = new Backtrack(dPTable[kT][kS - 1][setIndex].getScore(),
                                     kT, kS - 1, setIndex);
                         this.dPTable[kT][kS][setIndex] = max;
@@ -54,6 +58,19 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
         buildResult(stringStartIndex, stringEndIndex, minLength);
     }
 
+    /**
+     * @param stringStartIndex An index of {@code string} from which the mapping started
+     * @param stringEndIndex An index of {@code string} in which the mapping ended (as dictated
+     *                       by the deletion limit)
+     * @param minLength The minimal length of a substring mapped to {@code node} as dictated by
+     *                  the deletion limit
+     * Backtracks through the DP table {@code dpTable} and builds the best mapping between
+     * {@code node} and every substring of {@code string} starting at {@code stringStartIndex} with
+     *                  every deletion combination. Every mapping with a score higher than -infinity is
+     *                  built with the mappings of the children of {@code node} that yielded it,
+     *                  including the deleted children and string indices. Puts the result in
+     *                  {@code mappingsStartingAtSameIndexByEndPoints}.
+     */
     private void buildResult(int stringStartIndex, int stringEndIndex, int minLength) {
         Mapping nodeMapping;
         Backtrack backtrack;
@@ -76,7 +93,15 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
         }
     }
 
-    private void addChildrenMappings(Mapping nodeMapping, int kT, int kS, int stringStartIndex) {
+    /**
+     * @param nodeMapping A mapping of {@code node} built from
+     *                    {@code dpTable[nodeMapping.getTreeDeletions()][nodeMapping.getStringDeletions()]
+     *                    [allChildrenSetIndex]}
+     * The method backtracks through {@code dpTable} and adds to {@code nodeMapping} the string indices that were
+     *                    deleted, the descendants leaves that were deleted and the node's children mappings that were
+     *                    chosen to construct {@code nodeMapping}
+     */
+    private void addChildrenMappings(Mapping nodeMapping) {
         Backtrack backtrack;
         int endPoint;
         int prevKT, prevKS, prevSetIndex;
@@ -115,12 +140,23 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
         } while(!backtrack.isFirst());
     }
 
+    /**
+     * @param setIndex The index of the subset of children from which to choose
+     * @param kT The maximum number of deletions from the tree
+     * @param kS The maximum number of deletions from the string
+     * @param endPoint The end point of the mappings from which to choose
+     * @return A {@code Backtrack} for the best child mapping (or deletion) to choose according to the
+     * method's parameters.
+     * Deletion is allowed only in the base case where the mapped substring's length is 0 and {@code kS=0}. In such
+     * a case it does not matter which child is deleted first, and thus the leftmost child is chosen
+     */
     private Backtrack findMaxMappingByEndPoint(int setIndex, int kT, int kS, int endPoint) {
         int length = getLength(kT, kS, setIndex);
         Set<Integer> childrenSet = ChildrenSubsetEncoding.indexToChildrenSet(setIndex);
         Backtrack max = new Backtrack(Double.NEGATIVE_INFINITY);
         int setWithoutChildIndex;
         if(length > 0) {
+            //find a child mapping that gives the maximal score
             for (Integer childIndex : childrenSet) {
                 setWithoutChildIndex = ChildrenSubsetEncoding.getSetIndexWithoutChild(setIndex, childIndex);
                 max = Backtrack.max(max,
@@ -129,6 +165,7 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
             }
         } else if(length == 0 & kS == 0){
             if(!childrenSet.isEmpty()) {
+                //delete the leftmost child if possible given kT.
                 int childIndex = Collections.min(childrenSet);
                 setWithoutChildIndex = ChildrenSubsetEncoding.getSetIndexWithoutChild(setIndex,childIndex);
                 int spanDiff = subsetSpans[setIndex] - subsetSpans[setWithoutChildIndex];
@@ -141,6 +178,17 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
         return max;
     }
 
+    /**
+     * @param setWithoutChildIndex An index of a subset of children of {@code node} that does not contain
+     *                             the {@code childIndex} child
+     * @param childIndex An index of a child of {@code node}
+     * @param kT The maximum number of deletions from the tree allowed for the chosen mapping
+     * @param kS The maximum number of deletions from the string allowed for the chosen mapping
+     * @param endPoint The end point of the mappings from which to choose of the chosen mapping
+     * @return A backtrack of the chosen mapping of the {@code childIndex} child of {@code node} according to the
+     * method's parameters. The chosen mapping yields the highest score. If there is no mapping that meets the
+     * conditions laid by the parameters, an empty backtrack with score -infinity is returned.
+     */
     private Backtrack findChildMaxMappingByEndPoint(int setWithoutChildIndex,
                                                     Integer childIndex, int kT, int kS,
                                                     int endPoint) {
@@ -161,6 +209,9 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
         return max;
     }
 
+    /**
+     * Initialize {@code dpTable} according to the P-node Mapping Algorithm
+     */
     private void initDPTable() {
         this.dPTable = new Backtrack[treeDeletionLimit+1][stringDeletionLimit+1][numberOfSubsets];
         //init DPTable entries of empty subset
@@ -186,14 +237,35 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
         }
     }
 
+    /**
+     * @param kT Number of deletions from the tree
+     * @param kS Number of deletions from the string
+     * @param setIndex Index of a subset of children of {@code node} as encoded by
+     * {@code ChildrenSubsetEncoding}
+     * @return The length of a mapping containing the nodes in the subset with index
+     * {@code setIndex}, and {@code kT} and {@code kS} deletions.
+     */
     private int getLength(int kT, int kS, int setIndex) {
         return this.subsetSpans[setIndex] + kS - kT;
     }
 
+    /**
+     * @param stringStartIndex An index of {@code string}
+     * @param kT Number of deletions from the tree
+     * @param kS Number of deletions from the string
+     * @param setIndex Index of a subset of children of {@code node} as encoded by
+     * {@code ChildrenSubsetEncoding}
+     * @return The end index (inclusive) of a mapping containing the nodes in the subset with
+     * index {@code setIndex}, and {@code kT} and {@code kS} deletions, that starts
+     * at index {@code stringStartIndex}
+     */
     private int getEndPoint(int stringStartIndex, int kT, int kS, int setIndex) {
         return stringStartIndex - 1 + getLength(kT, kS, setIndex);
     }
 
+    /**
+     * Calculates the span of every subset of children of {@code node}
+     */
     protected void calculateSpans() {
         for (int subsetIndex = 0; subsetIndex < numberOfSubsets; subsetIndex++) {
             Set<Integer> childrenSet = ChildrenSubsetEncoding.indexToChildrenSet(subsetIndex);
