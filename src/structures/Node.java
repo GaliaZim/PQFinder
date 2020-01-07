@@ -16,32 +16,32 @@ public class Node {
     /**
      * The label of the leaf node. If it is not a leaf the label is null
      */
-    private String cog;
+    private String label;
     /**
      * The leafs of the tree rooted in {@code node}
      */
     private List<Node> leafs;
     private Integer height;
 
-    public Node(int index, Integer span, List<Node> children, NodeType type, String cog, Integer height,
+    public Node(int index, Integer span, List<Node> children, NodeType type, String label, Integer height,
                 List<Node> leafs) {
         this.index = index;
         this.span = span;
         this.children = children;
         this.numberOfChildren = children.size();
         this.type = type;
-        this.cog = cog;
+        this.label = label;
         this.height = height;
         this.leafs = leafs;
     }
 
-    public Node(int index, NodeType type, String cog, List<Node> children, boolean setUndefined) {
-        this(index, null, children, type, cog, null, null);
+    public Node(int index, NodeType type, String label, List<Node> children, boolean setUndefined) {
+        this(index, null, children, type, label, null, null);
         if(setUndefined)
             setUndefinedFields();
     }
 
-    public String getCog() {return cog;}
+    public String getLabel() {return label;}
 
     public int getIndex() {
         return index;
@@ -70,7 +70,7 @@ public class Node {
         return "Node{" +
                 "index=" + index +
                 ", type=" + type +
-                ", cog='" + cog + '\'' +
+                ", label='" + label + '\'' +
                 '}';
     }
 

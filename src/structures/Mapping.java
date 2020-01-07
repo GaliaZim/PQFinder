@@ -140,7 +140,7 @@ public class Mapping implements Comparable<Mapping>{
 
     public String toString() {
         return String.format("{%s(%d) -> [%d,%d], dT=%d, dS=%d, score=%.2f}",
-                node.getCog(), node.getIndex(), startIndex, getEndIndex(),
+                node.getLabel(), node.getIndex(), startIndex, getEndIndex(),
                 treeDeletions, stringDeletions, score);
     }
 

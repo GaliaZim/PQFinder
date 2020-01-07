@@ -35,7 +35,7 @@ public class TreePanel extends JPanel {
 
     private SubTreePaintBorders paintNode(Graphics g, Node node, int xPosition, int yPosition) {
         if (node.getType() == NodeType.LEAF) {
-            g.drawString(node.getCog(), xPosition, yPosition);
+            g.drawString(node.getLabel(), xPosition, yPosition);
             leafLocations.put(node, new Point(xPosition, yPosition));
             return new SubTreePaintBorders(xPosition, yPosition, xPosition,
                     yPosition, xPosition + SYMBOL_WIDTH, yPosition);

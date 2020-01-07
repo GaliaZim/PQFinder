@@ -85,7 +85,7 @@ public abstract class NodeMappingAlgorithm {
                     System.out.println("Deleted:");
                     System.out.println("Descendants:");
                     mapping.getDeletedDescendant().forEach(child ->
-                            System.out.println(child.getCog()));
+                            System.out.println(child.getLabel()));
                     System.out.println("String Indices:");
                     mapping.getDeletedStringIndices().forEach(System.out::println);
                 }

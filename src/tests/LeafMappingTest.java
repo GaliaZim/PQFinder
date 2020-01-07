@@ -47,7 +47,7 @@ public class LeafMappingTest {
                 treeDeletionLimit, stringDeletionLimit, substitutionFunction);
         algorithm.runAlgorithm();
         HashMap<Integer, List<Mapping>> resultMappingsByEndPoints = algorithm.getResultMappingsByEndPoints();
-        assertLeafMappings(resultMappingsByEndPoints, string, leaf.getCog());
+        assertLeafMappings(resultMappingsByEndPoints, string, leaf.getLabel());
     }
 
     private void assertLeafMappings(HashMap<Integer, List<Mapping>> resultMappingsByEndPoints,

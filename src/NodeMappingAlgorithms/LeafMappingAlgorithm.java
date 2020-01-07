@@ -22,7 +22,7 @@ public class LeafMappingAlgorithm extends NodeMappingAlgorithm {
         Double score;
         addMappingByEndPoint(0, 0.0);
         for (int i = 1; i <= string.length(); i++) {
-            score = substitutionFunction.apply(node.getCog(),string.charAt(i-1));
+            score = substitutionFunction.apply(node.getLabel(),string.charAt(i-1));
             addMappingByEndPoint(i, score);
         }
     }
