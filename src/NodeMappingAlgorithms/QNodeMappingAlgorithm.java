@@ -16,7 +16,7 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
 
     public QNodeMappingAlgorithm(String string, Node node, int treeDeletionLimit,
                                  int stringDeletionLimit,
-                                 BiFunction<String, Character, Double> substitutionFunction) {
+                                 BiFunction<GeneGroup, Character, Double> substitutionFunction) {
         super(string, node, treeDeletionLimit, stringDeletionLimit, substitutionFunction);
         spansLTR = new int[numberOfChildren+1];
         spansRTL = new int[numberOfChildren+1];

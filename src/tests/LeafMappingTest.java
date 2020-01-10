@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import structures.GeneGroup;
 import structures.Mapping;
 import structures.Node;
 import structures.NodeType;
@@ -16,12 +17,12 @@ import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 public class LeafMappingTest {
-    private static BiFunction<String, Character, Double> substitutionFunction;
+    private static BiFunction<GeneGroup, Character, Double> substitutionFunction;
 
     @BeforeAll
     static void classSetUp() {
-        substitutionFunction = (str, chr) -> {
-            if (chr.equals(str.charAt(3)))
+        substitutionFunction = (geneGroup, chr) -> {
+            if (chr.equals(geneGroup.getCog().charAt(3)))
                 return 1.0;
             else
                 return Double.NEGATIVE_INFINITY;
@@ -51,7 +52,7 @@ public class LeafMappingTest {
     }
 
     private void assertLeafMappings(HashMap<Integer, List<Mapping>> resultMappingsByEndPoints,
-                                    String string, String leafCog) {
+                                    String string, GeneGroup leafLabel) {
         double expectedScore;
         int endPoint;
         Assertions.assertEquals(string.length() + 1, resultMappingsByEndPoints.size(),
@@ -73,7 +74,7 @@ public class LeafMappingTest {
             if(endPoint == 0)
                 expectedScore = 0.0;
             else
-                expectedScore = substitutionFunction.apply(leafCog, string.charAt(mapping.getStartIndex() - 1));
+                expectedScore = substitutionFunction.apply(leafLabel, string.charAt(mapping.getStartIndex() - 1));
             Assertions.assertEquals(expectedScore, mapping.getScore(),
                     "Score does not match substitution function");
         }

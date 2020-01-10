@@ -1,5 +1,6 @@
 package NodeMappingAlgorithms;
 
+import structures.GeneGroup;
 import structures.Mapping;
 import structures.Node;
 
@@ -30,7 +31,7 @@ public abstract class NodeMappingAlgorithm {
      * {@code substitutionFunction(A,B)} returns the score for substituting the leaf symbol A with
      * the character B of {@code string}.
      */
-    BiFunction<String,Character,Double> substitutionFunction;
+    BiFunction<GeneGroup,Character,Double> substitutionFunction;
     /**
      * key: an index of {@code string}
      * value: a list of mappings between {@code node} and substrings of {@code string} ending at {@code key}.
@@ -39,7 +40,7 @@ public abstract class NodeMappingAlgorithm {
     HashMap<Integer, List<Mapping>> resultMappingsByEndPoints;
 
     NodeMappingAlgorithm(String string, Node node, int treeDeletionLimit, int stringDeletionLimit,
-                         BiFunction<String, Character, Double> substitutionFunction) {
+                         BiFunction<GeneGroup, Character, Double> substitutionFunction) {
         this.string = string;
         this.node = node;
         this.treeDeletionLimit = treeDeletionLimit;

@@ -29,7 +29,7 @@ public class VisualizeMapping {
         leafsPanel.setLayout(flowLayout);
         int leafIndex = 0;
         for (Node leaf : leafs) {
-            jLabel = new JLabel(leaf.getLabel());
+            jLabel = new JLabel(leaf.getLabel().toString());
             jLabel.setFont(font);
             leafsPanel.add(jLabel,leafIndex);
             leafIndex++;

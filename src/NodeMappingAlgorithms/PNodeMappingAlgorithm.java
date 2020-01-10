@@ -2,6 +2,7 @@ package NodeMappingAlgorithms;
 
 import helpers.ChildrenSubsetEncoding;
 import structures.Backtrack;
+import structures.GeneGroup;
 import structures.Mapping;
 import structures.Node;
 
@@ -22,7 +23,7 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
 
     public PNodeMappingAlgorithm(String string, Node node, int treeDeletionLimit,
                                  int stringDeletionLimit,
-                                 BiFunction<String, Character, Double> substitutionFunction) {
+                                 BiFunction<GeneGroup, Character, Double> substitutionFunction) {
         super(string, node, treeDeletionLimit, stringDeletionLimit, substitutionFunction);
         this.numberOfSubsets = (int) Math.pow(2,numberOfChildren);
         this.subsetSpans = new int[numberOfSubsets];

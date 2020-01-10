@@ -1,5 +1,6 @@
 package NodeMappingAlgorithms;
 
+import structures.GeneGroup;
 import structures.Mapping;
 import structures.Node;
 
@@ -9,7 +10,8 @@ import java.util.function.BiFunction;
 
 public class LeafMappingAlgorithm extends NodeMappingAlgorithm {
 
-    public LeafMappingAlgorithm(String string, Node node, int treeDeletionLimit, int stringDeletionLimit, BiFunction<String,Character,Double> substitutionFunction) {
+    public LeafMappingAlgorithm(String string, Node node, int treeDeletionLimit, int stringDeletionLimit,
+                                BiFunction<GeneGroup,Character,Double> substitutionFunction) {
         super(string, node, treeDeletionLimit, stringDeletionLimit, substitutionFunction);
     }
 

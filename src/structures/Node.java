@@ -16,14 +16,14 @@ public class Node {
     /**
      * The label of the leaf node. If it is not a leaf the label is null
      */
-    private String label;
+    private GeneGroup label;
     /**
      * The leafs of the tree rooted in {@code node}
      */
     private List<Node> leafs;
     private Integer height;
 
-    public Node(int index, Integer span, List<Node> children, NodeType type, String label, Integer height,
+    public Node(int index, Integer span, List<Node> children, NodeType type, GeneGroup label, Integer height,
                 List<Node> leafs) {
         this.index = index;
         this.span = span;
@@ -36,12 +36,12 @@ public class Node {
     }
 
     public Node(int index, NodeType type, String label, List<Node> children, boolean setUndefined) {
-        this(index, null, children, type, label, null, null);
+        this(index, null, children, type, new GeneGroup(label,"+"), null, null);
         if(setUndefined)
             setUndefinedFields();
     }
 
-    public String getLabel() {return label;}
+    public GeneGroup getLabel() {return label;}
 
     public int getIndex() {
         return index;

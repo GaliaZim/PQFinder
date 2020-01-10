@@ -1,5 +1,6 @@
 package NodeMappingAlgorithms;
 
+import structures.GeneGroup;
 import structures.Node;
 
 import java.lang.reflect.Constructor;
@@ -18,7 +19,7 @@ public class MappingAlgorithmBuilder {
      */
     public static NodeMappingAlgorithm build(String string, Node node, int treeDeletionLimit,
                                       int stringDeletionLimit,
-                                      BiFunction<String, Character, Double>
+                                      BiFunction<GeneGroup, Character, Double>
                                               substitutionFunction) {
         NodeMappingAlgorithm algorithm;
         try {
@@ -45,7 +46,10 @@ public class MappingAlgorithmBuilder {
     /**
      * returns the same as {@code build}, but constructor methods calls are hard coded
      */
-    private static NodeMappingAlgorithm getNodeMappingAlgorithm(String string, Node node, int treeDeletionLimit, int stringDeletionLimit, BiFunction<String, Character, Double> substitutionFunction) {
+    private static NodeMappingAlgorithm getNodeMappingAlgorithm(String string, Node node, int treeDeletionLimit,
+                                                                int stringDeletionLimit,
+                                                                BiFunction<GeneGroup, Character, Double>
+                                                                        substitutionFunction) {
         NodeMappingAlgorithm algorithm = null;
         switch (node.getType()) {
             case LEAF:

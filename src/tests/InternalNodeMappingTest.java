@@ -8,8 +8,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import structures.GeneGroup;
 import structures.Mapping;
 import structures.Node;
+import visualization.VisualizeMapping;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,7 +22,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 class InternalNodeMappingTest {
-    private static BiFunction<String, Character, Double> substitutionFunction;
+    private static BiFunction<GeneGroup, Character, Double> substitutionFunction;
     private final static String treeHeight3JsonPath = ".\\src\\tests\\treeJSONS\\mixedTypeTreeHeight3";
     private final static String treeHeight4JsonPath = ".\\src\\tests\\treeJSONS\\mixedTypeTreeHeight4";
     private final static String qNodeTreeHeight1JsonPath = ".\\src\\tests\\treeJSONS\\qNodeOneTier";
@@ -28,8 +30,8 @@ class InternalNodeMappingTest {
 
     @BeforeAll
     static void classSetUp() {
-        substitutionFunction = (str, chr) -> {
-            if (chr.equals(str.charAt(3)))
+        substitutionFunction = (geneGroup, chr) -> {
+            if (chr.equals(geneGroup.getCog().charAt(3)))
                 return 1.0;
             else
                 return Double.NEGATIVE_INFINITY;

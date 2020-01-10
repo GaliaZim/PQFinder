@@ -1,6 +1,6 @@
 package NodeMappingAlgorithms;
 
-import org.junit.jupiter.api.Test;
+import structures.GeneGroup;
 import structures.Mapping;
 import structures.Node;
 
@@ -32,7 +32,7 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
     //TODO: Deal with (dT limit > span of node) and (dS limit > substring length). should it be null or -infinity for next level
     InternalNodeMappingAlgorithm(String string, Node node, int treeDeletionLimit,
                                  int stringDeletionLimit,
-                                 BiFunction<String, Character, Double> substitutionFunction) {
+                                 BiFunction<GeneGroup, Character, Double> substitutionFunction) {
         super(string, node, treeDeletionLimit, stringDeletionLimit, substitutionFunction);
         this.mappingsStartingAtSameIndexByEndPoints = new HashMap<>(); //TODO: capacity
         this.numberOfChildren = node.getNumberOfChildren();
