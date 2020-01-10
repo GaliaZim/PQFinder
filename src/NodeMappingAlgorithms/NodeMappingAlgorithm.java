@@ -3,8 +3,10 @@ package NodeMappingAlgorithms;
 import structures.Mapping;
 import structures.Node;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiFunction;
 
 public abstract class NodeMappingAlgorithm {
@@ -93,5 +95,22 @@ public abstract class NodeMappingAlgorithm {
             });
             System.out.println("*********");
         });
+    }
+
+    /**
+     * @return the one-to-one mapping between the leaves descendants of {@code node} and
+     * {@code string} according to the best mapping of the tree rooted in {@code node}
+     * Best mapping according to the {@code Mapping::compareTo} method.
+     */
+    public HashMap<Integer,Node> getBestStringIndexToLeafMapping() {
+        HashMap<Integer, Node> mappingToReturn = null;
+        Optional<Mapping> optionalMaxMapping = resultMappingsByEndPoints.values().stream()
+                .flatMap(Collection::stream).max(Mapping::compareTo);
+        if(optionalMaxMapping.isPresent()) {
+            Mapping maxMapping = optionalMaxMapping.get();
+            System.out.println(maxMapping);
+            mappingToReturn = maxMapping.getLeafMappings();
+        }
+        return mappingToReturn;
     }
 }

@@ -123,23 +123,6 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
     }
 
     /**
-     * @return the one-to-one mapping between the leaves descendants of {@code node} and
-     * {@code string} according to the best mapping of the tree rooted in {@code node}
-     * Best mapping according to the {@code Mapping::compareTo} method.
-     */
-    public HashMap<Integer,Node> getBestStringIndexToLeafMapping() {
-        HashMap<Integer, Node> mappingToReturn = null;
-        Optional<Mapping> optionalMaxMapping = resultMappingsByEndPoints.values().stream()
-                .flatMap(Collection::stream).max(Mapping::compareTo);
-        if(optionalMaxMapping.isPresent()) {
-            Mapping maxMapping = optionalMaxMapping.get();
-            System.out.println(maxMapping);
-            mappingToReturn = maxMapping.getLeafMappings();
-        }
-        return mappingToReturn;
-    }
-
-    /**
      * Calculate the spans of the children of {@code node} in an accumulative way as dictated by the type of
      * {@code node} and its mapping algorithm
      */
