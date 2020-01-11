@@ -41,7 +41,8 @@ class InternalNodeMappingTest {
     }
 
     private static Stream<Arguments> internalNodeMappingTest() {
-        List<String> jsonPaths = Arrays.asList(treeHeight3JsonPath, treeHeight4JsonPath,
+        List<String> jsonPaths = Arrays.asList(
+                treeHeight3JsonPath, treeHeight4JsonPath,
                 pNodeTreeHeight1JsonPath, qNodeTreeHeight1JsonPath);
         List<Node> roots = new ArrayList<>();
         for (String jsonPath : jsonPaths) {

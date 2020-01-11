@@ -1,5 +1,6 @@
 package visualization;
 
+import structures.GeneGroup;
 import structures.Node;
 
 import javax.swing.*;
@@ -9,7 +10,7 @@ import java.util.List;
 
 public class VisualizeMapping {
 
-    public static void draw(Node treeRoot, String string, HashMap<Integer, Node> map) {
+    public static void draw(Node treeRoot, ArrayList<GeneGroup> string, HashMap<Integer, Node> map) {
         //map: key - leaf, value - string index
         HashMap<Integer, Integer> connectionsMap = new HashMap<>();
 
@@ -41,19 +42,19 @@ public class VisualizeMapping {
         TreePanel treePanel= new TreePanel(treeRoot);
         leafsAndStringPanel.add(treePanel);
 
-        Point[] stringCharPositions = new Point[string.length()];
+        Point[] stringCharPositions = new Point[string.size()];
         JPanel stringPanel = new JPanel();
         stringPanel.setLayout(flowLayout);
         int charIndex = 0;
-        for (char c : string.toCharArray()) {
-            jLabel = new JLabel(new String(new char[]{c}));
+        for (GeneGroup geneGroup : string) {
+            jLabel = new JLabel(geneGroup.toString());
             jLabel.setFont(font);
             stringPanel.add(jLabel,charIndex);
             charIndex++;
         }
         leafsAndStringPanel.add(stringPanel);
 
-        int width = string.length() * 100;
+        int width = string.size() * 1000;
         leafsAndStringPanel.setSize(width, 500);
         jFrame.add(leafsAndStringPanel);
         jFrame.setSize(width, 1000);
@@ -62,8 +63,9 @@ public class VisualizeMapping {
         Point[] leafsPositions = new Point[leafs.size()];
 //        Point leafPanelPosition = leafsPanel.getLocation();
         Point stringPanelPosition = stringPanel.getLocation();
-        for (int i = 0; i < string.length(); i++) {
-            stringCharPositions[i] = calcLinePosition(stringPanelPosition, stringPanel.getComponent(i).getBounds(), false);
+        for (int i = 0; i < string.size(); i++) {
+            stringCharPositions[i] = calcLinePosition(stringPanelPosition,
+                    stringPanel.getComponent(i).getBounds(), false);
         }
 
         ConnectingLinesPanel connectingLinesPanel = new ConnectingLinesPanel();
@@ -74,8 +76,8 @@ public class VisualizeMapping {
             int index;
             for(Map.Entry<Node, Point> leafAndLocation : leafLocations.entrySet()) {
                 index = leafs.indexOf(leafAndLocation.getKey());
-                leafsPositions[index] = calcLinePosition(new Point(1,0), leafAndLocation.getValue(),
-                        TreePanel.SYMBOL_WIDTH, TreePanel.SYMBOL_HEIGHT);
+                leafsPositions[index] = calcLinePosition(new Point(1,0),
+                        leafAndLocation.getValue(), TreePanel.SYMBOL_WIDTH, TreePanel.SYMBOL_HEIGHT);
             }
             connectingLinesPanel.set(connectionsMap, leafsPositions, stringCharPositions);
             connectingLinesPanel.repaint();
@@ -96,7 +98,7 @@ public class VisualizeMapping {
 
     private static Point calcLinePosition(Point offset, Point location, int leafWidth, int leafHegiht) {
         int x = Math.toIntExact(Math.round(offset.getX() + location.getX() + (0.5 * leafWidth))) + 6;
-        int y = Math.toIntExact(Math.round(offset.getY() + location.getY()))+2;
+        int y = Math.toIntExact(Math.round(offset.getY() + location.getY())) + 6;
         return new Point(x, y);
     }
     private static Point calcLinePosition(Point offset, Rectangle rectangle, boolean bottom) {
@@ -104,7 +106,7 @@ public class VisualizeMapping {
         if(bottom)
             addToY = rectangle.getHeight();
         else
-            addToY = 0.0;
+            addToY = 4.0;
         int x = Math.toIntExact(Math.round(offset.getX() + rectangle.getX() + (0.5 * rectangle.getWidth()))) + 6;
         int y = Math.toIntExact(Math.round(offset.getY() + rectangle.getY()+ addToY));
         return new Point(x, y);

@@ -26,7 +26,9 @@ public class TreePanel extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
 //        int height = treeRoot.getHeight();
-        paintNode(g, treeRoot, 2, 2);
+        Font font = new Font("Courier New", Font.ITALIC, 24);
+        g.setFont(font);
+        paintNode(g, treeRoot, 50, 2);
     }
 
     int getExpectedHeight() {
