@@ -23,7 +23,7 @@ public class Node {
     private List<Node> leafs;
     private Integer height;
 
-    public Node(int index, Integer span, List<Node> children, NodeType type, GeneGroup label, Integer height,
+    public Node(int index, NodeType type, Integer span, GeneGroup label, List<Node> children, Integer height,
                 List<Node> leafs) {
         this.index = index;
         this.span = span;
@@ -36,7 +36,11 @@ public class Node {
     }
 
     public Node(int index, NodeType type, String label, List<Node> children, boolean setUndefined) {
-        this(index, null, children, type, new GeneGroup(label,"+"), null, null);
+        this(index, type, new GeneGroup(label), children, setUndefined);
+    }
+
+    public Node(int index, NodeType type, GeneGroup label, List<Node> children, boolean setUndefined) {
+        this(index, type, null, label, children, null, null);
         if(setUndefined)
             setUndefinedFields();
     }

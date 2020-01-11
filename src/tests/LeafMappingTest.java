@@ -32,12 +32,12 @@ public class LeafMappingTest {
     private static Stream<Arguments> LeafMappingTestProvider() {
         List<Node> emptyList = Collections.emptyList();
         return Stream.of(
-                Arguments.of("123423145682", new Node(1, NodeType.LEAF, "cog2", emptyList, false), 0, 0),
-                Arguments.of("123423145682", new Node(1, NodeType.LEAF, "cog2", emptyList, false), 2, 3),
-                Arguments.of("1", new Node(1, NodeType.LEAF, "cog5", emptyList, false), 2, 1),
-                Arguments.of("", new Node(1, NodeType.LEAF, "cog5", emptyList, false), 2, 1),
-                Arguments.of("156253451525", new Node(1, NodeType.LEAF, "cog5", emptyList, false), 0, 1),
-                Arguments.of("156253451525", new Node(1, NodeType.LEAF, "cog5", emptyList, false), 2, 0)
+                Arguments.of("123423145682", new Node(1, NodeType.LEAF, "cog2+", emptyList, false), 0, 0),
+                Arguments.of("123423145682", new Node(1, NodeType.LEAF, "cog2+", emptyList, false), 2, 3),
+                Arguments.of("1", new Node(1, NodeType.LEAF, "cog5+", emptyList, false), 2, 1),
+                Arguments.of("", new Node(1, NodeType.LEAF, "cog5+", emptyList, false), 2, 1),
+                Arguments.of("156253451525", new Node(1, NodeType.LEAF, "cog5+", emptyList, false), 0, 1),
+                Arguments.of("156253451525", new Node(1, NodeType.LEAF, "cog5+", emptyList, false), 2, 0)
         );
     }
 

@@ -9,6 +9,18 @@ public class GeneGroup {
         this.strand = Strand.getStrand(strand);
     }
 
+    public GeneGroup(String label_string) {
+        int len = label_string.length();
+        String strandString = "" + label_string.charAt(len - 1);
+        if(strandString.equals("+") | strandString.equals("-")) {
+            this.cog = label_string.substring(0, len - 1);
+        } else {
+            this.cog = label_string;
+            strandString = "+";
+        }
+        this.strand = Strand.getStrand(strandString);
+    }
+
     public String getCog() {
         return cog;
     }

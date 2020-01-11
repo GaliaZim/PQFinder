@@ -3,6 +3,7 @@ package helpers;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.*;
+import structures.GeneGroup;
 import structures.Node;
 import structures.NodeType;
 
@@ -29,11 +30,12 @@ public class PrepareInput {
     private static Node getNode(JSONObject nodeObject, int smallestIndexInNodeSubtree) {
         String type = (String)nodeObject.get(NODE_TYPE_JSON_KEY);
         NodeType nodeType = NodeType.valueOf(type);
-        String cog = null;
+        GeneGroup label = null;
         List<Node> children = new ArrayList<>();
         int index;
         if(nodeType == NodeType.LEAF) {
-            cog = (String)nodeObject.get(COG_JSON_KEY);
+            String labelString = (String)nodeObject.get(COG_JSON_KEY);
+            label = new GeneGroup(labelString);
             index = smallestIndexInNodeSubtree;
         } else {
             JSONArray childrenArray = (JSONArray) nodeObject.get(CHILDREN_JSON_KEY);
@@ -47,7 +49,7 @@ public class PrepareInput {
             }
             index = smallestIndexInChildSubtree;
         }
-        return new Node(index, nodeType, cog, children, true);
+        return new Node(index, nodeType, label, children, true);
     }
 
     public static void main(String[] args) {
