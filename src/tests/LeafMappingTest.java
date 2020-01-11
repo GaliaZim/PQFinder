@@ -2,7 +2,6 @@ package tests;
 
 import NodeMappingAlgorithms.LeafMappingAlgorithm;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -48,35 +47,7 @@ public class LeafMappingTest {
                 treeDeletionLimit, stringDeletionLimit, substitutionFunction);
         algorithm.runAlgorithm();
         HashMap<Integer, List<Mapping>> resultMappingsByEndPoints = algorithm.getResultMappingsByEndPoints();
-        assertLeafMappings(resultMappingsByEndPoints, string, leaf.getLabel());
-    }
-
-    private void assertLeafMappings(HashMap<Integer, List<Mapping>> resultMappingsByEndPoints,
-                                    String string, GeneGroup leafLabel) {
-        double expectedScore;
-        int endPoint;
-        Assertions.assertEquals(string.length() + 1, resultMappingsByEndPoints.size(),
-                "Number of end points in result mapping does not match string length");
-        for(Map.Entry<Integer, List<Mapping>> entry : resultMappingsByEndPoints.entrySet()) {
-            endPoint = entry.getKey();
-            List<Mapping> mappingList = entry.getValue();
-            Assertions.assertEquals(1, mappingList.size(),
-                    "Illegal number of mappings at end point " + endPoint);
-            Mapping mapping = mappingList.get(0);
-            Assertions.assertEquals(endPoint, mapping.getStartIndex(),
-                    "The mapping's start index does not match its index in mappingsByEndPoint");
-            Assertions.assertEquals(endPoint, mapping.getEndIndex(),
-                    "The mapping's end index does not match its index in mappingsByEndPoint");
-            Assertions.assertEquals(0, mapping.getTreeDeletions(),
-                    "Allowed tree deletions in leaf mapping");
-            Assertions.assertEquals(0, mapping.getStringDeletions(),
-                    "Allowed string deletions in leaf mapping");
-            if(endPoint == 0)
-                expectedScore = 0.0;
-            else
-                expectedScore = substitutionFunction.apply(leafLabel, string.charAt(mapping.getStartIndex() - 1));
-            Assertions.assertEquals(expectedScore, mapping.getScore(),
-                    "Score does not match substitution function");
-        }
+        MappingAssertions.assertLeafMappings(resultMappingsByEndPoints, string, leaf.getLabel(), substitutionFunction);
+        algorithm.printResultMappings();
     }
 }
