@@ -22,7 +22,8 @@ import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 class InternalNodeMappingTest {
-    private static BiFunction<GeneGroup, Character, Double> substitutionFunction;
+    private static BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction;
+    private static GeneGroupsProvider geneGroupsProvider;
     private final static String treeHeight3JsonPath = ".\\src\\tests\\treeJSONS\\mixedTypeTreeHeight3";
     private final static String treeHeight4JsonPath = ".\\src\\tests\\treeJSONS\\mixedTypeTreeHeight4";
     private final static String qNodeTreeHeight1JsonPath = ".\\src\\tests\\treeJSONS\\qNodeOneTier";
@@ -30,12 +31,13 @@ class InternalNodeMappingTest {
 
     @BeforeAll
     static void classSetUp() {
-        substitutionFunction = (geneGroup, chr) -> {
-            if (chr.equals(geneGroup.getCog().charAt(3)))
+        substitutionFunction = (leafGeneGroup, stringGeneGroup) -> {
+            if (stringGeneGroup.getCog().equals(leafGeneGroup.getCog()))
                 return 1.0;
             else
                 return Double.NEGATIVE_INFINITY;
         };
+        geneGroupsProvider = GeneGroupsProvider.getInstance();
     }
 
     private static Stream<Arguments> internalNodeMappingTest() {
@@ -72,9 +74,12 @@ class InternalNodeMappingTest {
 
     @ParameterizedTest
     @MethodSource("internalNodeMappingTest")
-    void internalNodeMappingTest(Node root, String string, int treeDeletionLimit, int stringDeletionLimit) throws ExceptionInInitializerError {
+    void internalNodeMappingTest(Node root, String str, int treeDeletionLimit, int stringDeletionLimit)
+            throws ExceptionInInitializerError {
+        ArrayList<GeneGroup> string = geneGroupsProvider.convertToGeneGroups(str);
         NodeMappingAlgorithm algorithm =
-                MappingAlgorithmBuilder.build(string, root, treeDeletionLimit, stringDeletionLimit, substitutionFunction);
+                MappingAlgorithmBuilder.build(string, root, treeDeletionLimit, stringDeletionLimit,
+                        substitutionFunction);
         algorithm.runAlgorithm();
         HashMap<Integer, List<Mapping>> resultMappingsByEndPoints = algorithm.getResultMappingsByEndPoints();
 //        VisualizeMapping.draw(algorithm.getNode(), algorithm.getString(), algorithm.getBestStringIndexToLeafMapping());

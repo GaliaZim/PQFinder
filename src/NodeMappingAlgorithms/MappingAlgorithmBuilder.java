@@ -5,6 +5,7 @@ import structures.Node;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.function.BiFunction;
 
 public class MappingAlgorithmBuilder {
@@ -17,16 +18,16 @@ public class MappingAlgorithmBuilder {
      *                             of the leafs of the tree rooted in {@code node}
      * @return A Node mapping algorithm according to the type of {@code node}
      */
-    public static NodeMappingAlgorithm build(String string, Node node, int treeDeletionLimit,
-                                      int stringDeletionLimit,
-                                      BiFunction<GeneGroup, Character, Double>
+    public static NodeMappingAlgorithm build(ArrayList<GeneGroup> string, Node node, int treeDeletionLimit,
+                                             int stringDeletionLimit,
+                                             BiFunction<GeneGroup, GeneGroup, Double>
                                               substitutionFunction) {
         NodeMappingAlgorithm algorithm;
         try {
             Constructor constructor;
             Class<?> mappingAlgorithmClass = node.getType().getMappingAlgorithm();
             constructor = mappingAlgorithmClass
-                    .getConstructor(String.class, Node.class, int.class, int.class, BiFunction.class);
+                    .getConstructor(ArrayList.class, Node.class, int.class, int.class, BiFunction.class);
             Object newInstance = constructor.newInstance(string, node, treeDeletionLimit,
                     stringDeletionLimit, substitutionFunction);
             if(mappingAlgorithmClass.isInstance(newInstance))
@@ -46,9 +47,9 @@ public class MappingAlgorithmBuilder {
     /**
      * returns the same as {@code build}, but constructor methods calls are hard coded
      */
-    private static NodeMappingAlgorithm getNodeMappingAlgorithm(String string, Node node, int treeDeletionLimit,
-                                                                int stringDeletionLimit,
-                                                                BiFunction<GeneGroup, Character, Double>
+    private static NodeMappingAlgorithm getNodeMappingAlgorithm(ArrayList<GeneGroup> string, Node node,
+                                                                int treeDeletionLimit, int stringDeletionLimit,
+                                                                BiFunction<GeneGroup, GeneGroup, Double>
                                                                         substitutionFunction) {
         NodeMappingAlgorithm algorithm = null;
         switch (node.getType()) {

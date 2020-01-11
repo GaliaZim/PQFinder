@@ -10,8 +10,8 @@ import java.util.function.BiFunction;
 
 public class LeafMappingAlgorithm extends NodeMappingAlgorithm {
 
-    public LeafMappingAlgorithm(String string, Node node, int treeDeletionLimit, int stringDeletionLimit,
-                                BiFunction<GeneGroup,Character,Double> substitutionFunction) {
+    public LeafMappingAlgorithm(ArrayList<GeneGroup> string, Node node, int treeDeletionLimit, int stringDeletionLimit,
+                                BiFunction<GeneGroup,GeneGroup,Double> substitutionFunction) {
         super(string, node, treeDeletionLimit, stringDeletionLimit, substitutionFunction);
     }
 
@@ -23,8 +23,8 @@ public class LeafMappingAlgorithm extends NodeMappingAlgorithm {
     public void runAlgorithm() {
         Double score;
         addMappingByEndPoint(0, 0.0);
-        for (int i = 1; i <= string.length(); i++) {
-            score = substitutionFunction.apply(node.getLabel(),string.charAt(i-1));
+        for (int i = 1; i <= string.size(); i++) {
+            score = substitutionFunction.apply(node.getLabel(),string.get(i-1));
             addMappingByEndPoint(i, score);
         }
     }

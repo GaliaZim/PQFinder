@@ -21,9 +21,9 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
      */
     private int[] subsetSpans;
 
-    public PNodeMappingAlgorithm(String string, Node node, int treeDeletionLimit,
+    public PNodeMappingAlgorithm(ArrayList<GeneGroup> string, Node node, int treeDeletionLimit,
                                  int stringDeletionLimit,
-                                 BiFunction<GeneGroup, Character, Double> substitutionFunction) {
+                                 BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction) {
         super(string, node, treeDeletionLimit, stringDeletionLimit, substitutionFunction);
         this.numberOfSubsets = (int) Math.pow(2,numberOfChildren);
         this.subsetSpans = new int[numberOfSubsets];

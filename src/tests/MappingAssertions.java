@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import structures.GeneGroup;
 import structures.Mapping;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,10 +59,11 @@ class MappingAssertions {
     }
 
     static void assertLeafMappings(HashMap<Integer, List<Mapping>> resultMappingsByEndPoints,
-                            String string, GeneGroup leafLabel, BiFunction<GeneGroup, Character, Double> substitutionFunction) {
+                                   ArrayList<GeneGroup> string, GeneGroup leafLabel,
+                                   BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction) {
         double expectedScore;
         int endPoint;
-        Assertions.assertEquals(string.length() + 1, resultMappingsByEndPoints.size(),
+        Assertions.assertEquals(string.size() + 1, resultMappingsByEndPoints.size(),
                 "Number of end points in result mapping does not match string length");
         for(Map.Entry<Integer, List<Mapping>> entry : resultMappingsByEndPoints.entrySet()) {
             endPoint = entry.getKey();
@@ -80,7 +82,7 @@ class MappingAssertions {
             if(endPoint == 0)
                 expectedScore = 0.0;
             else
-                expectedScore = substitutionFunction.apply(leafLabel, string.charAt(mapping.getStartIndex() - 1));
+                expectedScore = substitutionFunction.apply(leafLabel, string.get(mapping.getStartIndex() - 1));
             Assertions.assertEquals(expectedScore, mapping.getScore(),
                     "Score does not match substitution function");
         }

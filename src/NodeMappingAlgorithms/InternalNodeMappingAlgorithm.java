@@ -30,9 +30,9 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
     int numberOfChildren;
 
     //TODO: Deal with (dT limit > span of node) and (dS limit > substring length). should it be null or -infinity for next level
-    InternalNodeMappingAlgorithm(String string, Node node, int treeDeletionLimit,
+    InternalNodeMappingAlgorithm(ArrayList<GeneGroup> string, Node node, int treeDeletionLimit,
                                  int stringDeletionLimit,
-                                 BiFunction<GeneGroup, Character, Double> substitutionFunction) {
+                                 BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction) {
         super(string, node, treeDeletionLimit, stringDeletionLimit, substitutionFunction);
         this.mappingsStartingAtSameIndexByEndPoints = new HashMap<>(); //TODO: capacity
         this.numberOfChildren = node.getNumberOfChildren();
@@ -62,7 +62,7 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
         calculateSpans();
         int maxLength = node.getSpan() + stringDeletionLimit;
         int minLength = Math.max(node.getSpan() - treeDeletionLimit, 1);
-        int stringLastIndex = string.length();
+        int stringLastIndex = string.size();
         int smallestEndPoint = Math.min(Math.max(minLength, 1), stringLastIndex);
         resultMappingsByEndPoints = createMappingsByEndPoints(smallestEndPoint, stringLastIndex);
         int largestStartIndex = Math.max(stringLastIndex - minLength + 1, 1);

@@ -4,17 +4,14 @@ import structures.GeneGroup;
 import structures.Mapping;
 import structures.Node;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiFunction;
 
 public abstract class NodeMappingAlgorithm {
     /**
      * The string to map
      */
-    String string;
+    ArrayList<GeneGroup> string;
     /**
      * The node to map
      */
@@ -31,7 +28,7 @@ public abstract class NodeMappingAlgorithm {
      * {@code substitutionFunction(A,B)} returns the score for substituting the leaf symbol A with
      * the character B of {@code string}.
      */
-    BiFunction<GeneGroup,Character,Double> substitutionFunction;
+    BiFunction<GeneGroup,GeneGroup,Double> substitutionFunction;
     /**
      * key: an index of {@code string}
      * value: a list of mappings between {@code node} and substrings of {@code string} ending at {@code key}.
@@ -39,8 +36,8 @@ public abstract class NodeMappingAlgorithm {
      */
     HashMap<Integer, List<Mapping>> resultMappingsByEndPoints;
 
-    NodeMappingAlgorithm(String string, Node node, int treeDeletionLimit, int stringDeletionLimit,
-                         BiFunction<GeneGroup, Character, Double> substitutionFunction) {
+    NodeMappingAlgorithm(ArrayList<GeneGroup> string, Node node, int treeDeletionLimit, int stringDeletionLimit,
+                         BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction) {
         this.string = string;
         this.node = node;
         this.treeDeletionLimit = treeDeletionLimit;
@@ -66,7 +63,7 @@ public abstract class NodeMappingAlgorithm {
     /**
      * @return The string to be mapped
      */
-    public String getString() {
+    public ArrayList<GeneGroup> getString() {
         return string;
     }
 
