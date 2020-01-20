@@ -22,10 +22,12 @@ public class LeafMappingAlgorithm extends NodeMappingAlgorithm {
     @Override
     public void runAlgorithm() {
         Double score;
-        addMappingByEndPoint(0, 0.0);
-        for (int i = 1; i <= string.size(); i++) {
-            score = substitutionFunction.apply(node.getLabel(),string.get(i-1));
-            addMappingByEndPoint(i, score);
+        int endPoint = 0;
+        addMappingByEndPoint(endPoint, 0.0);
+        for(GeneGroup stringGeneGroup : string) {
+            endPoint++;
+            score = substitutionFunction.apply(node.getLabel(), stringGeneGroup);
+            addMappingByEndPoint(endPoint, score);
         }
     }
 
