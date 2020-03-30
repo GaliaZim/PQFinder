@@ -2,49 +2,31 @@ package visualization;
 
 import structures.GeneGroup;
 import structures.Node;
+import visualization.panels.DrawablePanel;
+import visualization.panels.MappingLinesPanel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
-import java.util.List;
 
 public class VisualizeMapping {
-
-    public static void draw(Node treeRoot, ArrayList<GeneGroup> string, HashMap<Integer, Node> map) {
-        //map: key - leaf, value - string index
-        HashMap<Integer, Integer> connectionsMap = new HashMap<>();
-
-        JFrame jFrame = new JFrame();
-//        jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        JLabel jLabel;
-        Font font = new Font("Courier New", Font.ITALIC, 24);
-        FlowLayout flowLayout = new FlowLayout(FlowLayout.LEFT, 20, 2);
-
-        jFrame.setLayout(new OverlayLayout(jFrame.getContentPane()));
-        JPanel leafsAndStringPanel = new JPanel();
-        leafsAndStringPanel.setLayout(new GridLayout(2,1));
-
-        JPanel leafsPanel = new JPanel();
-        List<Node> leafs = treeRoot.getLeafs();
-        leafsPanel.setLayout(flowLayout);
-        int leafIndex = 0;
-        for (Node leaf : leafs) {
-            jLabel = new JLabel(leaf.getLabel().toString());
-            jLabel.setFont(font);
-            leafsPanel.add(jLabel,leafIndex);
-            leafIndex++;
-            int stringIndex = find(leaf, map);
-            if(stringIndex > -1)
-                connectionsMap.put(leafIndex, stringIndex);
-        }
-//        leafsAndStringPanel.add(leafsPanel);
-        TreePanel treePanel= new TreePanel(treeRoot);
-        leafsAndStringPanel.add(treePanel);
-
+    public static Point[] getStringLabelsPositions(ArrayList<GeneGroup> string, JPanel stringPanel) {
         Point[] stringCharPositions = new Point[string.size()];
+        Point stringPanelPosition = stringPanel.getLocation();
+        for (int i = 0; i < string.size(); i++) {
+            stringCharPositions[i] = calcLinePosition(stringPanelPosition,
+                    stringPanel.getComponent(i).getBounds(), false);
+        }
+        return stringCharPositions;
+    }
+
+    public static JPanel createStringPanel(ArrayList<GeneGroup> string, Font font) {
+        JLabel jLabel;
         JPanel stringPanel = new JPanel();
+        FlowLayout flowLayout = new FlowLayout();
+        flowLayout.setHgap(Constants.NODE_HORIZONTAL_SPACE);
         stringPanel.setLayout(flowLayout);
+
         int charIndex = 0;
         for (GeneGroup geneGroup : string) {
             jLabel = new JLabel(geneGroup.toString());
@@ -52,55 +34,9 @@ public class VisualizeMapping {
             stringPanel.add(jLabel,charIndex);
             charIndex++;
         }
-        leafsAndStringPanel.add(stringPanel);
-
-        int width = string.size() * 1000;
-        leafsAndStringPanel.setSize(width, 500);
-        jFrame.add(leafsAndStringPanel);
-        jFrame.setSize(width, 1000);
-        jFrame.setVisible(true);
-
-        Point[] leafsPositions = new Point[leafs.size()];
-//        Point leafPanelPosition = leafsPanel.getLocation();
-        Point stringPanelPosition = stringPanel.getLocation();
-        for (int i = 0; i < string.size(); i++) {
-            stringCharPositions[i] = calcLinePosition(stringPanelPosition,
-                    stringPanel.getComponent(i).getBounds(), false);
-        }
-
-        ConnectingLinesPanel connectingLinesPanel = new ConnectingLinesPanel();
-        jFrame.add(connectingLinesPanel, 0);
-        JButton button = new JButton("Map");
-        button.addActionListener(event->{
-            HashMap<Node, Point> leafLocations = treePanel.getLeafLocations();
-            int index;
-            for(Map.Entry<Node, Point> leafAndLocation : leafLocations.entrySet()) {
-                index = leafs.indexOf(leafAndLocation.getKey());
-                leafsPositions[index] = calcLinePosition(new Point(1,0),
-                        leafAndLocation.getValue(), TreePanel.SYMBOL_WIDTH, TreePanel.SYMBOL_HEIGHT);
-            }
-            connectingLinesPanel.set(connectionsMap, leafsPositions, stringCharPositions);
-            connectingLinesPanel.repaint();
-        });
-        stringPanel.add(button);
-        jFrame.setResizable(false);
-        while (jFrame.isActive()){}
+        return stringPanel;
     }
 
-    private static int find(Node leaf, HashMap<Integer, Node> map) {
-        int res = -1;
-        for(Map.Entry<Integer, Node> integerNodeEntry: map.entrySet()) {
-            if(integerNodeEntry.getValue().equals(leaf))
-                return integerNodeEntry.getKey();
-        }
-        return res;
-    }
-
-    private static Point calcLinePosition(Point offset, Point location, int leafWidth, int leafHegiht) {
-        int x = Math.toIntExact(Math.round(offset.getX() + location.getX() + (0.5 * leafWidth))) + 6;
-        int y = Math.toIntExact(Math.round(offset.getY() + location.getY())) + 6;
-        return new Point(x, y);
-    }
     private static Point calcLinePosition(Point offset, Rectangle rectangle, boolean bottom) {
         double addToY;
         if(bottom)
@@ -110,5 +46,54 @@ public class VisualizeMapping {
         int x = Math.toIntExact(Math.round(offset.getX() + rectangle.getX() + (0.5 * rectangle.getWidth()))) + 6;
         int y = Math.toIntExact(Math.round(offset.getY() + rectangle.getY()+ addToY));
         return new Point(x, y);
+    }
+
+    public static void visualize(Node treeRoot, ArrayList<GeneGroup> string, HashMap<Integer, Node> mapping){
+            //String and tree panel
+            Font font = new Font("Courier New", Font.ITALIC, 24);
+            GridLayout gridLayout = new GridLayout(2, 1);
+            gridLayout.setVgap(50);
+            JPanel stringAndTreePanel = new JPanel();
+            stringAndTreePanel.setLayout(gridLayout);
+
+            //Add tree to panel
+            TreePanelCreator creator = new TreePanelCreator(treeRoot, font);
+            DrawablePanel treeJPanel = creator.createTreeJPanel(0, 10);
+            stringAndTreePanel.add(treeJPanel);
+
+            //Add string to panel
+            JPanel stringPanel = createStringPanel(string, font);
+            stringAndTreePanel.add(stringPanel);
+
+            // Panel for string, tree and mapping lines
+            JPanel mappingPanel = new JPanel();
+            mappingPanel.setLayout(new OverlayLayout(mappingPanel));
+            mappingPanel.add(stringAndTreePanel);
+
+            // Add mapping lines
+            MappingLinesPanel mappingLines = new MappingLinesPanel();
+            mappingPanel.add(mappingLines,0);
+
+            //button to draw mapping lines
+            JButton button = new JButton("Map");
+            button.addActionListener(event->{
+                Point[] stringCharPositions = getStringLabelsPositions(string, stringPanel);
+                HashMap<Node, Point> leafLocations = treeJPanel.getLeafConnections();
+                mappingLines.set(mapping, leafLocations, stringCharPositions);
+                mappingPanel.repaint();
+                button.setEnabled(false);
+            });
+
+            // Main JFrame
+            JFrame jFrame = new JFrame();
+            jFrame.setLayout(new BorderLayout());
+            jFrame.setSize(1800, 1000);
+            jFrame.setVisible(true);
+            jFrame.setResizable(false);
+
+            // Add all objects to main panel
+            jFrame.add(mappingPanel, BorderLayout.CENTER);
+            jFrame.add(button, BorderLayout.LINE_END);
+            jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 }
