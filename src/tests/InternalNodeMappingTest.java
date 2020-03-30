@@ -5,6 +5,7 @@ import NodeMappingAlgorithms.NodeMappingAlgorithm;
 import helpers.PrepareInput;
 import org.json.simple.parser.ParseException;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -83,7 +84,23 @@ class InternalNodeMappingTest {
                         substitutionFunction);
         algorithm.runAlgorithm();
         HashMap<Integer, List<Mapping>> resultMappingsByEndPoints = algorithm.getResultMappingsByEndPoints();
-//        VisualizeMapping.draw(algorithm.getNode(), algorithm.getString(), algorithm.getBestStringIndexToLeafMapping());
         MappingAssertions.assertGenericMappingMapProperties(resultMappingsByEndPoints);
+    }
+
+    @Test
+    void visualizeTest() {
+        try {
+            Node tree = PrepareInput.buildTree(treeHeight4JsonPath);
+            ArrayList<GeneGroup> string = geneGroupsProvider.convertToGeneGroups("57413722534623");
+            NodeMappingAlgorithm algorithm =
+                    MappingAlgorithmBuilder.build(string, tree, 2, 3,
+                            substitutionFunction);
+            algorithm.runAlgorithm();
+            VisualizeMapping.visualize(algorithm.getNode(), algorithm.getString(),
+                    algorithm.getBestStringIndexToLeafMapping());
+            Thread.sleep(5000);
+        } catch (IOException | ParseException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
