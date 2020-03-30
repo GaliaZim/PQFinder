@@ -1,10 +1,16 @@
 package tests;
 
 import helpers.ChildrenSubsetEncoding;
+import helpers.IndexToChildNodeEncoder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import structures.ChildrenOrder;
+import structures.Node;
+import structures.NodeType;
 
 import java.util.*;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class EncodingTests {
 
@@ -60,5 +66,21 @@ public class EncodingTests {
         Assertions.assertEquals(missingChildIndex, ChildrenSubsetEncoding.getMissingChild(
                 ChildrenSubsetEncoding.childrenSubsetToIndex(set1),
                 ChildrenSubsetEncoding.childrenSubsetToIndex(set2)));
+    }
+
+    @Test
+    public void indexToChildNodeTest () {
+        List<Node> childrenList = createChildrenList(7);
+        IndexToChildNodeEncoder encoder = new IndexToChildNodeEncoder(childrenList);
+        Assertions.assertEquals(3, encoder.indexToChildNode(3, ChildrenOrder.LTR).getIndex());
+        Assertions.assertEquals(5, encoder.indexToChildNode(3, ChildrenOrder.RTL).getIndex());
+    }
+
+    private List<Node> createChildrenList(int numberOfChildren) {
+        List<Node> childrenList = new ArrayList<>();
+        IntStream.rangeClosed(1, numberOfChildren).forEach(
+                i -> childrenList.add(
+                        new Node(i, NodeType.LEAF, String.valueOf(i), Collections.emptyList(), false)));
+        return childrenList;
     }
 }
