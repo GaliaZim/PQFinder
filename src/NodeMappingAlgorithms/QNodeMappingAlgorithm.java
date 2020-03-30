@@ -40,14 +40,14 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
      * @param spans the spans array to use according to the direction of the mapping of the children
      * @param stringStartIndex The first index of {@code string} from which mappings can begin
      * @param stringEndIndex The last index of {@code string} in which mappings can end
-     * @param rTL {@code true}, if the direction of the mapping of the children is from right to left
-     * Calculates the best mapping between {@code node} and a substring of {@code string} starting at
-     * {@code strngStartIndex} for every deletion combination, where the direction of the mapping of
-     *                        the children is either from left to right or from right to left according
-     *                        to {@code rTL}.
+     * @param childrenOrder {@code true}, if the direction of the mapping of the children is from right to left
+* Calculates the best mapping between {@code node} and a substring of {@code string} starting at
+* {@code strngStartIndex} for every deletion combination, where the direction of the mapping of
+*                        the children is either from left to right or from right to left according
+*                        to {@code rTL}.
      */
     private void oneDirectionMapping(Backtrack[][][] dPTable, int[] spans, int stringStartIndex,
-                                     int stringEndIndex, boolean rTL) {
+                                     int stringEndIndex, ChildrenOrder childrenOrder) {
         int endPoint, length;
         Backtrack max;
         Node childNode;
@@ -60,7 +60,7 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
                     if(endPoint <= stringEndIndex & length >= 0) {
                         max = new Backtrack(Double.NEGATIVE_INFINITY);
                         if(!(length == 0 & kS != 0)) { //if length==0 & ks!=0 --> illegal entry gets -infinity
-                            childNode = encoder.indexToChildNode(childIndex, rTL);
+                            childNode = encoder.indexToChildNode(childIndex, childrenOrder);
                             //choose from child's mappings
                             if (length > 0) {
                                 max = findMaxMappingByEndPoint(dPTable, childIndex, kT, kS,
@@ -132,10 +132,10 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
     @Override
     protected void map(int stringStartIndex, int stringEndIndex, int minLength) {
         dPTableLTR = createEmptyDPTable();
-        oneDirectionMapping(dPTableLTR, spansLTR, stringStartIndex, stringEndIndex, false);
+        oneDirectionMapping(dPTableLTR, spansLTR, stringStartIndex, stringEndIndex, ChildrenOrder.LTR);
 
         dPTableRTL = createEmptyDPTable();
-        oneDirectionMapping(dPTableRTL, spansRTL, stringStartIndex, stringEndIndex, true);
+        oneDirectionMapping(dPTableRTL, spansRTL, stringStartIndex, stringEndIndex, ChildrenOrder.RTL);
 //        printDPTable(dPTableRTL);
 
         buildResult(stringStartIndex, stringEndIndex, minLength);
@@ -226,10 +226,10 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
         Backtrack backtrackLTR;
         Backtrack backtrackRTL;
         Backtrack backtrack;
-        boolean isRTL;
+        ChildrenOrder childrenOrder;
         int endPoint, length;
         mappingsStartingAtSameIndexByEndPoints =
-                createMappingsByEndPoints(stringStartIndex - 1 + minLength, stringEndIndex);
+                createEmptyMappingListsByEndPoints(stringStartIndex - 1 + minLength, stringEndIndex);
         //For every deletion combination
         for (int kT = 0; kT <= treeDeletionLimit; kT++) {
             for (int kS = 0; kS <= stringDeletionLimit; kS++) {
@@ -243,18 +243,18 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
                         dPTable = dPTableLTR;
                         spans = spansLTR;
                         backtrack = backtrackLTR;
-                        isRTL = false;
+                        childrenOrder = ChildrenOrder.LTR;
                     } else {
                         dPTable = dPTableRTL;
                         spans = spansRTL;
                         backtrack = backtrackRTL;
-                        isRTL = true;
+                        childrenOrder = ChildrenOrder.RTL;
                     }
                     nodeMapping = new Mapping(node, stringStartIndex, kS, kT, backtrack.getScore());
                     //if the score is not -infinity, calculate the deletions and children mappings
                     //that yield the node's mapping
                     if (!nodeMapping.getScore().equals(Double.NEGATIVE_INFINITY))
-                        addChildrenMappings(dPTable, nodeMapping, isRTL, spans);
+                        addChildrenMappings(dPTable, nodeMapping, childrenOrder, spans);
                     mappingsStartingAtSameIndexByEndPoints.get(nodeMapping.getEndIndex()).add(nodeMapping);
                 }
             }
@@ -267,13 +267,13 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
      * @param nodeMapping A mapping of {@code node} built from
      *                    {@code dpTable[nodeMapping.getTreeDeletions()][nodeMapping.getStringDeletions()]
      *                    [allChildrenSetIndex]}
-     * @param rTL {@code true} if the direction of the mapping of the children is from right to left
+     * @param childrenOrder The order in which the children of {@code node} are mapped
      * @param spans the spans array to use according to the direction of the mapping of the children
      * The method backtracks through {@code dpTable} and adds to {@code nodeMapping} the string indices
      *              that were deleted, the descendants leaves that were deleted and the node's
      *              children mappings that were chosen to construct {@code nodeMapping}
      */
-    private void addChildrenMappings(Backtrack[][][] dPTable, Mapping nodeMapping, boolean rTL,
+    private void addChildrenMappings(Backtrack[][][] dPTable, Mapping nodeMapping, ChildrenOrder childrenOrder,
                                      int[] spans) {
         //TODO: test change
         Backtrack backtrack;
@@ -292,7 +292,7 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
             if(childIndex == prevChildIndex) {
                 nodeMapping.addDeletedStringIndex(endPoint);
             } else {
-                Node childNode = encoder.indexToChildNode(childIndex, rTL);
+                Node childNode = encoder.indexToChildNode(childIndex, childrenOrder);
                 int kTDiff = kT - prevKT;
                 if((kTDiff == childNode.getSpan())
                         & (kS == prevKS)) {

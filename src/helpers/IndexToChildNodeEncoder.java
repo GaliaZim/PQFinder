@@ -1,19 +1,25 @@
 package helpers;
 
+import structures.ChildrenOrder;
 import structures.Node;
 
+import java.util.EnumMap;
 import java.util.List;
+import java.util.function.Function;
 
 public class IndexToChildNodeEncoder {
     private List<Node> childrenList;
-    private int numberOfChildNodes;
+    private EnumMap<ChildrenOrder, Function<Integer,Integer>> indexToChildNodeMethods;
 
     /**
      * @param childrenList A list of sibling nodes from left to right
      */
     public IndexToChildNodeEncoder(List<Node> childrenList) {
         this.childrenList = childrenList;
-        this.numberOfChildNodes = childrenList.size();
+        int numberOfChildNodes = childrenList.size();
+        this.indexToChildNodeMethods = new EnumMap<>(ChildrenOrder.class);
+        indexToChildNodeMethods.put(ChildrenOrder.LTR, index ->  index -1);
+        indexToChildNodeMethods.put(ChildrenOrder.RTL, index ->  numberOfChildNodes - index);
     }
 
     /**
@@ -28,15 +34,13 @@ public class IndexToChildNodeEncoder {
 
     /**
      * @param index the child index between 1 and the number of children
-     * @param reverseOrder is the index from right to left
-     * @return returns the {@code index}th node from left to right if {@code reverseOrder==true},
+     * @param childrenOrder an enum indicating the order of the children
+     * @return returns the {@code index}th node from left to right if {@code childrenOrder==LTR},
      * otherwise from right to left.
      */
-    public Node indexToChildNode(int index, boolean reverseOrder) {
-        if(reverseOrder)
-            index = numberOfChildNodes - index;
-        else
-            index -= 1;
+    public Node indexToChildNode(int index, ChildrenOrder childrenOrder) {
+        index = this.indexToChildNodeMethods.get(childrenOrder).apply(index);
         return childrenList.get(index);
     }
 }
+
