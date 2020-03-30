@@ -44,7 +44,7 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
                             //if this DP table entry was not set as part of the initialization
                             max = new Backtrack(Double.NEGATIVE_INFINITY);
                         if (setIndex > 0) //Not an empty set
-                            //choose a child to map
+                            //choose a child to mapping
                             max = findMaxMappingByEndPoint(setIndex, kT, kS, endPoint);
                         if (kS > 0 //it's an option to delete from the string
                                 // and deleting from the string gives a higher score
@@ -77,7 +77,7 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
         Backtrack backtrack;
         int endPoint, length;
         mappingsStartingAtSameIndexByEndPoints =
-                createMappingsByEndPoints(stringStartIndex - 1 + minLength, stringEndIndex);
+                createEmptyMappingListsByEndPoints(stringStartIndex - 1 + minLength, stringEndIndex);
         int allChildrenSetIndex = numberOfSubsets - 1;
         for (int kT = 0; kT <= treeDeletionLimit; kT++) {
             for (int kS = 0; kS <= stringDeletionLimit; kS++) {

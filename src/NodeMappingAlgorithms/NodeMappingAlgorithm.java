@@ -55,6 +55,7 @@ public abstract class NodeMappingAlgorithm {
 
     /**
      * @return All the mappings as calculated by {@code runAlgorithm} hashed by their end points.
+     * If {@code runAlgorithm} was not called, returns an empty {@code HashMap}
      */
     public HashMap<Integer, List<Mapping>> getResultMappingsByEndPoints() {
         return resultMappingsByEndPoints;
@@ -99,6 +100,7 @@ public abstract class NodeMappingAlgorithm {
      * @return the one-to-one mapping between the leaves descendants of {@code node} and
      * {@code string} according to the best mapping of the tree rooted in {@code node}
      * Best mapping according to the {@code Mapping::compareTo} method.
+     * If {@code runAlgorithm} was not called, returns null.
      */
     public HashMap<Integer,Node> getBestStringIndexToLeafMapping() {
         HashMap<Integer, Node> mappingToReturn = null;

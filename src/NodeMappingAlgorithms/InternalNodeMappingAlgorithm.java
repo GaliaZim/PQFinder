@@ -45,7 +45,7 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
      * @return A hash map where the keys are all the integer values between {@code smallestEndPoint} and
      * {@code largestEndPoint} (inclusive) and the values are empty lists of mappings.
      */
-    HashMap<Integer, List<Mapping>> createMappingsByEndPoints(int smallestEndPoint, int largestEndPoint) {
+    HashMap<Integer, List<Mapping>> createEmptyMappingListsByEndPoints(int smallestEndPoint, int largestEndPoint) {
         HashMap<Integer, List<Mapping>> mappingsByEndPoint =
                 new HashMap<>();
         IntStream.rangeClosed(smallestEndPoint, largestEndPoint)
@@ -64,7 +64,7 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
         int minLength = Math.max(node.getSpan() - treeDeletionLimit, 1);
         int stringLastIndex = string.size();
         int smallestEndPoint = Math.min(Math.max(minLength, 1), stringLastIndex);
-        resultMappingsByEndPoints = createMappingsByEndPoints(smallestEndPoint, stringLastIndex);
+        resultMappingsByEndPoints = createEmptyMappingListsByEndPoints(smallestEndPoint, stringLastIndex);
         int largestStartIndex = Math.max(stringLastIndex - minLength + 1, 1);
         for (int startIndex = 1; startIndex <= largestStartIndex; startIndex++) {
             filterChildrenMappings(startIndex);
