@@ -104,13 +104,15 @@ public abstract class NodeMappingAlgorithm {
      */
     public HashMap<Integer,Node> getBestStringIndexToLeafMapping() {
         HashMap<Integer, Node> mappingToReturn = null;
-        Optional<Mapping> optionalMaxMapping = resultMappingsByEndPoints.values().stream()
-                .flatMap(Collection::stream).max(Mapping::compareTo);
-        if(optionalMaxMapping.isPresent()) {
-            Mapping maxMapping = optionalMaxMapping.get();
-            System.out.println(maxMapping);
+        Mapping maxMapping = getBestMapping();
+        if(maxMapping != null) {
             mappingToReturn = maxMapping.getLeafMappings();
         }
         return mappingToReturn;
+    }
+
+    public Mapping getBestMapping() {
+        return resultMappingsByEndPoints.values().stream()
+                .flatMap(Collection::stream).max(Mapping::compareTo).orElse(null);
     }
 }
