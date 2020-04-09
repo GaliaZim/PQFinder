@@ -9,14 +9,14 @@ public class GeneGroup {
         this.strand = Strand.getStrand(strand);
     }
 
-    public GeneGroup(String label_string) {
-        int len = label_string.length();
-        String strandString = "" + label_string.charAt(len - 1);
+    public GeneGroup(String labelString) {
+        int len = labelString.length();
+        String strandString = "" + labelString.charAt(len - 1);
         if(strandString.equals("+") | strandString.equals("-")) {
-            this.cog = label_string.substring(0, len - 1);
+            this.cog = labelString.substring(0, len - 1);
         } else {
-            this.cog = label_string;
-            strandString = "+";
+            this.cog = labelString;
+            strandString = "";
         }
         this.strand = Strand.getStrand(strandString);
     }
@@ -31,12 +31,13 @@ public class GeneGroup {
 
     @Override
     public String toString() {
-        return getCog()+getStrand().getStrandSymbol();
+        return getCog() + getStrand().getStrandSymbol();
     }
 
     enum Strand {
         PLUS ("+"),
-        MINUS ("-");
+        MINUS ("-"),
+        NONE ("");
 
         private final String strandSymbol;
 
@@ -52,7 +53,7 @@ public class GeneGroup {
             switch(strandSymbol){
                 case "+": return Strand.PLUS;
                 case "-": return Strand.MINUS;
-                default: return null;
+                default: return Strand.NONE;
             }
         }
 
