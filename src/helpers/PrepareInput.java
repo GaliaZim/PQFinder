@@ -7,10 +7,11 @@ import structures.GeneGroup;
 import structures.Node;
 import structures.NodeType;
 
+import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.function.BiFunction;
 
 public class PrepareInput {
     private final static int SMALLEST_NODE_INDEX = 1;
@@ -21,13 +22,17 @@ public class PrepareInput {
 
 
     public static Node buildTree(String path) throws IOException, ParseException {
-        JSONParser parser = new JSONParser();
-        JSONObject obj = (JSONObject) parser.parse(new FileReader(path));
+        JSONObject obj = getJsonObjectFromFile(path);
         JSONObject root = (JSONObject) obj.get(ROOT_JSON_KEY);
-        return getNode(root, SMALLEST_NODE_INDEX);
+        return decodeNodeFromJsonObject(root, SMALLEST_NODE_INDEX);
     }
 
-    private static Node getNode(JSONObject nodeObject, int smallestIndexInNodeSubtree) {
+    public static JSONObject getJsonObjectFromFile(String pathToJsonFile) throws IOException, ParseException {
+        JSONParser parser = new JSONParser();
+        return (JSONObject) parser.parse(new FileReader(pathToJsonFile));
+    }
+
+    public static Node decodeNodeFromJsonObject(JSONObject nodeObject, int smallestIndexInNodeSubtree) {
         String type = (String)nodeObject.get(NODE_TYPE_JSON_KEY);
         NodeType nodeType = NodeType.valueOf(type);
         GeneGroup label = null;
@@ -43,7 +48,7 @@ public class PrepareInput {
             int smallestIndexInChildSubtree = smallestIndexInNodeSubtree;
             for (Object childObject : childrenArray) {
                 //recursively get children nodes from JSON
-                childNode = getNode((JSONObject)childObject, smallestIndexInChildSubtree);
+                childNode = decodeNodeFromJsonObject((JSONObject)childObject, smallestIndexInChildSubtree);
                 children.add(childNode);
                 smallestIndexInChildSubtree = childNode.getIndex() + 1;
             }
@@ -52,11 +57,47 @@ public class PrepareInput {
         return new Node(index, nodeType, label, children, true);
     }
 
-    public static void main(String[] args) {
-        try {
-            buildTree("C:\\Users\\zimga\\Documents\\Research\\exampleTree-height4.json");
-        } catch (IOException | ParseException e) {
-            e.printStackTrace();
+    public static ArrayList<GeneGroup> convertCogJSONArrayToInputString(JSONArray geneSeqJson) {
+        ArrayList<GeneGroup> string = new ArrayList<>();
+        geneSeqJson.forEach(geneJson -> string.add(new GeneGroup((String) geneJson)));
+        return string;
+    }
+
+    public static BiFunction<GeneGroup, GeneGroup, Double> extractSubstitutionFunctionFromFile(String path)
+            throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader(path));
+        String line = br.readLine();
+        Map<String,Integer> cogToIndex = getCogIndicesFromFirstLine(line);
+        int lineCogIndex = 0;
+        String[] split;
+        ArrayList<ArrayList<Double>> scoreMatrix = new ArrayList<>();
+        while((line = br.readLine()) != null) {
+            split = line.split("\t");
+            scoreMatrix.add(lineCogIndex, new ArrayList<>());
+            for(int colCogIndex = 0; colCogIndex < split.length - 1; colCogIndex++) {
+                Double score = Double.valueOf(split[colCogIndex + 1]);
+                if(score == 0.0)
+                    score = Double.NEGATIVE_INFINITY;
+                scoreMatrix.get(lineCogIndex).add(colCogIndex, score);
+            }
+            lineCogIndex++;
         }
+
+        BiFunction<GeneGroup, GeneGroup, Double> substitutionFunc =
+                (g1, g2) -> {
+                    int i1 = cogToIndex.get(g1.getCog());
+                    int i2 = cogToIndex.get(g2.getCog());
+                    return scoreMatrix.get(i1).get(i2);
+                };
+        return substitutionFunc;
+    }
+
+    private static Map<String, Integer> getCogIndicesFromFirstLine(String line) {
+        Map<String, Integer> map = new HashMap<>();
+        String[] split = line.split("\t");
+        for (int i = 0; i < split.length - 1; i++) {
+            map.put(split[i + 1], i);
+        }
+        return map;
     }
 }
