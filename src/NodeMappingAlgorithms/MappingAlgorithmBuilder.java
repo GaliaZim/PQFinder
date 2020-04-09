@@ -57,11 +57,11 @@ public class MappingAlgorithmBuilder {
                 algorithm = new LeafMappingAlgorithm(string, node, treeDeletionLimit,
                         stringDeletionLimit, substitutionFunction);
                 break;
-            case Q:
+            case QNode:
                 algorithm = new QNodeMappingAlgorithm(string, node, treeDeletionLimit,
                         stringDeletionLimit, substitutionFunction);
                 break;
-            case P:
+            case PNode:
                 algorithm = new PNodeMappingAlgorithm(string, node, treeDeletionLimit,
                         stringDeletionLimit, substitutionFunction);
 

@@ -72,7 +72,7 @@ public class TreePanelCreator {
     private ConnectedDrawable createInternalNodeDrawable(Node node, int xPosition, int yPosition, int subTreeWidth) {
         ConnectedDrawable nodeDrawable;
         int thisXMiddle = xPosition + subTreeWidth / 2;
-        if(node.getType() == NodeType.Q) {
+        if(node.getType() == NodeType.QNode) {
             nodeDrawable = new QNodeDrawable(thisXMiddle, yPosition, node.getNumberOfChildren());
         } else {
             nodeDrawable = new PNodeDrawable(thisXMiddle, yPosition);

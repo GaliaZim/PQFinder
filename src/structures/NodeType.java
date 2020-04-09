@@ -6,8 +6,8 @@ import NodeMappingAlgorithms.QNodeMappingAlgorithm;
 
 public enum NodeType {
     LEAF (LeafMappingAlgorithm.class),
-    P (PNodeMappingAlgorithm.class),
-    Q (QNodeMappingAlgorithm.class);
+    PNode(PNodeMappingAlgorithm.class),
+    QNode(QNodeMappingAlgorithm.class);
 
     private final Class mappingAlgorithm;
 
