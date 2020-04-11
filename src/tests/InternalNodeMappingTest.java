@@ -48,7 +48,7 @@ class InternalNodeMappingTest {
         List<Node> roots = new ArrayList<>();
         for (String jsonPath : jsonPaths) {
             try {
-                roots.add(PrepareInput.buildTree(jsonPath));
+                roots.add(PrepareInput.buildTreeFromJSON(jsonPath));
             } catch (IOException | ParseException e) {
                 e.printStackTrace();
             }
@@ -90,7 +90,7 @@ class InternalNodeMappingTest {
     @Test
     void visualizeTest() {
         try {
-            Node tree = PrepareInput.buildTree(treeHeight4JsonPath);
+            Node tree = PrepareInput.buildTreeFromJSON(treeHeight4JsonPath);
             ArrayList<GeneGroup> string = geneGroupsProvider.convertToGeneGroups("57413722534623");
             NodeMappingAlgorithm algorithm =
                     MappingAlgorithmBuilder.build(string, tree, 2, 3,

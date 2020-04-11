@@ -37,7 +37,7 @@ public class ChildrenSubsetEncoding {
     /**
      * @param setIndex A subset index
      * @param childIndex A node index
-     * @return An index of a subset that is the subset represented by {@code setIndex} without the
+     * @return An index of a subset that is the subset represented by {@code resetIndex} without the
      * child represented by {@code childIndex}
      */
     public static int getSetIndexWithoutChild(int setIndex, Integer childIndex) {

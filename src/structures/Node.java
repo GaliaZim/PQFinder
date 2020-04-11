@@ -45,6 +45,10 @@ public class Node {
             setUndefinedFields();
     }
 
+    public Node(NodeType nodeType) {
+        this(-1, nodeType, (GeneGroup)null, new ArrayList<>(), false);
+    }
+
     public GeneGroup getLabel() {return label;}
 
     public int getIndex() {
@@ -135,5 +139,14 @@ public class Node {
         setLeafs();
         setHeight();
         setSpan();
+    }
+
+    public void addChild(Node node) {
+        this.children.add(node);
+        numberOfChildren++;
+    }
+
+    public void resetIndex() {
+        this.index = children.get(numberOfChildren - 1).getIndex() + 1;
     }
 }

@@ -244,7 +244,7 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
      * @param setIndex Index of a subset of children of {@code node} as encoded by
      * {@code ChildrenSubsetEncoding}
      * @return The length of a mapping containing the nodes in the subset with index
-     * {@code setIndex}, and {@code kT} and {@code kS} deletions.
+     * {@code resetIndex}, and {@code kT} and {@code kS} deletions.
      */
     private int getLength(int kT, int kS, int setIndex) {
         return this.subsetSpans[setIndex] + kS - kT;
@@ -257,7 +257,7 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
      * @param setIndex Index of a subset of children of {@code node} as encoded by
      * {@code ChildrenSubsetEncoding}
      * @return The end index (inclusive) of a mapping containing the nodes in the subset with
-     * index {@code setIndex}, and {@code kT} and {@code kS} deletions, that starts
+     * index {@code resetIndex}, and {@code kT} and {@code kS} deletions, that starts
      * at index {@code stringStartIndex}
      */
     private int getEndPoint(int stringStartIndex, int kT, int kS, int setIndex) {

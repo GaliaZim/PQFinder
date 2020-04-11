@@ -21,7 +21,7 @@ public class PrepareInput {
     private final static String CHILDREN_JSON_KEY = "children";
 
 
-    public static Node buildTree(String path) throws IOException, ParseException {
+    public static Node buildTreeFromJSON(String path) throws IOException, ParseException {
         JSONObject obj = getJsonObjectFromFile(path);
         JSONObject root = (JSONObject) obj.get(ROOT_JSON_KEY);
         return decodeNodeFromJsonObject(root, SMALLEST_NODE_INDEX);
@@ -63,6 +63,17 @@ public class PrepareInput {
         return string;
     }
 
+    public static ArrayList<GeneGroup> retrieveInputStringFromFile(String pathToStringJSONFile)
+            throws IOException, ParseException {
+        JSONParser parser = new JSONParser();
+        Object jsonArray = parser.parse(new FileReader(pathToStringJSONFile));
+        if(jsonArray instanceof JSONArray) {
+            return convertCogJSONArrayToInputString((JSONArray) jsonArray);
+        } else {
+            throw new IllegalArgumentException("Gene sequence JSON file does not contain an array");
+        }
+    }
+
     public static BiFunction<GeneGroup, GeneGroup, Double> extractSubstitutionFunctionFromFile(String path)
             throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(path));
@@ -99,5 +110,65 @@ public class PrepareInput {
             map.put(split[i + 1], i);
         }
         return map;
+    }
+
+    private static int index;
+    public static Node buildTreeFromParenRepresentation(String paren) throws IllegalArgumentException{
+        index = 0;
+        try {
+            return buildTreeFromParenRepresentation(paren, SMALLEST_NODE_INDEX);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("The parenthesis representations has the wrong format");
+        }
+    }
+
+    private static Node buildTreeFromParenRepresentation(String paren, int nodeIndex) {
+        Node node = null;
+        String leafLabel = "";
+        for (; index < paren.length(); index++) {
+            char ch = paren.charAt(index);
+            switch (ch) {
+                case '[':
+                    if (node == null)
+                        node = new Node(NodeType.QNode);
+                    else {
+                        node.addChild(buildTreeFromParenRepresentation(paren, nodeIndex));
+                        node.resetIndex();
+                        nodeIndex = node.getIndex();
+                    }
+                    break;
+                case '(':
+                    if (node == null)
+                        node = new Node(NodeType.PNode);
+                    else {
+                        node.addChild(buildTreeFromParenRepresentation(paren, nodeIndex));
+                        node.resetIndex();
+                        nodeIndex = node.getIndex();
+                    }
+                    break;
+                case ']':
+                case ')':
+                    if (leafLabel.length() > 0) {
+                        Node leaf = new Node(nodeIndex, NodeType.LEAF, new GeneGroup(leafLabel),
+                                Collections.emptyList(), true);
+                        node.addChild(leaf);
+                        leafLabel = "";
+                    }
+                    node.resetIndex();
+                    return node;
+                case ' ':
+                    if (leafLabel.length() > 0) {
+                        Node leaf = new Node(nodeIndex, NodeType.LEAF, new GeneGroup(leafLabel),
+                                Collections.emptyList(), true);
+                        node.addChild(leaf);
+                        leafLabel = "";
+                        nodeIndex++;
+                    }
+                    break;
+                default:
+                    leafLabel += ch;
+            }
+        }
+        return node;
     }
 }
