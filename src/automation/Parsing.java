@@ -51,11 +51,11 @@ public class Parsing {
         List<Node> deletedDescendant = mapping.getDeletedDescendant();
         int deletedNodesNum = deletedDescendant.size();
         if(deletedNodesNum > 0) {
-            System.out.println(deletedNodesNum + " nodes deleted in the derivation:");
+            System.out.println(deletedNodesNum + " leaves deleted in the derivation:");
             deletedDescendant.forEach(node -> System.out.print(node.getLabel() + ", "));
             System.out.println();
         } else {
-            System.out.println("No nodes deleted in the derivation.");
+            System.out.println("No leaves deleted in the derivation.");
         }
 
         List<Integer> deletedStringIndices = mapping.getDeletedStringIndices();
@@ -73,7 +73,8 @@ public class Parsing {
         Map<String,  Consumer<String>> optionToArgumentRetrievalFunction = new HashMap<>(6);
         optionToArgumentRetrievalFunction.put("-p", Parsing::retrieveTreeFromParenRepresantation);
         optionToArgumentRetrievalFunction.put("-j", Parsing::retrieveTreeFromJson);
-        optionToArgumentRetrievalFunction.put("-g", Parsing::retrieveGeneSeqFromFile);
+        optionToArgumentRetrievalFunction.put("-gf", Parsing::retrieveGeneSeqFromFile);
+        optionToArgumentRetrievalFunction.put("-g", Parsing::retrieveGeneSeqFromArgument);
         optionToArgumentRetrievalFunction.put("-m", Parsing::retrieveSubstitutionFunction);
         optionToArgumentRetrievalFunction.put("-dt", Parsing::retrieveTreeDeletionLimit);
         optionToArgumentRetrievalFunction.put("-ds", Parsing::retrieveStringDeletionLimit);
@@ -127,6 +128,14 @@ public class Parsing {
         } catch (IOException | ParseException e) {
             throw new RuntimeException(errorMsg, e);
         }
+    }
+
+    private static void retrieveGeneSeqFromArgument(String argument) {
+        String[] genes = argument.split(" ");
+        ArrayList<GeneGroup> string = new ArrayList<>();
+        for(String gene: genes)
+            string.add(new GeneGroup(gene));
+        geneSeq = string;
     }
 
     private static void retrieveTreeDeletionLimit(String treeDeletionLimit) {
