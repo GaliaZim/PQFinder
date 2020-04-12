@@ -18,7 +18,8 @@ public class Parsing {
     private static ArrayList<GeneGroup> geneSeq = null;
     private static int treeDeletionLimit = 0;
     private static int stringDeletionLimit = 0;
-    private static BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction = null;
+    private static BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction
+            = Parsing::noSubstitutionsFunction;
     private static Consumer<NodeMappingAlgorithm> outputFunction = Parsing::printBestMapping;
 
     public static void main(String[] args) {
@@ -92,8 +93,6 @@ public class Parsing {
             noArgumentErrorThrower("PQ-tree");
         if(geneSeq == null)
             noArgumentErrorThrower("gene sequence");
-        if(substitutionFunction == null)
-            noArgumentErrorThrower("substitution matrix");
     }
 
     private static void noArgumentErrorThrower(String argument) {
@@ -166,5 +165,12 @@ public class Parsing {
 
     private static void printAllMappings(NodeMappingAlgorithm algorithm) {
         algorithm.getAllPossibleMappings().forEach(Parsing::printMapping);
+    }
+
+    private static Double noSubstitutionsFunction(GeneGroup g1, GeneGroup g2) {
+        if(g1.getCog().equals(g2.getCog()))
+            return 1.0;
+        else
+            return Double.NEGATIVE_INFINITY;
     }
 }
