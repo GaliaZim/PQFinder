@@ -19,33 +19,35 @@ public class Parsing {
     private static int treeDeletionLimit = 0;
     private static int stringDeletionLimit = 0;
     private static BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction = null;
+    private static Consumer<NodeMappingAlgorithm> outputFunction = Parsing::printBestMapping;
 
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) {
         retrieveInput(args);
         NodeMappingAlgorithm algorithm = MappingAlgorithmBuilder.build(geneSeq, pqt, treeDeletionLimit,
                 stringDeletionLimit, substitutionFunction);
         algorithm.runAlgorithm();
-        Mapping bestMapping = algorithm.getBestMapping();
-        printResults(bestMapping);
-
+        outputFunction.accept(algorithm);
     }
 
-    public static void printResults(Mapping bestMapping) {
-        int startPoint = bestMapping.getStartIndex();
-        int endPoint = bestMapping.getEndIndex();
-        String substring = geneSeq.subList(startPoint - 1, endPoint).stream()
-                .map(GeneGroup::toString)
+    private static void printMapping(Mapping mapping) {
+        System.out.println("Derivation score: " + mapping.getScore());
+
+        int startPoint = mapping.getStartIndex();
+        int endPoint = mapping.getEndIndex();
+        ArrayList<GeneGroup> subGeneSeq = new ArrayList<>(geneSeq.subList(startPoint - 1, endPoint));
+        String substring = subGeneSeq.stream().map(GeneGroup::toString)
                 .reduce("", (s1,s2) ->  s1 + ", " + s2).substring(2);
-        System.out.println(String.format("Best derived substring is S[%d:%d]= %s with a score %f",
-                startPoint, endPoint, substring, bestMapping.getScore()));
+        System.out.println(String.format("The derived substring is S[%d:%d]= %s",
+                startPoint, endPoint, substring));
 
         System.out.println("The one-to-one mapping:");
-        bestMapping.getLeafMappings().entrySet().stream().map(entry ->
-                String.format("(%s,%s)", geneSeq.get(entry.getKey()-1), entry.getValue().getLabel().toString()))
+        mapping.getLeafMappings().entrySet().stream().map(entry ->
+                String.format("(%s,%s[%d])", entry.getValue().getLabel().toString(), geneSeq.get(entry.getKey()-1),
+                        entry.getKey()))
                 .forEach(map -> System.out.print(map + " ; "));
         System.out.println();
 
-        List<Node> deletedDescendant = bestMapping.getDeletedDescendant();
+        List<Node> deletedDescendant = mapping.getDeletedDescendant();
         int deletedNodesNum = deletedDescendant.size();
         if(deletedNodesNum > 0) {
             System.out.println(deletedNodesNum + " nodes deleted in the derivation:");
@@ -55,7 +57,7 @@ public class Parsing {
             System.out.println("No nodes deleted in the derivation.");
         }
 
-        List<Integer> deletedStringIndices = bestMapping.getDeletedStringIndices();
+        List<Integer> deletedStringIndices = mapping.getDeletedStringIndices();
         int deletedCharactersNum = deletedStringIndices.size();
         if(deletedCharactersNum > 0) {
             System.out.println(deletedCharactersNum + " characters deleted from the substring:");
@@ -63,6 +65,7 @@ public class Parsing {
         } else {
             System.out.println("No characters deleted from the substring.");
         }
+        System.out.println();
     }
 
     private static void retrieveInput(String[] args) {
@@ -73,6 +76,7 @@ public class Parsing {
         optionToArgumentRetrievalFunction.put("-m", Parsing::retrieveSubstitutionFunction);
         optionToArgumentRetrievalFunction.put("-dt", Parsing::retrieveTreeDeletionLimit);
         optionToArgumentRetrievalFunction.put("-ds", Parsing::retrieveStringDeletionLimit);
+        optionToArgumentRetrievalFunction.put("-o", Parsing::retrieveOutputFunction);
 
         int argIndex = 0;
         while (argIndex < args.length - 1) {
@@ -141,5 +145,26 @@ public class Parsing {
         } catch (IOException e) {
             throw new RuntimeException(errorMsg, e);
         }
+    }
+
+    private static void retrieveOutputFunction(String argument) {
+        switch (argument) {
+            case "all":
+                outputFunction = Parsing::printAllMappings;
+                break;
+            case "best":
+                outputFunction = Parsing::printBestMapping;
+                break;
+            default:
+                throw new RuntimeException(argument + "is not a valid outputFunction option. Try 'best' or 'all'.");
+        }
+    }
+
+    private static void printBestMapping(NodeMappingAlgorithm algorithm) {
+        Parsing.printMapping(algorithm.getBestMapping());
+    }
+
+    private static void printAllMappings(NodeMappingAlgorithm algorithm) {
+        algorithm.getAllPossibleMappings().forEach(Parsing::printMapping);
     }
 }

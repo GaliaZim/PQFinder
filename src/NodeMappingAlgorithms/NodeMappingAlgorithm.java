@@ -6,6 +6,7 @@ import structures.Node;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 public abstract class NodeMappingAlgorithm {
     /**
@@ -114,5 +115,15 @@ public abstract class NodeMappingAlgorithm {
     public Mapping getBestMapping() {
         return resultMappingsByEndPoints.values().stream()
                 .flatMap(Collection::stream).max(Mapping::compareTo).orElse(null);
+    }
+
+    public List<Mapping> getAllPossibleMappings() {
+        List<Mapping> mappingList = resultMappingsByEndPoints.values().stream()
+                .map(listOfMappings -> listOfMappings.stream().max(Mapping::compareTo).orElse(null))
+                .filter(mapping -> mapping != null && !mapping.getScore().equals(Double.NEGATIVE_INFINITY))
+                .sorted(Mapping::compareTo)
+                .collect(Collectors.toList());
+        Collections.reverse(mappingList);
+        return mappingList;
     }
 }
