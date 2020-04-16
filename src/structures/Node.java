@@ -46,7 +46,7 @@ public class Node {
     }
 
     public Node(NodeType nodeType) {
-        this(-1, nodeType, (GeneGroup)null, new ArrayList<>(), false);
+        this(-1, nodeType, 0, null, new ArrayList<>(), 0, new ArrayList<>());
     }
 
     public GeneGroup getLabel() {return label;}
@@ -144,6 +144,9 @@ public class Node {
     public void addChild(Node node) {
         this.children.add(node);
         numberOfChildren++;
+        this.span += node.getSpan();
+        height = Math.max(height, node.getHeight() + 1);
+        leafs.addAll(node.getLeafs());
     }
 
     public void resetIndex() {
