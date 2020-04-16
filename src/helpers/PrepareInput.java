@@ -79,6 +79,7 @@ public class PrepareInput {
         BufferedReader br = new BufferedReader(new FileReader(path));
         String line = br.readLine();
         Map<String,Integer> cogToIndex = getCogIndicesFromFirstLine(line);
+
         int lineCogIndex = 0;
         String[] split;
         ArrayList<ArrayList<Double>> scoreMatrix = new ArrayList<>();
@@ -86,9 +87,12 @@ public class PrepareInput {
             split = line.split("\t");
             scoreMatrix.add(lineCogIndex, new ArrayList<>());
             for(int colCogIndex = 0; colCogIndex < split.length - 1; colCogIndex++) {
-                Double score = Double.valueOf(split[colCogIndex + 1]);
-                if(score == 0.0)
+                final String value = split[colCogIndex + 1];
+                Double score;
+                if(value.equals("."))
                     score = Double.NEGATIVE_INFINITY;
+                else
+                    score = Double.valueOf(value);
                 scoreMatrix.get(lineCogIndex).add(colCogIndex, score);
             }
             lineCogIndex++;
