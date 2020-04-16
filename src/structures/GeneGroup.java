@@ -34,6 +34,13 @@ public class GeneGroup {
         return getCog() + getStrand().getStrandSymbol();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof GeneGroup &&
+                ((GeneGroup) obj).cog.equals(this.cog) &&
+                ((GeneGroup) obj).strand.equals(this.strand);
+    }
+
     enum Strand {
         PLUS ("+"),
         MINUS ("-"),
