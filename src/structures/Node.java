@@ -145,11 +145,8 @@ public class Node {
         this.children.add(node);
         numberOfChildren++;
         this.span += node.getSpan();
-        height = Math.max(height, node.getHeight() + 1);
-        leafs.addAll(node.getLeafs());
-    }
-
-    public void resetIndex() {
-        this.index = children.get(numberOfChildren - 1).getIndex() + 1;
+        this.height = Math.max(height, node.getHeight() + 1);
+        this.leafs.addAll(node.getLeafs());
+        this.index = node.getIndex() + 1;
     }
 }

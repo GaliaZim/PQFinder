@@ -19,6 +19,7 @@ public class PrepareInput {
     private final static String NODE_TYPE_JSON_KEY = "type";
     private final static String COG_JSON_KEY = "cog";
     private final static String CHILDREN_JSON_KEY = "children";
+    private final static String INCORRECT_PAREN_FORMAT_MSG = "PQ-tree parenthesis format incorrect. ";
 
 
     public static Node buildTreeFromJSON(String path) throws IOException, ParseException {
@@ -59,7 +60,8 @@ public class PrepareInput {
 
     public static ArrayList<GeneGroup> convertCogJSONArrayToInputString(JSONArray geneSeqJson) {
         ArrayList<GeneGroup> string = new ArrayList<>();
-        geneSeqJson.forEach(geneJson -> string.add(new GeneGroup((String) geneJson)));
+        for(Object geneJson: geneSeqJson)
+            string.add(new GeneGroup((String) geneJson));
         return string;
     }
 
@@ -98,13 +100,11 @@ public class PrepareInput {
             lineCogIndex++;
         }
 
-        BiFunction<GeneGroup, GeneGroup, Double> substitutionFunc =
-                (g1, g2) -> {
-                    int i1 = cogToIndex.get(g1.getCog());
-                    int i2 = cogToIndex.get(g2.getCog());
-                    return scoreMatrix.get(i1).get(i2);
-                };
-        return substitutionFunc;
+        return (g1, g2) -> {
+            int i1 = cogToIndex.get(g1.getCog());
+            int i2 = cogToIndex.get(g2.getCog());
+            return scoreMatrix.get(i1).get(i2);
+        };
     }
 
     private static Map<String, Integer> getCogIndicesFromFirstLine(String line) {
@@ -119,60 +119,72 @@ public class PrepareInput {
     private static int index;
     public static Node buildTreeFromParenRepresentation(String paren) throws IllegalArgumentException{
         index = 0;
-        try {
-            return buildTreeFromParenRepresentation(paren, SMALLEST_NODE_INDEX);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("The parenthesis representations has the wrong format");
-        }
+        if(!paren.startsWith("[") & !paren.startsWith("("))
+            throw new IllegalArgumentException(INCORRECT_PAREN_FORMAT_MSG + "Should begin with '[' or '('.");
+
+        return buildTreeFromParenRepresentation(paren, SMALLEST_NODE_INDEX);
     }
 
     private static Node buildTreeFromParenRepresentation(String paren, int nodeIndex) {
         Node node = null;
-        String leafLabel = "";
+        StringBuilder leafLabel = new StringBuilder();
         for (; index < paren.length(); index++) {
             char ch = paren.charAt(index);
             switch (ch) {
                 case '[':
-                    if (node == null)
-                        node = new Node(NodeType.QNode);
-                    else {
-                        node.addChild(buildTreeFromParenRepresentation(paren, nodeIndex));
-                        node.resetIndex();
-                        nodeIndex = node.getIndex();
-                    }
-                    break;
                 case '(':
                     if (node == null)
-                        node = new Node(NodeType.PNode);
+                        node = newNodeFromParenChar(ch);
                     else {
+                        if (leafLabel.length() > 0)
+                            throw new IllegalArgumentException(INCORRECT_PAREN_FORMAT_MSG +
+                                    "Missing a space character after gene at index " + index);
                         node.addChild(buildTreeFromParenRepresentation(paren, nodeIndex));
-                        node.resetIndex();
                         nodeIndex = node.getIndex();
                     }
                     break;
                 case ']':
                 case ')':
-                    if (leafLabel.length() > 0) {
-                        Node leaf = new Node(nodeIndex, NodeType.LEAF, new GeneGroup(leafLabel),
-                                Collections.emptyList(), true);
-                        node.addChild(leaf);
-                        leafLabel = "";
-                    }
-                    node.resetIndex();
+                    if(!closeParenMatchNodeType(node.getType(), ch))
+                        throw new IllegalArgumentException(INCORRECT_PAREN_FORMAT_MSG + "Right bracket at index " +
+                                index + "does not match left bracket");
+                    if (leafLabel.length() > 0)
+                        addLeafChild(nodeIndex, node, leafLabel);
                     return node;
                 case ' ':
                     if (leafLabel.length() > 0) {
-                        Node leaf = new Node(nodeIndex, NodeType.LEAF, new GeneGroup(leafLabel),
-                                Collections.emptyList(), true);
-                        node.addChild(leaf);
-                        leafLabel = "";
+                        addLeafChild(nodeIndex, node, leafLabel);
+                        leafLabel = new StringBuilder();
                         nodeIndex++;
+                    } else {
+                        final char prevChar = paren.charAt(index - 1);
+                        if(prevChar != ']' & prevChar != ')')
+                            throw new IllegalArgumentException(INCORRECT_PAREN_FORMAT_MSG +
+                                "2 consecutive space characters at index " + index);
                     }
                     break;
                 default:
-                    leafLabel += ch;
+                    leafLabel.append(ch);
             }
         }
-        return node;
+        throw new IllegalArgumentException(INCORRECT_PAREN_FORMAT_MSG + "Not enough closing brackets.");
+    }
+
+    private static boolean closeParenMatchNodeType(NodeType nodeType, char closeParen) {
+        return (nodeType.equals(NodeType.PNode) & closeParen == ')') |
+                (nodeType.equals(NodeType.QNode) & closeParen == ']');
+    }
+
+    private static Node newNodeFromParenChar(char ch) {
+        if(ch == '[')
+            return new Node(NodeType.QNode);
+        else
+            return new Node(NodeType.PNode);
+    }
+
+    private static void addLeafChild(int nodeIndex, Node node, StringBuilder leafLabel) {
+        Node leaf = new Node(nodeIndex, NodeType.LEAF, new GeneGroup(leafLabel.toString()),
+                Collections.emptyList(), true);
+        node.addChild(leaf);
     }
 }
