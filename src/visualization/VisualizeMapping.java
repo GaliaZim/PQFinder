@@ -42,7 +42,7 @@ public class VisualizeMapping {
         if(bottom)
             addToY = rectangle.getHeight();
         else
-            addToY = 4.0;
+            addToY = 0.0;
         int x = Math.toIntExact(Math.round(offset.getX() + rectangle.getX() + (0.5 * rectangle.getWidth()))) + 6;
         int y = Math.toIntExact(Math.round(offset.getY() + rectangle.getY()+ addToY));
         return new Point(x, y);

@@ -35,7 +35,7 @@ public class MappingLinesPanel extends JPanel {
                 leafLocation = leafsPositions.get(entry.getValue());
                 x1 = leafLocation.x;
                 y1 = leafLocation.y;
-                charLocation = stringCharPositions[entry.getKey()];
+                charLocation = stringCharPositions[entry.getKey()-1];
                 x2 = charLocation.x;
                 y2 = charLocation.y;
                 g.drawLine(x1, y1, x2, y2);
