@@ -9,17 +9,30 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 class MappingAssertions {
 
-    static void assertGenericMappingMapProperties(HashMap<Integer, List<Mapping>> mappingsByEndPoint) {
-        mappingsByEndPoint.forEach((endPoint,mappingList) -> assertMappingList(mappingList, endPoint));
+    static void assertGenericMappingMapProperties(HashMap<Integer, List<Mapping>> mappingsByEndPoint,
+                                                  ArrayList<GeneGroup> string,
+                                                  BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction) {
+        assertGenericMappingMapProperties(mappingsByEndPoint, string, geneGroup -> 0.0, substitutionFunction);
     }
 
-    private static void assertMappingList(List<Mapping> mappings, int endPoint) {
+    static void assertGenericMappingMapProperties(HashMap<Integer, List<Mapping>> mappingsByEndPoint,
+                                                  ArrayList<GeneGroup> string,
+                                                  Function<GeneGroup, Double> deletionCost,
+                                                  BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction) {
+        mappingsByEndPoint.forEach((endPoint,mappingList) ->
+                assertMappingList(mappingList, endPoint, string, deletionCost, substitutionFunction));
+    }
+
+    private static void assertMappingList(List<Mapping> mappings, int endPoint, ArrayList<GeneGroup> string,
+                                          Function<GeneGroup, Double> deletionCost,
+                                          BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction) {
         mappings.forEach(mapping -> {
             assertMappingIndices(mapping, endPoint);
-            assertMappingScore(mapping);
+            assertMappingScore(mapping, string, deletionCost, substitutionFunction);
             if(!mapping.getScore().equals(Double.NEGATIVE_INFINITY)) {
                 assertTreeDeletions(mapping);
                 assertStringDeletions(mapping);
@@ -34,14 +47,24 @@ class MappingAssertions {
                 "The mapping's end index does not match its index in mappingsByEndPoint");
     }
 
-    private static void assertMappingScore(Mapping mapping) {
+    private static void assertMappingScore(Mapping mapping, ArrayList<GeneGroup> string,
+                                           Function<GeneGroup, Double> deletionCost,
+                                           BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction) {
         if(mapping.getScore().equals(Double.NEGATIVE_INFINITY)) {
             Assertions.assertEquals(0, mapping.getChildrenMappings().size(),
                     "Children were mapped, but score is -infinity");
         } else {
-            Double childrenSumScore = mapping.getChildrenMappings().stream()
-                    .reduce(0.0, (acc, m) -> acc + m.getScore(), Double::sum);
-            Assertions.assertEquals(mapping.getScore(), childrenSumScore,
+            double mappedLeafsScore = mapping.getLeafMappings().entrySet().stream().map(entry ->
+                    substitutionFunction.apply(string.get(entry.getKey() - 1), entry.getValue().getLabel()))
+                    .reduce(Double::sum).orElse(0.0);
+            double stringDeletionCost = mapping.getDeletedStringIndices().stream()
+                    .map(index -> deletionCost.apply(string.get(index - 1)))
+                    .reduce(Double::sum).orElse(0.0);
+            double treeDeletionCost = mapping.getDeletedDescendant().stream()
+                    .map(leaf -> leaf.getDeletionCost(deletionCost))
+                    .reduce(Double::sum).orElse(0.0);
+            Assertions.assertEquals(mapping.getScore(),
+                    mappedLeafsScore + stringDeletionCost + treeDeletionCost, 0.0001,
                     "Children's sum score doesn't match mapping score: " + mapping);
         }
     }

@@ -5,7 +5,6 @@ import NodeMappingAlgorithms.NodeMappingAlgorithm;
 import helpers.PrepareInput;
 import org.json.simple.parser.ParseException;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -20,11 +19,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 class InternalNodeMappingTest {
     private static BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction;
     private static GeneGroupsProvider geneGroupsProvider;
+    private static Function<GeneGroup, Double> deletionCost;
     private final static String treeHeight3JsonPath = ".\\src\\tests\\treeJSONS\\mixedTypeTreeHeight3";
     private final static String treeHeight4JsonPath = ".\\src\\tests\\treeJSONS\\mixedTypeTreeHeight4";
     private final static String qNodeTreeHeight1JsonPath = ".\\src\\tests\\treeJSONS\\qNodeOneTier";
@@ -39,6 +40,7 @@ class InternalNodeMappingTest {
                 return Double.NEGATIVE_INFINITY;
         };
         geneGroupsProvider = GeneGroupsProvider.getInstance();
+        deletionCost = geneGroup -> -0.5;
     }
 
     private static Stream<Arguments> internalNodeMappingTest() {
@@ -84,10 +86,10 @@ class InternalNodeMappingTest {
                         substitutionFunction);
         algorithm.runAlgorithm();
         HashMap<Integer, List<Mapping>> resultMappingsByEndPoints = algorithm.getResultMappingsByEndPoints();
-        MappingAssertions.assertGenericMappingMapProperties(resultMappingsByEndPoints);
+        MappingAssertions.assertGenericMappingMapProperties(resultMappingsByEndPoints, string, substitutionFunction);
     }
 
-    @Test
+//    @Test
     void visualizeTest() {
         try {
             Node tree = PrepareInput.buildTreeFromJSON(treeHeight4JsonPath);
@@ -102,5 +104,46 @@ class InternalNodeMappingTest {
         } catch (IOException | ParseException | InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+
+    private static Stream<Arguments> pNodeMappingTest() {
+        Node pqt = PrepareInput.buildTreeFromParenRepresentation("(cog1 cog2 (cog3 cog4) cog5)");
+        Function<GeneGroup, Double> deletionCostFunction =
+                geneGroup -> {
+            if("cog6".equals(geneGroup.getCog()))
+                return -0.2;
+            else
+                return deletionCost.apply(geneGroup);};
+        final Stream<Arguments> argumentsStream = Stream.of(
+                Arguments.of("85214355348", 0, 0),
+                Arguments.of("85214355348", 1, 0),
+                Arguments.of("3642158", 0, 1),
+                Arguments.of("3642158", 1, 1),
+                Arguments.of("86324568", 1, 0),
+                Arguments.of("86324568", 2, 2),
+                Arguments.of("", 2, 1),
+                Arguments.of("863624568", 1, 1),
+                Arguments.of("863624568", 2, 3)
+        );
+        return argumentsStream.map(arguments -> {
+            Object[] args = arguments.get();
+            return Arguments.arguments(pqt, args[0], args[1], args[2], deletionCostFunction);
+        });
+    }
+
+    @ParameterizedTest
+    @MethodSource("pNodeMappingTest")
+    void pNodeMappingWithDeletionCostTest(Node root, String str, int treeDeletionLimit, int stringDeletionLimit,
+                                          Function<GeneGroup, Double> deletionCostFunc)
+            throws ExceptionInInitializerError {
+        ArrayList<GeneGroup> string = geneGroupsProvider.convertToGeneGroups(str);
+        NodeMappingAlgorithm algorithm =
+                MappingAlgorithmBuilder.build(string, root, treeDeletionLimit, stringDeletionLimit,
+                        substitutionFunction, deletionCostFunc);
+        algorithm.runAlgorithm();
+        HashMap<Integer, List<Mapping>> resultMappingsByEndPoints = algorithm.getResultMappingsByEndPoints();
+        MappingAssertions.assertGenericMappingMapProperties(resultMappingsByEndPoints, string, deletionCostFunc,
+                substitutionFunction);
     }
 }
