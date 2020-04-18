@@ -61,7 +61,7 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
                     //If there are too many deletions considering the substring's length, leave the entry null
                     if(endPoint <= stringEndIndex & length >= 0) {
                         max = new Backtrack(Double.NEGATIVE_INFINITY);
-                        if(!(length == 0 & kS != 0)) { //if length==0 & ks!=0 --> illegal entry gets -infinity
+                        if(!(length == 0 & kS != 0)) { // length==0 & ks!=0 --> illegal entry gets -infinity
                             childNode = encoder.indexToChildNode(childIndex, childrenOrder);
                             //choose from child's mappings
                             if (length > 0) {
@@ -72,16 +72,20 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
                             //deletion from the string
                             if (kS > 0) {
                                 prev = dPTable[childIndex][kT][kS - 1];
-                                if (prev.compareTo(max) > 0)
-                                    max = new Backtrack(prev.getScore(), kT,
+                                double scoreWithDeletion = prev.getScore()
+                                        + deletionCost.apply(string.get(endPoint - 1));
+                                if (scoreWithDeletion > max.getScore())
+                                    max = new Backtrack(scoreWithDeletion, kT,
                                             kS - 1, childIndex);
                             }
                             //deletion from the tree
                             int childNodeSpan = childNode.getSpan();
                             if (kT >= childNodeSpan) {
                                 prev = dPTable[childIndex - 1][kT - childNodeSpan][kS];
-                                if (prev.compareTo(max) > 0)
-                                    max = new Backtrack(prev.getScore(),
+                                double scoreWithDeletion = prev.getScore()
+                                        + childNode.getDeletionCost(deletionCost);
+                                if (scoreWithDeletion > max.getScore())
+                                    max = new Backtrack(scoreWithDeletion,
                                         kT - childNodeSpan, kS, childIndex - 1);
                             }
                         }
@@ -152,9 +156,13 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
             for (int kT = 1; kT <= treeDeletionLimit; kT++) {
                 dPTable[0][kT][kS] = new Backtrack(Double.NEGATIVE_INFINITY);
             }
-            dPTable[0][0][kS] = new Backtrack(0.0, 0, kS-1, 0);
         }
         dPTable[0][0][0] = new Backtrack(0.0);
+        for (int kS = 1; kS <= stringDeletionLimit & kS <= string.size(); kS++) {
+            dPTable[0][0][kS] = new Backtrack(dPTable[0][0][kS - 1].getScore()
+                    + deletionCost.apply(string.get(kS - 1)),
+                    0, kS-1, 0);
+        }
         return dPTable;
     }
 
