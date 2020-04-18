@@ -30,7 +30,7 @@ public class Backtrack implements Comparable<Backtrack>{
             return backtrack2;
         if(backtrack2 == null)
             return backtrack1;
-        return backtrack1.compareTo(backtrack2) > 0 ? backtrack1 : backtrack2;
+        return backtrack1.compareTo(backtrack2) >= 0 ? backtrack1 : backtrack2;
     }
 
     /**

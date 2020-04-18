@@ -49,11 +49,11 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
                         if (setIndex > 0) //Not an empty set
                             //choose a child to mapping
                             max = findMaxMappingByEndPoint(setIndex, kT, kS, endPoint);
-                        if (kS > 0 //it's an option to delete from the string
-                                // and deleting from the string gives a higher score
-                                && dPTable[kT][kS - 1][setIndex].compareTo(max) >= 0)
-                            max = new Backtrack(dPTable[kT][kS - 1][setIndex].getScore(),
-                                    kT, kS - 1, setIndex);
+                        if (kS > 0 & endPoint > 0) {//it's an option to delete from the string
+                            double score = dPTable[kT][kS - 1][setIndex].getScore()
+                                    + deletionCost.apply(string.get(endPoint - 1));
+                            max = Backtrack.max(max, new Backtrack(score, kT, kS - 1, setIndex));
+                        }
                         this.dPTable[kT][kS][setIndex] = max;
                     }
                 }
@@ -173,10 +173,12 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
                 int childIndex = Collections.min(childrenSet);
                 setWithoutChildIndex = ChildrenSubsetEncoding.getSetIndexWithoutChild(setIndex,childIndex);
                 int spanDiff = subsetSpans[setIndex] - subsetSpans[setWithoutChildIndex];
-                if(spanDiff <= kT)
-                    max = Backtrack.max(max,
-                            new Backtrack(dPTable[kT-spanDiff][kS][setWithoutChildIndex].getScore(),
-                                    kT-spanDiff, kS, setWithoutChildIndex));
+                if(spanDiff <= kT) {
+                    double scoreWithoutDel = dPTable[kT - spanDiff][kS][setWithoutChildIndex].getScore();
+                    double delCost = node.getChildren().get(childIndex - 1).getDeletionCost(deletionCost);
+                    max = Backtrack.max(max, new Backtrack(scoreWithoutDel + delCost,
+                            kT - spanDiff, kS, setWithoutChildIndex));
+                }
             }
         }
         return max;
@@ -224,16 +226,17 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
             for (int kT = 1; kT <= treeDeletionLimit; kT++) {
                 dPTable[kT][kS][emptySetIndex] = new Backtrack(Double.NEGATIVE_INFINITY);
             }
-            dPTable[0][kS][emptySetIndex] = new Backtrack(0.0);
         }
         dPTable[0][0][emptySetIndex] = new Backtrack(0.0);
+
         //init DPTable entries for getEndPoint = 0
         for (int setIndex = 0; setIndex < numberOfSubsets; setIndex++) {
             for (int kS = 0; kS <= stringDeletionLimit; kS++) {
                 for (int kT = 0; kT <= treeDeletionLimit; kT++) {
                     if(getLength(kT,kS,setIndex) == 0)
-                        if(kS == 0)
+                        if(kS == 0) {
                             dPTable[kT][kS][setIndex] = new Backtrack(0.0);
+                        }
                         else
                             dPTable[kT][kS][setIndex] = new Backtrack(Double.NEGATIVE_INFINITY);
                 }
