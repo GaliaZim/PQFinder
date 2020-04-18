@@ -36,8 +36,9 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
         initDPTable();
         Backtrack max;
         int endPoint;
+        final int maxLength = stringEndIndex - stringStartIndex + 1;
         for (int setIndex = 0; setIndex < numberOfSubsets; setIndex++) {
-            for (int kS = 0; kS <= stringDeletionLimit; kS++) {
+            for (int kS = 0; kS <= stringDeletionLimit & kS <= maxLength; kS++) {
                 for (int kT = 0; kT <= treeDeletionLimit; kT++) {
                     endPoint = getEndPoint(stringStartIndex, kT, kS, setIndex);
                     if(endPoint <= stringEndIndex) {
