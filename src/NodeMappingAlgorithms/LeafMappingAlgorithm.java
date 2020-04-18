@@ -24,13 +24,13 @@ public class LeafMappingAlgorithm extends NodeMappingAlgorithm {
         Double score;
         int endPoint = 0;
         addMappingByEndPoint(endPoint, 0.0);
+        final GeneGroup nodeLabel = node.getLabel();
         for(GeneGroup stringGeneGroup : string) {
             endPoint++;
-            final GeneGroup nodeLabel = node.getLabel();
             score = substitutionFunction.apply(nodeLabel, stringGeneGroup);
-                if(!score.equals(substitutionFunction.apply(stringGeneGroup, nodeLabel)))
-                    throw new RuntimeException(String.format("Substitution matrix is not symmetric for %s and %s",
-                            nodeLabel.getCog(), stringGeneGroup.getCog()));
+            if (!score.equals(substitutionFunction.apply(stringGeneGroup, nodeLabel)))
+                throw new RuntimeException(String.format("Substitution matrix is not symmetric for %s and %s",
+                        nodeLabel.getCog(), stringGeneGroup.getCog()));
             addMappingByEndPoint(endPoint, score);
         }
     }

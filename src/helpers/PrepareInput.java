@@ -20,6 +20,7 @@ public class PrepareInput {
     private final static String COG_JSON_KEY = "cog";
     private final static String CHILDREN_JSON_KEY = "children";
     private final static String INCORRECT_PAREN_FORMAT_MSG = "PQ-tree parenthesis format incorrect. ";
+    private final static String GENE_NOT_IN_MATRIX_ERROR_FORMAT = "Gene %s was not found in substitution matrix";
 
 
     public static Node buildTreeFromJSON(String path) throws IOException, ParseException {
@@ -101,8 +102,12 @@ public class PrepareInput {
         }
 
         return (g1, g2) -> {
-            int i1 = cogToIndex.get(g1.getCog());
-            int i2 = cogToIndex.get(g2.getCog());
+            Integer i1 = cogToIndex.get(g1.getCog());
+            if(i1 == null)
+                throw new RuntimeException(String.format(GENE_NOT_IN_MATRIX_ERROR_FORMAT, g1.toString()));
+            Integer i2 = cogToIndex.get(g2.getCog());
+            if(i2 == null)
+                throw new RuntimeException(String.format(GENE_NOT_IN_MATRIX_ERROR_FORMAT, g2.toString()));
             return scoreMatrix.get(i1).get(i2);
         };
     }
