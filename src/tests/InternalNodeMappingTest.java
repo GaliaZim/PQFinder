@@ -111,7 +111,7 @@ class InternalNodeMappingTest {
         Node pqt = PrepareInput.buildTreeFromParenRepresentation("(cog1 cog2 (cog3 cog4) cog5)");
         Function<GeneGroup, Double> deletionCostFunction =
                 geneGroup -> {
-            if("cog6".equals(geneGroup.getCog()))
+            if("cog6".equals(geneGroup.getCog())  | "cog1".equals(geneGroup.getCog()))
                 return -0.2;
             else
                 return deletionCost.apply(geneGroup);};
@@ -142,6 +142,45 @@ class InternalNodeMappingTest {
                 MappingAlgorithmBuilder.build(string, root, treeDeletionLimit, stringDeletionLimit,
                         substitutionFunction, deletionCostFunc);
         algorithm.runAlgorithm();
+        HashMap<Integer, List<Mapping>> resultMappingsByEndPoints = algorithm.getResultMappingsByEndPoints();
+        MappingAssertions.assertGenericMappingMapProperties(resultMappingsByEndPoints, string, deletionCostFunc,
+                substitutionFunction);
+    }
+
+    private static Stream<Arguments> qNodeMappingTest() {
+        Node pqt = PrepareInput.buildTreeFromParenRepresentation("[cog1 cog2 [cog3 cog4] cog5]");
+        Function<GeneGroup, Double> deletionCostFunction =
+                geneGroup -> {
+                    if("cog6".equals(geneGroup.getCog()) | "cog1".equals(geneGroup.getCog()))
+                        return -0.2;
+                    else
+                        return deletionCost.apply(geneGroup);};
+        final Stream<Arguments> argumentsStream = Stream.of(
+                Arguments.of("85342155348", 0, 0),
+                Arguments.of("85342155348", 1, 0),
+                Arguments.of("53642178", 0, 1),
+                Arguments.of("53642178", 1, 1),
+                Arguments.of("86234568", 1, 0),
+                Arguments.of("86234568", 2, 2),
+                Arguments.of("", 2, 1),
+                Arguments.of("862463568", 1, 1),
+                Arguments.of("862463568", 2, 3)
+        );
+        return argumentsStream.map(arguments -> {
+            Object[] args = arguments.get();
+            return Arguments.arguments(pqt, args[0], args[1], args[2], deletionCostFunction);
+        });
+    }
+
+    @ParameterizedTest
+    @MethodSource("qNodeMappingTest")
+    void qNodeMappingWithDeletionCostTest(Node root, String str, int treeDeletionLimit, int stringDeletionLimit,
+                                          Function<GeneGroup, Double> deletionCostFunc)
+            throws ExceptionInInitializerError {
+        ArrayList<GeneGroup> string = geneGroupsProvider.convertToGeneGroups(str);
+        NodeMappingAlgorithm algorithm =
+                MappingAlgorithmBuilder.build(string, root, treeDeletionLimit, stringDeletionLimit,
+                        substitutionFunction, deletionCostFunc);
         HashMap<Integer, List<Mapping>> resultMappingsByEndPoints = algorithm.getResultMappingsByEndPoints();
         MappingAssertions.assertGenericMappingMapProperties(resultMappingsByEndPoints, string, deletionCostFunc,
                 substitutionFunction);
