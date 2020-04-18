@@ -6,6 +6,7 @@ import structures.Node;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
@@ -32,8 +33,9 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
     //TODO: Deal with (dT limit > span of node) and (dS limit > substring length). should it be null or -infinity for next level
     InternalNodeMappingAlgorithm(ArrayList<GeneGroup> string, Node node, int treeDeletionLimit,
                                  int stringDeletionLimit,
-                                 BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction) {
-        super(string, node, treeDeletionLimit, stringDeletionLimit, substitutionFunction);
+                                 BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction,
+                                 Function<GeneGroup, Double> deletionCost) {
+        super(string, node, treeDeletionLimit, stringDeletionLimit, substitutionFunction, deletionCost);
         this.mappingsStartingAtSameIndexByEndPoints = new HashMap<>(); //TODO: capacity
         this.numberOfChildren = node.getNumberOfChildren();
         this.mappingsByChildren = new ArrayList<>(numberOfChildren + 1);
@@ -98,7 +100,7 @@ public abstract class InternalNodeMappingAlgorithm extends NodeMappingAlgorithm{
         for (Node child : node.getChildren()) {
             childIndex ++;
             childMappingAlgorithm = MappingAlgorithmBuilder.build(string, child, treeDeletionLimit,
-                    stringDeletionLimit, substitutionFunction);
+                    stringDeletionLimit, substitutionFunction, deletionCost);
             childMappingAlgorithm.runAlgorithm();
             HashMap<Integer, List<Mapping>> childMappings =
                     childMappingAlgorithm.getResultMappingsByEndPoints();

@@ -5,6 +5,7 @@ import structures.*;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
     private Backtrack[][][] dPTableLTR;
@@ -16,8 +17,9 @@ public class QNodeMappingAlgorithm extends InternalNodeMappingAlgorithm{
 
     public QNodeMappingAlgorithm(ArrayList<GeneGroup> string, Node node, int treeDeletionLimit,
                                  int stringDeletionLimit,
-                                 BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction) {
-        super(string, node, treeDeletionLimit, stringDeletionLimit, substitutionFunction);
+                                 BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction,
+                                 Function<GeneGroup, Double> deletionCost) {
+        super(string, node, treeDeletionLimit, stringDeletionLimit, substitutionFunction, deletionCost);
         spansLTR = new int[numberOfChildren+1];
         spansRTL = new int[numberOfChildren+1];
         encoder = new IndexToChildNodeEncoder(node.getChildren());

@@ -7,12 +7,14 @@ import structures.Node;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class LeafMappingAlgorithm extends NodeMappingAlgorithm {
 
     public LeafMappingAlgorithm(ArrayList<GeneGroup> string, Node node, int treeDeletionLimit, int stringDeletionLimit,
-                                BiFunction<GeneGroup,GeneGroup,Double> substitutionFunction) {
-        super(string, node, treeDeletionLimit, stringDeletionLimit, substitutionFunction);
+                                BiFunction<GeneGroup,GeneGroup,Double> substitutionFunction,
+                                Function<GeneGroup, Double> deletionCost) {
+        super(string, node, treeDeletionLimit, stringDeletionLimit, substitutionFunction, deletionCost);
     }
 
     /**

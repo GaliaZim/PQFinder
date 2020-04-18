@@ -8,6 +8,7 @@ import structures.Node;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
     private Backtrack[][][] dPTable;
@@ -23,8 +24,9 @@ public class PNodeMappingAlgorithm extends InternalNodeMappingAlgorithm {
 
     public PNodeMappingAlgorithm(ArrayList<GeneGroup> string, Node node, int treeDeletionLimit,
                                  int stringDeletionLimit,
-                                 BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction) {
-        super(string, node, treeDeletionLimit, stringDeletionLimit, substitutionFunction);
+                                 BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction,
+                                 Function<GeneGroup, Double> deletionCost) {
+        super(string, node, treeDeletionLimit, stringDeletionLimit, substitutionFunction, deletionCost);
         this.numberOfSubsets = (int) Math.pow(2,numberOfChildren);
         this.subsetSpans = new int[numberOfSubsets];
     }

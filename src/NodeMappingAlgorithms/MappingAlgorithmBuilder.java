@@ -7,6 +7,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class MappingAlgorithmBuilder {
     /**
@@ -20,28 +21,34 @@ public class MappingAlgorithmBuilder {
      */
     public static NodeMappingAlgorithm build(ArrayList<GeneGroup> string, Node node, int treeDeletionLimit,
                                              int stringDeletionLimit,
-                                             BiFunction<GeneGroup, GeneGroup, Double>
-                                              substitutionFunction) {
+                                             BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction,
+                                             Function<GeneGroup, Double> deletionCost) {
         NodeMappingAlgorithm algorithm;
         try {
             Constructor constructor;
             Class<?> mappingAlgorithmClass = node.getType().getMappingAlgorithm();
             constructor = mappingAlgorithmClass
-                    .getConstructor(ArrayList.class, Node.class, int.class, int.class, BiFunction.class);
+                    .getConstructor(ArrayList.class, Node.class, int.class, int.class, BiFunction.class, Function.class);
             Object newInstance = constructor.newInstance(string, node, treeDeletionLimit,
-                    stringDeletionLimit, substitutionFunction);
+                    stringDeletionLimit, substitutionFunction, deletionCost);
             if(mappingAlgorithmClass.isInstance(newInstance))
                 algorithm = ((NodeMappingAlgorithm) newInstance);
             else
                 algorithm = getNodeMappingAlgorithm(string, node, treeDeletionLimit,
-                        stringDeletionLimit, substitutionFunction);
+                        stringDeletionLimit, substitutionFunction, deletionCost);
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
                 | InvocationTargetException e) {
             e.printStackTrace();
             algorithm = getNodeMappingAlgorithm(string, node, treeDeletionLimit,
-                    stringDeletionLimit, substitutionFunction);
+                    stringDeletionLimit, substitutionFunction, deletionCost);
         }
         return algorithm;
+    }
+
+    public static NodeMappingAlgorithm build(ArrayList<GeneGroup> string, Node node, int treeDeletionLimit,
+                                             int stringDeletionLimit,
+                                             BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction) {
+        return build(string, node, treeDeletionLimit, stringDeletionLimit, substitutionFunction, geneGroup -> 0.0);
     }
 
     /**
@@ -50,20 +57,21 @@ public class MappingAlgorithmBuilder {
     private static NodeMappingAlgorithm getNodeMappingAlgorithm(ArrayList<GeneGroup> string, Node node,
                                                                 int treeDeletionLimit, int stringDeletionLimit,
                                                                 BiFunction<GeneGroup, GeneGroup, Double>
-                                                                        substitutionFunction) {
+                                                                        substitutionFunction,
+                                                                Function<GeneGroup, Double> deletionCost) {
         NodeMappingAlgorithm algorithm = null;
         switch (node.getType()) {
             case LEAF:
                 algorithm = new LeafMappingAlgorithm(string, node, treeDeletionLimit,
-                        stringDeletionLimit, substitutionFunction);
+                        stringDeletionLimit, substitutionFunction, deletionCost);
                 break;
             case QNode:
                 algorithm = new QNodeMappingAlgorithm(string, node, treeDeletionLimit,
-                        stringDeletionLimit, substitutionFunction);
+                        stringDeletionLimit, substitutionFunction, deletionCost);
                 break;
             case PNode:
                 algorithm = new PNodeMappingAlgorithm(string, node, treeDeletionLimit,
-                        stringDeletionLimit, substitutionFunction);
+                        stringDeletionLimit, substitutionFunction, deletionCost);
 
         }
         return algorithm;

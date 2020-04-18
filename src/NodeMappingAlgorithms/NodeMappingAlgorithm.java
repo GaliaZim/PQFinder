@@ -6,6 +6,7 @@ import structures.Node;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public abstract class NodeMappingAlgorithm {
@@ -31,6 +32,10 @@ public abstract class NodeMappingAlgorithm {
      */
     BiFunction<GeneGroup,GeneGroup,Double> substitutionFunction;
     /**
+     * {@code deletionCost(A)} returns the cost for deleting a leaf with label A or a character A of the string
+     */
+    Function<GeneGroup, Double> deletionCost;
+    /**
      * key: an index of {@code string}
      * value: a list of mappings between {@code node} and substrings of {@code string} ending at {@code key}.
      * endPoint --> list of mappings
@@ -38,12 +43,14 @@ public abstract class NodeMappingAlgorithm {
     HashMap<Integer, List<Mapping>> resultMappingsByEndPoints;
 
     NodeMappingAlgorithm(ArrayList<GeneGroup> string, Node node, int treeDeletionLimit, int stringDeletionLimit,
-                         BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction) {
+                         BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction,
+                         Function<GeneGroup, Double> deletionCost) {
         this.string = string;
         this.node = node;
         this.treeDeletionLimit = treeDeletionLimit;
         this.stringDeletionLimit = stringDeletionLimit;
         this.substitutionFunction = substitutionFunction;
+        this.deletionCost = deletionCost;
         resultMappingsByEndPoints = new HashMap<>(); //TODO: capacity
     }
 

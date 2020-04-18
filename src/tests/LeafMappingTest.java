@@ -54,7 +54,7 @@ public class LeafMappingTest {
     void leafMappingTest(String str, Node leaf, int treeDeletionLimit, int stringDeletionLimit){
         ArrayList<GeneGroup> string = geneGroupsProvider.convertToGeneGroups(str);
         LeafMappingAlgorithm algorithm = new LeafMappingAlgorithm(string, leaf,
-                treeDeletionLimit, stringDeletionLimit, substitutionFunction);
+                treeDeletionLimit, stringDeletionLimit, substitutionFunction, geneGroup -> 0.0);
         algorithm.runAlgorithm();
         HashMap<Integer, List<Mapping>> resultMappingsByEndPoints = algorithm.getResultMappingsByEndPoints();
         MappingAssertions.assertLeafMappings(resultMappingsByEndPoints, string, leaf.getLabel(), substitutionFunction);
