@@ -1,6 +1,6 @@
 {
   "root": {
-    "type":"P",
+    "type":"PNode",
     "children":[
       {"type":"LEAF", "cog":"cog1-", "children":[]},
       {"type":"LEAF", "cog":"cog2+", "children":[]},
