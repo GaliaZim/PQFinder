@@ -1,6 +1,7 @@
 package structures;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -148,5 +149,12 @@ public class Node {
         this.height = Math.max(height, node.getHeight() + 1);
         this.leafs.addAll(node.getLeafs());
         this.index = node.getIndex() + 1;
+    }
+
+    public double getDeletionCost(Function<GeneGroup, Double> deletionCost) {
+        if(type == NodeType.LEAF)
+            return deletionCost.apply(getLabel());
+        return children.stream().map(child -> child.getDeletionCost(deletionCost))
+                .reduce(0.0, Double::sum);
     }
 }
