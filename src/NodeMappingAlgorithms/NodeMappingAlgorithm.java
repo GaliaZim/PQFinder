@@ -114,7 +114,7 @@ public abstract class NodeMappingAlgorithm {
         HashMap<Integer, Node> mappingToReturn = null;
         Mapping maxMapping = getBestMapping();
         if(maxMapping != null) {
-            mappingToReturn = maxMapping.getLeafMappings();
+            mappingToReturn = maxMapping.getOneToOneMappingByStringIndices();
         }
         return mappingToReturn;
     }

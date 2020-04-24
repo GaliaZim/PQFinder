@@ -54,7 +54,7 @@ class MappingAssertions {
             Assertions.assertEquals(0, mapping.getChildrenMappings().size(),
                     "Children were mapped, but score is -infinity");
         } else {
-            double mappedLeafsScore = mapping.getLeafMappings().entrySet().stream().map(entry ->
+            double mappedLeafsScore = mapping.getOneToOneMappingByStringIndices().entrySet().stream().map(entry ->
                     substitutionFunction.apply(string.get(entry.getKey() - 1), entry.getValue().getLabel()))
                     .reduce(Double::sum).orElse(0.0);
             double stringDeletionCost = mapping.getDeletedStringIndices().stream()

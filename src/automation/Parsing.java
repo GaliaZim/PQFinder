@@ -32,41 +32,57 @@ public class Parsing {
 
     private static void printMapping(Mapping mapping) {
         System.out.println("Derivation score: " + mapping.getScore());
+        printDerivedSubstring(mapping);
+        printOneToOneMapping(mapping);
+        printDeletedStringIndices(mapping.getDeletedStringIndices());
+        printDeletedLeafs(mapping.getDeletedDescendant());
+        System.out.println();
+    }
 
+    private static void printDerivedSubstring(Mapping mapping) {
         int startPoint = mapping.getStartIndex();
         int endPoint = mapping.getEndIndex();
         ArrayList<GeneGroup> subGeneSeq = new ArrayList<>(geneSeq.subList(startPoint - 1, endPoint));
         String substring = subGeneSeq.stream().map(GeneGroup::toString)
-                .reduce("", (s1,s2) ->  s1 + ", " + s2).substring(2);
-        System.out.println(String.format("The derived substring is S[%d:%d]= %s",
+                .reduce("", (s1,s2) ->  s1 + "," + s2).substring(1);
+        System.out.println(String.format("The derived substring is S[%d:%d] = %s",
                 startPoint, endPoint, substring));
+    }
 
-        System.out.println("The one-to-one mapping:");
-        mapping.getLeafMappings().entrySet().stream().map(entry ->
-                String.format("(%s,%s[%d])", entry.getValue().getLabel().toString(), geneSeq.get(entry.getKey()-1),
-                        entry.getKey()))
-                .forEach(map -> System.out.print(map + " ; "));
-        System.out.println();
-
-        List<Node> deletedDescendant = mapping.getDeletedDescendant();
+    private static void printDeletedLeafs(List<Node> deletedDescendant) {
         int deletedNodesNum = deletedDescendant.size();
+        StringBuilder sb = new StringBuilder();
         if(deletedNodesNum > 0) {
-            System.out.println(deletedNodesNum + " leaves deleted in the derivation:");
-            deletedDescendant.forEach(node -> System.out.print(node.getLabel() + ", "));
-            System.out.println();
+            System.out.println(deletedNodesNum + " leaf(s) deleted in the derivation:");
+            deletedDescendant.forEach(node -> sb.append(", ").append(node.getLabel()));
+            System.out.println(sb.substring(2));
         } else {
-            System.out.println("No leaves deleted in the derivation.");
+            System.out.println("No leafs deleted in the derivation.");
         }
+    }
 
-        List<Integer> deletedStringIndices = mapping.getDeletedStringIndices();
+    private static void printDeletedStringIndices(List<Integer> deletedStringIndices) {
         int deletedCharactersNum = deletedStringIndices.size();
         if(deletedCharactersNum > 0) {
-            System.out.println(deletedCharactersNum + " characters deleted from the substring:");
-            deletedStringIndices.forEach(i -> System.out.println(geneSeq.get(i-1) + "at index " + i));
+            System.out.println(deletedCharactersNum + " gene(s) deleted in the derivation:");
+            deletedStringIndices.forEach(i -> System.out.println(geneSeq.get(i-1) + " at index " + i));
         } else {
-            System.out.println("No characters deleted from the substring.");
+            System.out.println("No genes deleted in the derivation.");
         }
-        System.out.println();
+    }
+
+    private static void printOneToOneMapping(Mapping mapping) {
+        HashMap<Node,Integer> leafMappings = mapping.getOneToOneMappingByLeafs();
+        StringBuilder sb = new StringBuilder();
+        for(Node leaf: mapping.getNode().getLeafs()) {
+            Integer index = leafMappings.get(leaf);
+            if(index == null)
+                sb.append(String.format(" ; (%s,DEL)", leaf.getLabel()));
+            else
+                sb.append(String.format(" ; (%s,%s[%d])", leaf.getLabel(), geneSeq.get(index - 1), index));
+        }
+        System.out.println("The one-to-one mapping:");
+        System.out.println(sb.substring(3));
     }
 
     private static void retrieveInput(String[] args) {

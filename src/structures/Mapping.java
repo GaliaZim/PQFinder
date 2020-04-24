@@ -148,13 +148,13 @@ public class Mapping implements Comparable<Mapping>{
      * @return the ono-to-one mapping between string indices and leaf nodes (of the tree rooted in{@code node})
      * that yields this mapping
      */
-    public HashMap<Integer, Node> getLeafMappings() {
+    public HashMap<Integer, Node> getOneToOneMappingByStringIndices() {
         HashMap<Integer, Node> mappingsToReturn = new HashMap<>();
         if(node.getType() == NodeType.LEAF)
             mappingsToReturn.put(startIndex, node);
         else
             childrenMappings.forEach(childMapping ->
-                    mappingsToReturn.putAll(childMapping.getLeafMappings()));
+                    mappingsToReturn.putAll(childMapping.getOneToOneMappingByStringIndices()));
         return mappingsToReturn;
     }
 
@@ -173,5 +173,15 @@ public class Mapping implements Comparable<Mapping>{
                     - (this.getStringDeletions() + this.getTreeDeletions());
         }
         return diff;
+    }
+
+    public HashMap<Node, Integer> getOneToOneMappingByLeafs() {
+        HashMap<Node, Integer> mappingsToReturn = new HashMap<>();
+        if(node.getType() == NodeType.LEAF)
+            mappingsToReturn.put(node, startIndex);
+        else
+            childrenMappings.forEach(childMapping ->
+                    mappingsToReturn.putAll(childMapping.getOneToOneMappingByLeafs()));
+        return mappingsToReturn;
     }
 }
