@@ -133,4 +133,15 @@ public abstract class NodeMappingAlgorithm {
         Collections.reverse(mappingList);
         return mappingList;
     }
+
+    public List<Mapping> getAllPossibleMappings(double threshold) {
+        List<Mapping> mappingList = resultMappingsByEndPoints.values().stream()
+                .map(listOfMappings -> listOfMappings.stream().max(Mapping::compareTo).orElse(null))
+                .filter(mapping -> mapping != null && !mapping.getScore().equals(Double.NEGATIVE_INFINITY)
+                        && mapping.getScore() >= threshold)
+                .sorted(Mapping::compareTo)
+                .collect(Collectors.toList());
+        Collections.reverse(mappingList);
+        return mappingList;
+    }
 }

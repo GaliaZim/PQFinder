@@ -19,8 +19,11 @@ public class Parsing {
             case "single":
                 SingleParsing.main(arguments);
                 break;
+            case "batch":
+                BatchParsing.main(arguments);
+                break;
             default:
-                throw new RuntimeException(String.format("No such mode %s. Try single", mode));
+                throw new RuntimeException(String.format("No such mode %s. Try single or batch", mode));
         }
     }
 

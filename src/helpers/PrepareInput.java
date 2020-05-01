@@ -7,11 +7,10 @@ import structures.GeneGroup;
 import structures.Node;
 import structures.NodeType;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 public class PrepareInput {
     private final static int SMALLEST_NODE_INDEX = 1;
@@ -29,12 +28,12 @@ public class PrepareInput {
         return decodeNodeFromJsonObject(root, SMALLEST_NODE_INDEX);
     }
 
-    public static JSONObject getJsonObjectFromFile(String pathToJsonFile) throws IOException, ParseException {
+    private static JSONObject getJsonObjectFromFile(String pathToJsonFile) throws IOException, ParseException {
         JSONParser parser = new JSONParser();
         return (JSONObject) parser.parse(new FileReader(pathToJsonFile));
     }
 
-    public static Node decodeNodeFromJsonObject(JSONObject nodeObject, int smallestIndexInNodeSubtree) {
+    private static Node decodeNodeFromJsonObject(JSONObject nodeObject, int smallestIndexInNodeSubtree) {
         String type = (String)nodeObject.get(NODE_TYPE_JSON_KEY);
         NodeType nodeType = NodeType.valueOf(type);
         GeneGroup label = null;
@@ -59,7 +58,7 @@ public class PrepareInput {
         return new Node(index, nodeType, label, children, true);
     }
 
-    public static ArrayList<GeneGroup> convertCogJSONArrayToInputString(JSONArray geneSeqJson) {
+    private static ArrayList<GeneGroup> convertCogJSONArrayToInputString(JSONArray geneSeqJson) {
         ArrayList<GeneGroup> string = new ArrayList<>();
         for(Object geneJson: geneSeqJson)
             string.add(new GeneGroup((String) geneJson));
@@ -191,5 +190,53 @@ public class PrepareInput {
         Node leaf = new Node(nodeIndex, NodeType.LEAF, new GeneGroup(leafLabel.toString()),
                 Collections.emptyList(), true);
         node.addChild(leaf);
+    }
+
+    public static void getPqtsFromFile(String pathToPqtsFile, HashMap<String, Node> pqts,
+                                       HashMap<String, String> pqtsParenthesisRepresentation) throws IOException {
+        File pqtFile = new File(pathToPqtsFile);
+        if(!pqtFile.isFile())
+            throw new RuntimeException(pathToPqtsFile + " is not a file");
+        String pqtId, line;
+        String[] lineSplit;
+        int lineNum = 1;
+        BufferedReader br = new BufferedReader(new FileReader(pqtFile));
+        while((line = br.readLine()) != null) {
+            lineSplit = line.split("\t");
+            if(lineSplit.length != 2)
+                throw new RuntimeException(String.format(
+                        "Bad syntax in PQ-trees file line %d. wrong amount of \\t characters", lineNum));
+            pqtId = lineSplit[0];
+            String paren = lineSplit[1];
+            Node pqt = buildTreeFromParenRepresentation(paren);
+            pqts.put(pqtId, pqt);
+            pqtsParenthesisRepresentation.put(pqtId, paren);
+            lineNum ++;
+        }
+    }
+
+    public static HashMap<String, ArrayList<GeneGroup>> getGenomesFromFile(String pathToGenomes,
+                                                                           Consumer<List<GeneGroup>> consumer)
+            throws IOException {
+        HashMap<String, ArrayList<GeneGroup>> genomesById = new HashMap<>();
+        BufferedReader br = new BufferedReader(new FileReader(pathToGenomes));
+        String line;
+        line = br.readLine();
+        String id = line.substring(1);
+        ArrayList<GeneGroup> genome = new ArrayList<>();
+        while ((line = br.readLine()) != null) {
+            if (line.startsWith(">")) {
+                consumer.accept(genome);
+                genomesById.put(id, genome);
+                genome = new ArrayList<>();
+                id = line.substring(1);
+            } else {
+                final String[] split = line.split("\t", 2);
+                GeneGroup gene = new GeneGroup(split[0]);
+                genome.add(gene);
+            }
+        }
+        genomesById.put(id, genome);
+        return genomesById;
     }
 }
