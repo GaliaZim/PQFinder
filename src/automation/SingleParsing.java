@@ -13,14 +13,14 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-public class Parsing {
+public class SingleParsing {
     private static Node pqt = null;
     private static ArrayList<GeneGroup> geneSeq = null;
     private static int treeDeletionLimit = 0;
     private static int stringDeletionLimit = 0;
     private static BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction
-            = Parsing::noSubstitutionsFunction;
-    private static Consumer<NodeMappingAlgorithm> outputFunction = Parsing::printBestMapping;
+            = SingleParsing::noSubstitutionsFunction;
+    private static Consumer<NodeMappingAlgorithm> outputFunction = SingleParsing::printBestMapping;
 
     public static void main(String[] args) {
         retrieveInput(args);
@@ -87,14 +87,14 @@ public class Parsing {
 
     private static void retrieveInput(String[] args) {
         Map<String,  Consumer<String>> optionToArgumentRetrievalFunction = new HashMap<>(6);
-        optionToArgumentRetrievalFunction.put("-p", Parsing::retrieveTreeFromParenRepresantation);
-        optionToArgumentRetrievalFunction.put("-j", Parsing::retrieveTreeFromJson);
-        optionToArgumentRetrievalFunction.put("-gf", Parsing::retrieveGeneSeqFromFile);
-        optionToArgumentRetrievalFunction.put("-g", Parsing::retrieveGeneSeqFromArgument);
-        optionToArgumentRetrievalFunction.put("-m", Parsing::retrieveSubstitutionFunction);
-        optionToArgumentRetrievalFunction.put("-dt", Parsing::retrieveTreeDeletionLimit);
-        optionToArgumentRetrievalFunction.put("-ds", Parsing::retrieveStringDeletionLimit);
-        optionToArgumentRetrievalFunction.put("-o", Parsing::retrieveOutputFunction);
+        optionToArgumentRetrievalFunction.put("-p", SingleParsing::retrieveTreeFromParenRepresantation);
+        optionToArgumentRetrievalFunction.put("-j", SingleParsing::retrieveTreeFromJson);
+        optionToArgumentRetrievalFunction.put("-gf", SingleParsing::retrieveGeneSeqFromFile);
+        optionToArgumentRetrievalFunction.put("-g", SingleParsing::retrieveGeneSeqFromArgument);
+        optionToArgumentRetrievalFunction.put("-m", SingleParsing::retrieveSubstitutionFunction);
+        optionToArgumentRetrievalFunction.put("-dt", SingleParsing::retrieveTreeDeletionLimit);
+        optionToArgumentRetrievalFunction.put("-ds", SingleParsing::retrieveStringDeletionLimit);
+        optionToArgumentRetrievalFunction.put("-o", SingleParsing::retrieveOutputFunction);
 
         int argIndex = 0;
         while (argIndex < args.length - 1) {
@@ -155,11 +155,11 @@ public class Parsing {
     }
 
     private static void retrieveTreeDeletionLimit(String treeDeletionLimit) {
-        Parsing.treeDeletionLimit = Integer.valueOf(treeDeletionLimit);
+        SingleParsing.treeDeletionLimit = Integer.valueOf(treeDeletionLimit);
     }
 
     private static void retrieveStringDeletionLimit(String stringDeletionLimit) {
-        Parsing.stringDeletionLimit = Integer.valueOf(stringDeletionLimit);
+        SingleParsing.stringDeletionLimit = Integer.valueOf(stringDeletionLimit);
     }
 
     private static void retrieveSubstitutionFunction(String pathToSubstitutionMatrixFile) {
@@ -174,10 +174,10 @@ public class Parsing {
     private static void retrieveOutputFunction(String argument) {
         switch (argument) {
             case "all":
-                outputFunction = Parsing::printAllMappings;
+                outputFunction = SingleParsing::printAllMappings;
                 break;
             case "best":
-                outputFunction = Parsing::printBestMapping;
+                outputFunction = SingleParsing::printBestMapping;
                 break;
             default:
                 throw new RuntimeException(argument + "is not a valid outputFunction option. Try 'best' or 'all'.");
@@ -185,11 +185,11 @@ public class Parsing {
     }
 
     private static void printBestMapping(NodeMappingAlgorithm algorithm) {
-        Parsing.printMapping(algorithm.getBestMapping());
+        SingleParsing.printMapping(algorithm.getBestMapping());
     }
 
     private static void printAllMappings(NodeMappingAlgorithm algorithm) {
-        algorithm.getAllPossibleMappings().forEach(Parsing::printMapping);
+        algorithm.getAllPossibleMappings().forEach(SingleParsing::printMapping);
     }
 
     private static Double noSubstitutionsFunction(GeneGroup g1, GeneGroup g2) {
