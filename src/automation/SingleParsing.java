@@ -18,8 +18,7 @@ public class SingleParsing {
     private static ArrayList<GeneGroup> geneSeq = null;
     private static int treeDeletionLimit = 0;
     private static int stringDeletionLimit = 0;
-    private static BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction
-            = SingleParsing::noSubstitutionsFunction;
+    private static BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction = Parsing::noSubstitutionsFunction;
     private static Consumer<NodeMappingAlgorithm> outputFunction = SingleParsing::printBestMapping;
 
     public static void main(String[] args) {
@@ -72,21 +71,12 @@ public class SingleParsing {
     }
 
     private static void printOneToOneMapping(Mapping mapping) {
-        HashMap<Node,Integer> leafMappings = mapping.getOneToOneMappingByLeafs();
-        StringBuilder sb = new StringBuilder();
-        for(Node leaf: mapping.getNode().getLeafs()) {
-            Integer index = leafMappings.get(leaf);
-            if(index == null)
-                sb.append(String.format(" ; (%s,DEL)", leaf.getLabel()));
-            else
-                sb.append(String.format(" ; (%s,%s[%d])", leaf.getLabel(), geneSeq.get(index - 1), index));
-        }
         System.out.println("The one-to-one mapping:");
-        System.out.println(sb.substring(3));
+        System.out.println(Parsing.getFormattedOneToOneMapping(mapping, geneSeq));
     }
 
     private static void retrieveInput(String[] args) {
-        Map<String,  Consumer<String>> optionToArgumentRetrievalFunction = new HashMap<>(6);
+        Map<String,  Consumer<String>> optionToArgumentRetrievalFunction = new HashMap<>(8);
         optionToArgumentRetrievalFunction.put("-p", SingleParsing::retrieveTreeFromParenRepresantation);
         optionToArgumentRetrievalFunction.put("-j", SingleParsing::retrieveTreeFromJson);
         optionToArgumentRetrievalFunction.put("-gf", SingleParsing::retrieveGeneSeqFromFile);
@@ -101,23 +91,15 @@ public class SingleParsing {
            String option = args[argIndex];
            Consumer<String> func = optionToArgumentRetrievalFunction.get(option);
            if(func == null)
-               argumentErrorThrower(option);
+               Parsing.argumentErrorThrower(option);
            argIndex++;
            func.accept(args[argIndex]);
            argIndex++;
         }
         if(pqt == null)
-            noArgumentErrorThrower("PQ-tree");
+            Parsing.noArgumentErrorThrower("PQ-tree");
         if(geneSeq == null)
-            noArgumentErrorThrower("gene sequence");
-    }
-
-    private static void noArgumentErrorThrower(String argument) {
-        throw new RuntimeException("Did not receive an argument for the " + argument);
-    }
-
-    private static void argumentErrorThrower(String option){
-        throw new RuntimeException("unknown option: " + option);
+            Parsing.noArgumentErrorThrower("gene sequence");
     }
 
     private static void retrieveTreeFromJson(String pathToJsonFile) {
@@ -192,10 +174,4 @@ public class SingleParsing {
         algorithm.getAllPossibleMappings().forEach(SingleParsing::printMapping);
     }
 
-    private static Double noSubstitutionsFunction(GeneGroup g1, GeneGroup g2) {
-        if(g1.getCog().equals(g2.getCog()))
-            return 1.0;
-        else
-            return Double.NEGATIVE_INFINITY;
-    }
 }
