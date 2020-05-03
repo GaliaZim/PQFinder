@@ -215,8 +215,7 @@ public class PrepareInput {
         }
     }
 
-    public static HashMap<String, ArrayList<GeneGroup>> getGenomesFromFile(String pathToGenomes,
-                                                                           Consumer<List<GeneGroup>> consumer)
+    public static HashMap<String, ArrayList<GeneGroup>> getGenomesFromFile(String pathToGenomes)
             throws IOException {
         HashMap<String, ArrayList<GeneGroup>> genomesById = new HashMap<>();
         BufferedReader br = new BufferedReader(new FileReader(pathToGenomes));
@@ -226,7 +225,6 @@ public class PrepareInput {
         ArrayList<GeneGroup> genome = new ArrayList<>();
         while ((line = br.readLine()) != null) {
             if (line.startsWith(">")) {
-                consumer.accept(genome);
                 genomesById.put(id, genome);
                 genome = new ArrayList<>();
                 id = line.substring(1);

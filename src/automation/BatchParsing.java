@@ -13,11 +13,13 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class BatchParsing {
     private static HashMap<String,Node> pqts = null;
     private static HashMap<String,String> pqtsParenthesisRepresentation = null;
     private static HashMap<String, ArrayList<GeneGroup>> genomesById = null;
+    private static HashMap<String, Integer> genomesEndPointById;
     private static BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction = Parsing::noSubstitutionsFunction;
     private static Function<Integer,Double> calcThreshold = integer -> 0.0;
     private static Function<Integer,Integer> calcTreeDeletionLimit = BatchParsing::defaultDeletionLimit;
@@ -25,6 +27,7 @@ public class BatchParsing {
     private static BiFunction<NodeMappingAlgorithm, Double, List<Mapping>>
             outputMappingsCollector = BatchParsing::getBestMapping;
     private static String outputFolderPath = null;
+    private static BiFunction<List<Mapping>,String,List<Mapping>> outputMappingsFilter = (l,s) -> l;
 
     public static void main(String[] args) {
         retrieveBatchInput(args);
@@ -95,9 +98,20 @@ public class BatchParsing {
     }
 
     private static String getGenomeMappingLine(String genomeId, Mapping mapping) {
+        final String formattedOneToOneMapping;
+        final int genomeEndPoint = genomesEndPointById.get(genomeId);
         final ArrayList<GeneGroup> genome = genomesById.get(genomeId);
-        final String formattedOneToOneMapping = Parsing.getFormattedOneToOneMapping(mapping, genome);
-        final String indices = String.format("[%d:%d]", mapping.getStartIndex(), mapping.getEndIndex());
+        int endIndex = mapping.getEndIndex();
+        if(endIndex > genomeEndPoint) {
+            endIndex -= genomeEndPoint;
+            formattedOneToOneMapping = Parsing.getFormattedOneToOneMapping(mapping, genome,
+                    m -> m.getOneToOneMappingByLeafs(genomeEndPoint));
+        } else {
+            formattedOneToOneMapping = Parsing.getFormattedOneToOneMapping(mapping, genome,
+                    Mapping::getOneToOneMappingByLeafs);
+        }
+        int startIndex = mapping.getStartIndex();
+        final String indices = String.format("[%d:%d]", startIndex, endIndex);
         return String.format("%s\t%f\tdelS:%d\tdelT:%d\t%s\n", indices, mapping.getScore(),
                 mapping.getStringDeletions(), mapping.getTreeDeletions(), formattedOneToOneMapping);
     }
@@ -125,7 +139,8 @@ public class BatchParsing {
         algorithm = MappingAlgorithmBuilder.build(genome, pqt, treeDeletionLimit, stringDeletionLimit,
                 substitutionFunction);
         algorithm.runAlgorithm();
-        List<Mapping> mappingList = outputMappingsCollector.apply(algorithm, threshold);
+        List<Mapping> mappingList = outputMappingsFilter.apply(
+                outputMappingsCollector.apply(algorithm, threshold), genomeId);
         if(!mappingList.isEmpty())
             pqtDerivationsByGenomeId.put(genomeId, mappingList);
     }
@@ -140,6 +155,16 @@ public class BatchParsing {
             return Collections.singletonList(bestMapping);
         else
             return Collections.emptyList();
+    }
+
+    private static List<Mapping> filterCyclicMappings(List<Mapping> mappingList, String genomeId) {
+        final int genomeEndPoint = genomesEndPointById.get(genomeId);
+        return mappingList.stream().filter(mapping -> {
+            int startIndex = mapping.getStartIndex();
+            int endIndex = mapping.getEndIndex();
+            return startIndex < genomeEndPoint && endIndex-genomeEndPoint != startIndex;
+        })
+                .collect(Collectors.toList());
     }
 
     private static void retrieveBatchInput(String[] args) {
@@ -201,18 +226,19 @@ public class BatchParsing {
         }
     }
 
-    private static void retrieveGenomes(String pathToGenomesFile) {
-        retrieveGenomes(pathToGenomesFile, list -> {});
-    }
-
     private static void retrieveCyclicGenomes(String pathToGenomesFile) {
-        retrieveGenomes(pathToGenomesFile, list -> list.addAll(list.subList(0, Math.min(20, list.size()))));
-        // TODO: adjust output accordingly
+        retrieveGenomes(pathToGenomesFile);
+        genomesById.values().forEach(list -> list.addAll(list.subList(0, Math.min(20, list.size()))));
+        outputMappingsFilter = BatchParsing::filterCyclicMappings;
     }
 
-    private static void retrieveGenomes(String pathToGenomes, Consumer<List<GeneGroup>> consumer) {
+    private static void retrieveGenomes(String pathToGenomes) {
         try {
-            genomesById = PrepareInput.getGenomesFromFile(pathToGenomes, consumer);
+            genomesById = PrepareInput.getGenomesFromFile(pathToGenomes);
+            genomesEndPointById = new HashMap<>();
+            for(Map.Entry<String, ArrayList<GeneGroup>> entry: genomesById.entrySet()) {
+                genomesEndPointById.put(entry.getKey(), entry.getValue().size());
+            }
         } catch (IOException e) {
             throw new RuntimeException("Could not retrieve genomes", e);
         }

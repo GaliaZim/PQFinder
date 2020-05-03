@@ -3,6 +3,7 @@ package structures;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class Mapping implements Comparable<Mapping>{
     /**
@@ -182,6 +183,18 @@ public class Mapping implements Comparable<Mapping>{
         else
             childrenMappings.forEach(childMapping ->
                     mappingsToReturn.putAll(childMapping.getOneToOneMappingByLeafs()));
+        return mappingsToReturn;
+    }
+
+    public HashMap<Node, Integer> getOneToOneMappingByLeafs(int originalGenomeEndIndex) {
+        HashMap<Node, Integer> leafMappings = getOneToOneMappingByLeafs();
+        HashMap<Node, Integer> mappingsToReturn = new HashMap<>();
+        for(Map.Entry<Node,Integer> entry: leafMappings.entrySet()){
+            int index = entry.getValue();
+            if(index > originalGenomeEndIndex)
+                index -= originalGenomeEndIndex;
+            mappingsToReturn.put(entry.getKey(), index);
+        }
         return mappingsToReturn;
     }
 }

@@ -72,7 +72,7 @@ public class SingleParsing {
 
     private static void printOneToOneMapping(Mapping mapping) {
         System.out.println("The one-to-one mapping:");
-        System.out.println(Parsing.getFormattedOneToOneMapping(mapping, geneSeq));
+        System.out.println(Parsing.getFormattedOneToOneMapping(mapping, geneSeq, Mapping::getOneToOneMappingByLeafs));
     }
 
     private static void retrieveInput(String[] args) {

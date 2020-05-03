@@ -7,6 +7,7 @@ import structures.Node;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.function.Function;
 
 public class Parsing {
     public static void main(String[] args) {
@@ -35,8 +36,9 @@ public class Parsing {
         throw new RuntimeException("unknown option: " + option);
     }
 
-    static String getFormattedOneToOneMapping(Mapping mapping, ArrayList<GeneGroup> genome) {
-        HashMap<Node,Integer> leafMappings = mapping.getOneToOneMappingByLeafs();
+    static String getFormattedOneToOneMapping(Mapping mapping, ArrayList<GeneGroup> genome,
+                                              Function<Mapping, HashMap<Node,Integer>> getLeafMappings) {
+        HashMap<Node,Integer> leafMappings = getLeafMappings.apply(mapping);
         StringBuilder sb = new StringBuilder();
         for(Node leaf: mapping.getNode().getLeafs()) {
             Integer index = leafMappings.get(leaf);
