@@ -161,8 +161,11 @@ public class SingleParsing {
             case "best":
                 outputFunction = SingleParsing::printBestMapping;
                 break;
+            case "distinct":
+                outputFunction = SingleParsing::printDistinctMappings;
+                break;
             default:
-                throw new RuntimeException(argument + "is not a valid outputFunction option. Try 'best' or 'all'.");
+                throw new RuntimeException(argument + "is not a valid output option. Try 'best', 'all' or 'distinct'.");
         }
     }
 
@@ -174,4 +177,7 @@ public class SingleParsing {
         algorithm.getAllPossibleMappings().forEach(SingleParsing::printMapping);
     }
 
+    private static void printDistinctMappings(NodeMappingAlgorithm algorithm) {
+        algorithm.getBestPossibleMappingsForDistinctIndices().forEach(SingleParsing::printMapping);
+    }
 }

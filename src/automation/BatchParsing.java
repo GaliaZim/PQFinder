@@ -149,6 +149,10 @@ public class BatchParsing {
         return algorithm.getAllPossibleMappings(threshold);
     }
 
+    private static List<Mapping> getDistinctMappings(NodeMappingAlgorithm algorithm, Double threshold) {
+        return algorithm.getBestPossibleMappingsForDistinctIndices(threshold);
+    }
+
     private static List<Mapping> getBestMapping(NodeMappingAlgorithm algorithm, double threshold) {
         final Mapping bestMapping = algorithm.getBestMapping();
         if(bestMapping != null && bestMapping.getScore() >= threshold)
@@ -212,8 +216,12 @@ public class BatchParsing {
             case "best":
                 outputMappingsCollector = BatchParsing::getBestMapping;
                 break;
+            case "distinct":
+                outputMappingsCollector = BatchParsing::getDistinctMappings;
+                break;
             default:
-                throw new RuntimeException(outputOption + "is not a valid output option. Try 'best' or 'all'.");
+                throw new RuntimeException(outputOption +
+                        "is not a valid output option. Try 'best', 'all' or 'distinct'.");
         }
     }
 

@@ -138,4 +138,32 @@ public abstract class NodeMappingAlgorithm {
         Collections.reverse(mappingList);
         return mappingList;
     }
+
+    public List<Mapping> getBestPossibleMappingsForDistinctIndices() {
+        return getBestPossibleMappingsForDistinctIndices(Double.NEGATIVE_INFINITY);
+    }
+
+    public List<Mapping> getBestPossibleMappingsForDistinctIndices(Double threshold) {
+        HashMap<Integer, List<Mapping>> mappingsByStartIndex = new HashMap<>();
+        mapOfMappingsListsToStreamOfBestMappingFromEachList(threshold, resultMappingsByEndPoints)
+                .forEach(mapping -> {
+                    int startIndex = mapping.getStartIndex();
+                    mappingsByStartIndex.putIfAbsent(startIndex, new ArrayList<>());
+                    mappingsByStartIndex.get(startIndex).add(mapping);
+                });
+        List<Mapping> mappingList =
+                mapOfMappingsListsToStreamOfBestMappingFromEachList(threshold, mappingsByStartIndex)
+                .sorted(Mapping::compareTo)
+                .collect(Collectors.toList());
+        Collections.reverse(mappingList);
+        return mappingList;
+    }
+
+    private Stream<Mapping> mapOfMappingsListsToStreamOfBestMappingFromEachList(Double threshold,
+                                                                               HashMap<Integer, List<Mapping>>
+                                                                                       mapOfMappingsLists) {
+        return mapOfMappingsLists.values().stream()
+                .map(listOfMappings -> listOfMappings.stream().max(Mapping::compareTo).orElse(null))
+                .filter(mapping -> mapping != null && mapping.getScore().compareTo(threshold) > 0);
+    }
 }
