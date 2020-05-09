@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public abstract class NodeMappingAlgorithm {
     /**
@@ -125,20 +126,13 @@ public abstract class NodeMappingAlgorithm {
     }
 
     public List<Mapping> getAllPossibleMappings() {
-        List<Mapping> mappingList = resultMappingsByEndPoints.values().stream()
-                .map(listOfMappings -> listOfMappings.stream().max(Mapping::compareTo).orElse(null))
-                .filter(mapping -> mapping != null && !mapping.getScore().equals(Double.NEGATIVE_INFINITY))
-                .sorted(Mapping::compareTo)
-                .collect(Collectors.toList());
-        Collections.reverse(mappingList);
-        return mappingList;
+        return getAllPossibleMappings(Double.NEGATIVE_INFINITY);
     }
 
-    public List<Mapping> getAllPossibleMappings(double threshold) {
+    public List<Mapping> getAllPossibleMappings(Double threshold) {
         List<Mapping> mappingList = resultMappingsByEndPoints.values().stream()
-                .map(listOfMappings -> listOfMappings.stream().max(Mapping::compareTo).orElse(null))
-                .filter(mapping -> mapping != null && !mapping.getScore().equals(Double.NEGATIVE_INFINITY)
-                        && mapping.getScore() >= threshold)
+                .flatMap(mappings -> mappings.stream()
+                        .filter(mapping -> mapping != null && mapping.getScore().compareTo(threshold) > 0))
                 .sorted(Mapping::compareTo)
                 .collect(Collectors.toList());
         Collections.reverse(mappingList);
