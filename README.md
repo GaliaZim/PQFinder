@@ -74,13 +74,16 @@ To run in batch mode use ```java -jar .\UnorderedParsing.jar batch [options]```
   
 - **-ds** STRING_DELETION_LIMIT  
   The number of allowed deletions from the gene sequence. A non-negative number  
-  **Defaul**t: 0  
+  **Default**: 0
   
 - **-o** OUTPUT_OPTION
   Possible values: [all, best]  
   **all**: outputs all possible derivations in an descending order according to their score  
-  **best**: outputs only the best derivation  
-**Default**: best
+  **best**: outputs only the best derivation
+  **distinct**: outputs the best derivation for every start index and every end index (if one exists) in an descending order according to their score
+  **Default**: best
+  See the [output formats](#output) section for more information.
+
 
 ## <a name=batch_options>Batch Mode Options:</a>
 ### Mandatory:
@@ -118,10 +121,12 @@ Output directory relative or absolute path. The output of the program will be sa
     -  **Default**: -ds 0
 
 - **-o** OUTPUT_OPTION
-  Possible values: [all, best]
+  Possible values: [all, best, distinct]
   **all**: for every PQ-tree and genome outputs all possible derivations in an descending order according to their score
   **best**: for every PQ-tree and genome outputs only the best derivation
+  **distinct**: for every PQ-tree and genome outputs the best derivation for every start index and every end index (if one exists) in an descending order according to their score
   **Default**: best
+  See the [output formats](#output) section for more information.
 
 - A threshold for the scores of the derivations, only derivations above this threshold will be outputted. The threshold is given using one of the following:
     - **-t** THRESHOLD
@@ -317,8 +322,14 @@ Two genes were deleted COG4545 and COG0476 in indices 12 and 14, respectively.
 > COG555  
 
 ### All Possible Derivations
-If the program was given the ```-o all``` option it will output all the derivations found (at most one derivation for every end index in the genome and combination of deletions numbers).
-The derivations are given in the above format and in descending order with respect to the score of the derivations. If 2 derivations have the same score, the one with less deletions is given first.
+If the program was given the ```-o all``` option it will output all the derivations found (at most one derivation for every substring).
+The derivations are given in the above format and in descending order with respect to the score of the derivations.
+If 2 derivations have the same score, the one with less deletions is given first.
+
+### Distinct Derivations
+If the program was given the ```-o distinct``` option it will output the best derivations with distinct start and end indices.
+That is, at most one derivation for every end index and at most one for every start index.
+The derivations are given in the best format and in descending order with respect to the score of the derivations. If 2 derivations have the same score, the one with less deletions is given first.
 
 ## <a name=batch_out>Batch Mode</a>
 The program creates a directory named "BatchJobResults_DATE" in the path given in the **-dest** option.
@@ -329,12 +340,18 @@ The file contains the parenthesis representation of the PQ-tree, followed by a s
 derived from the PQ-tree.
 Every genome section starts with a '>' symbol followed by the genome ID and the number of substrings in the genome that
 can be derived to the PQ-tree separated by a TAB character.
-```>[GENOME_ID][TAB]found:[NUMBER]```
+```
+>[GENOME_ID][TAB]found:[NUMBER]
+```
 If the **best** output option was given, the number of substrings is always 1.
 Then the information for the derived substrings and their derivations is given. If the **best** output option was given,
-only the information for the best derivation is given. If the **all** output option was given, the program will output
-the best derivation for every end point if it exists.
-For every substring one line containing the following information separated by the TAB character.
+only the information for the best derivation is given.
+If the **all** output option was given, the program will output the best derivation for every substring
+(as long as there is such a derivation and its score is higher than the threshold).
+If the **distinct** output option was given, the program will output the best derivations with distinct start and end indices.
+That is, at most one derivation for every end index and at most one for every start index.
+
+For every substring the file will contain one line containing the following information separated by the TAB character.
 1. The indices of the substring in the genome (inclusive, starting from index 1)
 2. The score of the derivation
 3. The number of deletions from the string
