@@ -1,7 +1,7 @@
-# UnorderedParsing
+# PQFinder
 <!-- (-   [Overview](#overview) -->
 -   [Prerequisites](#prerequisites)
--   [Running Unordered Parsing](#running)
+-   [Running PQFinder](#running)
     -   [Single Mode Options](#single_options)
     -   [Batch Mode Options](#batch_options)
 -   [Input Formats](#input)
@@ -33,21 +33,21 @@
 [Java Runtime Environment (JRE)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 8 or higher.
 
-<a name='running'>Running Unordered Parsing</a>
+<a name='running'>Running PQFinder</a>
 --------
 
-- Download the jar file `UnorderedParsing.jar` in [releases.](https://github.com/GaliaZim/UnorderedParsing/releases)
+- Download the jar file `PQFinder.jar` in [releases.](https://github.com/GaliaZim/PQFinder/releases)
 - Run the program:  
   In the terminal (linux) or cmd (windows) type:
 ```
-java -jar .\UnorderedParsing.jar [mode] [options]
+java -jar .\PQFinder.jar [mode] [options]
 ```
 ## Modes:
 There are two modes:
 - **single** derives one genome against one PQ-tree and outputs the result to the console.
-To run in single mode use ```java -jar .\UnorderedParsing.jar single [options]```
+To run in single mode use ```java -jar .\PQFinder.jar single [options]```
 - **batch** derives every given genome against every given PQ-tree and outputs the results to a directory in which there is a file for every PQ-tree.
-To run in batch mode use ```java -jar .\UnorderedParsing.jar batch [options]```
+To run in batch mode use ```java -jar .\PQFinder.jar batch [options]```
 
 ## <a name=single_options>Single Mode Options:</a>
 ### Mandatory:
@@ -179,7 +179,7 @@ The indentation is not important, and given here for convenience.
 }
 ```
 ### <a name='json_genome'>Input Genome as a JSON file</a>
-Input file containing the genome to parse as a JSON array of strings. Each string is a gene.
+Input file containing the genome to derive as a JSON array of strings. Each string is a gene.
 
 The path to this file is given as input with the input option **-gf** when running the program in **single** mode.
 #### Example
@@ -408,25 +408,25 @@ then it means the substring is ```COG5 COG6 COG1 COG2```.
 The command below runs the program in single mode for the PQ-tree [COG0422 COG0352 ([COG2022 COG1060] COG0476)], the genome that can be found in "C:\data\genome_115.txt", one deletion allowed from the genome, two deletions allowed from the PQ-tree and the default substitution matrix.
 The program will output all the possible derivations.
 ```
-java -jar .\UnorderedParsing.jar single -ds 1 -o all -dt 2 -p "[COG0422 COG0352 ([COG2022 COG1060] COG0476)]" -gf "C:\data\genome_115.txt"
+java -jar .\PQFinder.jar single -ds 1 -o all -dt 2 -p "[COG0422 COG0352 ([COG2022 COG1060] COG0476)]" -gf "C:\data\genome_115.txt"
 ```
 The command below runs the program in single mode for the PQ-tree that can be found in "C:\data\pqt_35.txt", the genome COG0422 COG0352 COG1060 COG2022 COG0476, no deletion allowed and the substitution matrix that can be found in C:\data\substitution_matrix.txt.
 The program will output only the best derivation.
 ```
-java -jar .\UnorderedParsing.jar single -o best -j "C:\data\pqt_35.txt" -g "COG0422 COG0352 COG1060 COG2022 COG0476" -m "C:\data\substitution_matrix.txt"
+java -jar .\PQFinder.jar single -o best -j "C:\data\pqt_35.txt" -g "COG0422 COG0352 COG1060 COG2022 COG0476" -m "C:\data\substitution_matrix.txt"
 ```
 
 The command below runs the program in batch mode for the PQ-trees that can be found in "C:\data\pqts.txt", the genome that can be found in "C:\data\genomes.txt", no deletion allowed and the default substitution matrix.
 The program will output only the best derivation for every genome given that it has a score higher than 5.
 ```
-java -jar .\UnorderedParsing.jar batch -o best -j "C:\data\pqts.txt" -g "C:\data\genomes.txt" -t 5
+java -jar .\PQFinder.jar batch -o best -j "C:\data\pqts.txt" -g "C:\data\genomes.txt" -t 5
 ```
 
 The command below runs the program in batch mode for the PQ-trees that can be found in "C:\data\pqts.txt", the genome that can be found in "C:\data\genomes.txt", no deletion allowed and the default substitution matrix.
 The program will output all the derivations that have a score higher than 5.
 The genomes will be treated as circular.
 ```
-java -jar .\UnorderedParsing.jar batch -o all -j "C:\data\pqts.txt" -gc "C:\data\genomes.txt" -t 5
+java -jar .\PQFinder.jar batch -o all -j "C:\data\pqts.txt" -gc "C:\data\genomes.txt" -t 5
 ```
   
 <!--

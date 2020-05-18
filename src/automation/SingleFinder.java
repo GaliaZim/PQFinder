@@ -13,13 +13,13 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-public class SingleParsing {
+public class SingleFinder {
     private static Node pqt = null;
     private static ArrayList<GeneGroup> geneSeq = null;
     private static int treeDeletionLimit = 0;
     private static int stringDeletionLimit = 0;
-    private static BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction = Parsing::noSubstitutionsFunction;
-    private static Consumer<NodeMappingAlgorithm> outputFunction = SingleParsing::printBestMapping;
+    private static BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction = Finder::noSubstitutionsFunction;
+    private static Consumer<NodeMappingAlgorithm> outputFunction = SingleFinder::printBestMapping;
 
     public static void main(String[] args) {
         retrieveInput(args);
@@ -72,34 +72,34 @@ public class SingleParsing {
 
     private static void printOneToOneMapping(Mapping mapping) {
         System.out.println("The one-to-one mapping:");
-        System.out.println(Parsing.getFormattedOneToOneMapping(mapping, geneSeq, Mapping::getOneToOneMappingByLeafs));
+        System.out.println(Finder.getFormattedOneToOneMapping(mapping, geneSeq, Mapping::getOneToOneMappingByLeafs));
     }
 
     private static void retrieveInput(String[] args) {
         Map<String,  Consumer<String>> optionToArgumentRetrievalFunction = new HashMap<>(8);
-        optionToArgumentRetrievalFunction.put("-p", SingleParsing::retrieveTreeFromParenRepresantation);
-        optionToArgumentRetrievalFunction.put("-j", SingleParsing::retrieveTreeFromJson);
-        optionToArgumentRetrievalFunction.put("-gf", SingleParsing::retrieveGeneSeqFromFile);
-        optionToArgumentRetrievalFunction.put("-g", SingleParsing::retrieveGeneSeqFromArgument);
-        optionToArgumentRetrievalFunction.put("-m", SingleParsing::retrieveSubstitutionFunction);
-        optionToArgumentRetrievalFunction.put("-dt", SingleParsing::retrieveTreeDeletionLimit);
-        optionToArgumentRetrievalFunction.put("-ds", SingleParsing::retrieveStringDeletionLimit);
-        optionToArgumentRetrievalFunction.put("-o", SingleParsing::retrieveOutputFunction);
+        optionToArgumentRetrievalFunction.put("-p", SingleFinder::retrieveTreeFromParenRepresantation);
+        optionToArgumentRetrievalFunction.put("-j", SingleFinder::retrieveTreeFromJson);
+        optionToArgumentRetrievalFunction.put("-gf", SingleFinder::retrieveGeneSeqFromFile);
+        optionToArgumentRetrievalFunction.put("-g", SingleFinder::retrieveGeneSeqFromArgument);
+        optionToArgumentRetrievalFunction.put("-m", SingleFinder::retrieveSubstitutionFunction);
+        optionToArgumentRetrievalFunction.put("-dt", SingleFinder::retrieveTreeDeletionLimit);
+        optionToArgumentRetrievalFunction.put("-ds", SingleFinder::retrieveStringDeletionLimit);
+        optionToArgumentRetrievalFunction.put("-o", SingleFinder::retrieveOutputFunction);
 
         int argIndex = 0;
         while (argIndex < args.length - 1) {
            String option = args[argIndex];
            Consumer<String> func = optionToArgumentRetrievalFunction.get(option);
            if(func == null)
-               Parsing.argumentErrorThrower(option);
+               Finder.argumentErrorThrower(option);
            argIndex++;
            func.accept(args[argIndex]);
            argIndex++;
         }
         if(pqt == null)
-            Parsing.noArgumentErrorThrower("PQ-tree");
+            Finder.noArgumentErrorThrower("PQ-tree");
         if(geneSeq == null)
-            Parsing.noArgumentErrorThrower("gene sequence");
+            Finder.noArgumentErrorThrower("gene sequence");
     }
 
     private static void retrieveTreeFromJson(String pathToJsonFile) {
@@ -137,11 +137,11 @@ public class SingleParsing {
     }
 
     private static void retrieveTreeDeletionLimit(String treeDeletionLimit) {
-        SingleParsing.treeDeletionLimit = Integer.valueOf(treeDeletionLimit);
+        SingleFinder.treeDeletionLimit = Integer.valueOf(treeDeletionLimit);
     }
 
     private static void retrieveStringDeletionLimit(String stringDeletionLimit) {
-        SingleParsing.stringDeletionLimit = Integer.valueOf(stringDeletionLimit);
+        SingleFinder.stringDeletionLimit = Integer.valueOf(stringDeletionLimit);
     }
 
     private static void retrieveSubstitutionFunction(String pathToSubstitutionMatrixFile) {
@@ -156,13 +156,13 @@ public class SingleParsing {
     private static void retrieveOutputFunction(String argument) {
         switch (argument) {
             case "all":
-                outputFunction = SingleParsing::printAllMappings;
+                outputFunction = SingleFinder::printAllMappings;
                 break;
             case "best":
-                outputFunction = SingleParsing::printBestMapping;
+                outputFunction = SingleFinder::printBestMapping;
                 break;
             case "distinct":
-                outputFunction = SingleParsing::printDistinctMappings;
+                outputFunction = SingleFinder::printDistinctMappings;
                 break;
             default:
                 throw new RuntimeException(argument + "is not a valid output option. Try 'best', 'all' or 'distinct'.");
@@ -170,14 +170,14 @@ public class SingleParsing {
     }
 
     private static void printBestMapping(NodeMappingAlgorithm algorithm) {
-        SingleParsing.printMapping(algorithm.getBestMapping());
+        SingleFinder.printMapping(algorithm.getBestMapping());
     }
 
     private static void printAllMappings(NodeMappingAlgorithm algorithm) {
-        algorithm.getAllPossibleMappings().forEach(SingleParsing::printMapping);
+        algorithm.getAllPossibleMappings().forEach(SingleFinder::printMapping);
     }
 
     private static void printDistinctMappings(NodeMappingAlgorithm algorithm) {
-        algorithm.getBestPossibleMappingsForDistinctIndices().forEach(SingleParsing::printMapping);
+        algorithm.getBestPossibleMappingsForDistinctIndices().forEach(SingleFinder::printMapping);
     }
 }

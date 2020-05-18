@@ -15,17 +15,17 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class BatchParsing {
+public class BatchFinder {
     private static HashMap<String,Node> pqts = null;
     private static HashMap<String,String> pqtsParenthesisRepresentation = null;
     private static HashMap<String, ArrayList<GeneGroup>> genomesById = null;
     private static HashMap<String, Integer> genomesEndPointById;
-    private static BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction = Parsing::noSubstitutionsFunction;
+    private static BiFunction<GeneGroup, GeneGroup, Double> substitutionFunction = Finder::noSubstitutionsFunction;
     private static Function<Integer,Double> calcThreshold = integer -> 0.0;
-    private static Function<Integer,Integer> calcTreeDeletionLimit = BatchParsing::defaultDeletionLimit;
-    private static Function<Integer,Integer> calcStringDeletionLimit = BatchParsing::defaultDeletionLimit;
+    private static Function<Integer,Integer> calcTreeDeletionLimit = BatchFinder::defaultDeletionLimit;
+    private static Function<Integer,Integer> calcStringDeletionLimit = BatchFinder::defaultDeletionLimit;
     private static BiFunction<NodeMappingAlgorithm, Double, List<Mapping>>
-            outputMappingsCollector = BatchParsing::getBestMapping;
+            outputMappingsCollector = BatchFinder::getBestMapping;
     private static String outputFolderPath = null;
     private static BiFunction<List<Mapping>,String,List<Mapping>> outputMappingsFilter = (l,s) -> l;
 
@@ -104,10 +104,10 @@ public class BatchParsing {
         int endIndex = mapping.getEndIndex();
         if(endIndex > genomeEndPoint) {
             endIndex -= genomeEndPoint;
-            formattedOneToOneMapping = Parsing.getFormattedOneToOneMapping(mapping, genome,
+            formattedOneToOneMapping = Finder.getFormattedOneToOneMapping(mapping, genome,
                     m -> m.getOneToOneMappingByLeafs(genomeEndPoint));
         } else {
-            formattedOneToOneMapping = Parsing.getFormattedOneToOneMapping(mapping, genome,
+            formattedOneToOneMapping = Finder.getFormattedOneToOneMapping(mapping, genome,
                     Mapping::getOneToOneMappingByLeafs);
         }
         int startIndex = mapping.getStartIndex();
@@ -173,51 +173,51 @@ public class BatchParsing {
 
     private static void retrieveBatchInput(String[] args) {
         Map<String, Consumer<String>> optionToArgumentRetrievalFunction = new HashMap<>(12);
-        optionToArgumentRetrievalFunction.put("-p", BatchParsing::retrievePqts);
-        optionToArgumentRetrievalFunction.put("-g", BatchParsing::retrieveGenomes);
-        optionToArgumentRetrievalFunction.put("-gc", BatchParsing::retrieveCyclicGenomes);
-        optionToArgumentRetrievalFunction.put("-m", BatchParsing::retrieveSubstitutionFunction);
-        optionToArgumentRetrievalFunction.put("-dt", BatchParsing::retrieveTreeDeletionLimitFunction);
-        optionToArgumentRetrievalFunction.put("-ds", BatchParsing::retrieveStringDeletionLimitFunction);
-        optionToArgumentRetrievalFunction.put("-t", BatchParsing::retrieveThresholdFunction);
-        optionToArgumentRetrievalFunction.put("-dtf", BatchParsing::retrieveTreeDeletionFactor);
-        optionToArgumentRetrievalFunction.put("-dsf", BatchParsing::retrieveStringDeletionFactor);
-        optionToArgumentRetrievalFunction.put("-tf", BatchParsing::retrieveThresholdFactor);
-        optionToArgumentRetrievalFunction.put("-o", BatchParsing::retrieveOutputMappingCollector);
-        optionToArgumentRetrievalFunction.put("-dest", BatchParsing::retrieveOutputFolder);
+        optionToArgumentRetrievalFunction.put("-p", BatchFinder::retrievePqts);
+        optionToArgumentRetrievalFunction.put("-g", BatchFinder::retrieveGenomes);
+        optionToArgumentRetrievalFunction.put("-gc", BatchFinder::retrieveCyclicGenomes);
+        optionToArgumentRetrievalFunction.put("-m", BatchFinder::retrieveSubstitutionFunction);
+        optionToArgumentRetrievalFunction.put("-dt", BatchFinder::retrieveTreeDeletionLimitFunction);
+        optionToArgumentRetrievalFunction.put("-ds", BatchFinder::retrieveStringDeletionLimitFunction);
+        optionToArgumentRetrievalFunction.put("-t", BatchFinder::retrieveThresholdFunction);
+        optionToArgumentRetrievalFunction.put("-dtf", BatchFinder::retrieveTreeDeletionFactor);
+        optionToArgumentRetrievalFunction.put("-dsf", BatchFinder::retrieveStringDeletionFactor);
+        optionToArgumentRetrievalFunction.put("-tf", BatchFinder::retrieveThresholdFactor);
+        optionToArgumentRetrievalFunction.put("-o", BatchFinder::retrieveOutputMappingCollector);
+        optionToArgumentRetrievalFunction.put("-dest", BatchFinder::retrieveOutputFolder);
 
         int argIndex = 0;
         while (argIndex < args.length - 1) {
             String option = args[argIndex];
             Consumer<String> func = optionToArgumentRetrievalFunction.get(option);
             if(func == null)
-                Parsing.argumentErrorThrower(option);
+                Finder.argumentErrorThrower(option);
             argIndex++;
             func.accept(args[argIndex]);
             argIndex++;
         }
         if(pqts == null)
-            Parsing.noArgumentErrorThrower("PQ-trees");
+            Finder.noArgumentErrorThrower("PQ-trees");
         if(genomesById == null)
-            Parsing.noArgumentErrorThrower("genomes");
+            Finder.noArgumentErrorThrower("genomes");
         if(outputFolderPath == null)
-            Parsing.noArgumentErrorThrower("output folder");
+            Finder.noArgumentErrorThrower("output folder");
     }
 
     private static void retrieveOutputFolder(String outputFolderPath) {
-        BatchParsing.outputFolderPath = outputFolderPath;
+        BatchFinder.outputFolderPath = outputFolderPath;
     }
 
     private static void retrieveOutputMappingCollector(String outputOption) {
         switch (outputOption) {
             case "all":
-                outputMappingsCollector = BatchParsing::getAllMappings;
+                outputMappingsCollector = BatchFinder::getAllMappings;
                 break;
             case "best":
-                outputMappingsCollector = BatchParsing::getBestMapping;
+                outputMappingsCollector = BatchFinder::getBestMapping;
                 break;
             case "distinct":
-                outputMappingsCollector = BatchParsing::getDistinctMappings;
+                outputMappingsCollector = BatchFinder::getDistinctMappings;
                 break;
             default:
                 throw new RuntimeException(outputOption +
@@ -237,7 +237,7 @@ public class BatchParsing {
     private static void retrieveCyclicGenomes(String pathToGenomesFile) {
         retrieveGenomes(pathToGenomesFile);
         genomesById.values().forEach(list -> list.addAll(list.subList(0, Math.min(20, list.size()))));
-        outputMappingsFilter = BatchParsing::filterCyclicMappings;
+        outputMappingsFilter = BatchFinder::filterCyclicMappings;
     }
 
     private static void retrieveGenomes(String pathToGenomes) {

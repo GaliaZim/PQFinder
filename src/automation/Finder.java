@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.function.Function;
 
-public class Parsing {
+public class Finder {
     public static void main(String[] args) {
         final int argNum = args.length;
         if(argNum == 0)
@@ -18,10 +18,10 @@ public class Parsing {
         final String mode = args[0];
         switch (mode) {
             case "single":
-                SingleParsing.main(arguments);
+                SingleFinder.main(arguments);
                 break;
             case "batch":
-                BatchParsing.main(arguments);
+                BatchFinder.main(arguments);
                 break;
             default:
                 throw new RuntimeException(String.format("No such mode %s. Try single or batch", mode));
