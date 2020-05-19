@@ -1,5 +1,9 @@
 # PQFinder
 <!-- (-   [Overview](#overview) -->
+-   [Supplement Material](#supmat)
+    -	[Quick Demonstration](#demo)
+    -	[Reconstructing the Results](#reconstruct)
+    -	[Results](#results)
 -   [Prerequisites](#prerequisites)
 -   [Running PQFinder](#running)
     -   [Single Mode Options](#single_options)
@@ -27,6 +31,65 @@
 --------
 ### TODO
 -->
+<a name='supmat'>Supplement Material</a>
+--------
+This section is for the reader of the paper **Approximate Search for Known Gene Clusters in New Genomes Using PQ-Trees**.
+You can find in this section two small running examples, all the materials needed to reconstruct our results and references to the supplement material mentioned in the paper.
+For more detailed information on how to run the tool and the different input and output options read the rest of this README file.
+
+### <a name='demo'>Quick Demonstration</a>
+To run the tool you need:
+1. [Java Runtime Environment (JRE)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+8 or higher
+2. Downloaded the latest version jar file `PQFinder.jar` in [releases.](https://github.com/GaliaZim/PQFinder/releases)
+
+Here are two running examples: (Run them in the terminal (linux) or cmd (windows). The output will be printed there)
+```
+java -jar .\PQFinder.jar single -p "[[COG0642 COG0745] [[COG3696 COG0845] COG1538]]" -g "COG2020 COG1538 COG0845 COG3696 COG1230 COG0745 COG0642 COG3203 COG2801 COG2963" -o best -ds 1
+```
+```
+java -jar .\PQFinder.jar single -p "[[COG0642 COG0745] [[COG3696 COG0845] COG1538]]" -g "COG2259 COG2823 COG1538 COG3696 COG0845 COG0745 COG0642 COG1538 COG0845 COG3696 X COG0531" -o all
+```
+For more detailed information on how to run the tool and the different input and output options read the rest of this README file.
+
+### <a name='reconstruct'>Reconstructing the Results</a>
+Note that this run takes about 2 hours. Shorter running examples are given under Quick Demonstration [above](#demo).
+1,487 fully sequenced prokaryotic strains with 552 COG ID annotations were downloaded from GenBank (NCBI; ver 10/2012). Among these
+553 strains, 471 genomes included a total of 933 plasmids.
+**The file containing all plasmid genomes is [here](https://github.com/GaliaZim/PQFinder/blob/master/SupplementMaterial/plasmid_genomes.fasta).**
+The gene clusters were generated from all the genomes in the dataset after removing their plasmids using the tool [CSBFinder-S](https://github.com/dinasv/CSBFinder).
+The generation of PQ-trees was performed using [this program](https://github.com/levgou/pqtrees). **The file containing all 779 generated PQ-trees in their [parenthesis representation](#paren) is [here](https://github.com/GaliaZim/PQFinder/blob/master/SupplementMaterial/dataset_pqt.txt).**
+**The cog-to-cog substitution function used is given as a matrix in this compressed [file](https://github.com/GaliaZim/PQFinder/blob/master/SupplementMaterial/cog-to-cog-substitution-matrix.rar).**
+
+To reconstruct the results do the following:
+1. Download the three files mentioned above (they can all be found in the [SupplementMaterial directory](https://github.com/GaliaZim/PQFinder/tree/master/SupplementMaterial)). Let us say that they are all on your machine in the path PATH_TO_DIR.
+2. Extract the cog-to-cog substitution matrix.
+3. Download [Java Runtime Environment (JRE)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+8 or higher.
+4. Download the latest version jar file `PQFinder.jar` in [releases.](https://github.com/GaliaZim/PQFinder/releases)
+5. In the terminal (linux) or cmd (windows) type:
+```
+java -jar .\PQFinder.jar batch -p "PATH_TO_DIR\dataset_pqt.txt" -gc "PATH_TO_DIR\plasmid_genomes.fasta" -m "PATH_TO_DIR\cog-to-cog-substitution-matrix.txt -tf 0.825 -o all -dest "PATH_TO_DESTINATION_FOLDER"
+```
+The results will be in ```PATH_TO_DESTINATION_FOLDER```.
+**This run takes about 2 hours** (depending on your hardware). For a shorter run, remove plasmids from the plasmid_genomes file and remove PQ-trees from the dataset_pqt file, or run the examples under Quick Demonstration [above](#demo).
+
+### <a name='results'>Results</a>
+The materials described bellow can be found in the [SupplementMaterial directory](https://github.com/GaliaZim/PQFinder/tree/master/SupplementMaterial).
+1. The results of the above run were processed into [this session file](https://github.com/GaliaZim/PQFinder/blob/master/SupplementMaterial/pqt-instances-found-in-plasmids.csb). To view it use [CSBFinder](https://github.com/dinasv/CSBFinder).
+2. The generated PQ-trees along with some useful information is found in [this file](https://github.com/GaliaZim/PQFinder/blob/master/SupplementMaterial/dataset-pqtrees-information.xlsx). The data columns in the file are the following:
+	- **family_id:** The id of the gene cluster that the PQ-tree represents
+	- **#Members:** The number of distinct gene orders of the families found using CSBFinder.
+	- **COG PQT:** The PQ-tree in parenthesis representation with the full COG ID of the genes.
+	- **Category PQT:** The PQ-tree in parenthesis representation with every gene's COG replaced by its main category letter.
+	- **O PQT:** The PQ-tree in parenthesis representation ignoring the genes. Every gene is represented as the letter O.
+	- **S-score:** The S-score of the PQ-tree.
+	- **Frontier length:** The number of leafs in the PQ-tree, the number of genes in the gene cluster.
+	- **Consistent Frontier Size:** The size of the tree's consistent frontier.
+	- **#appearances in plasmids dS=dT=0:** Number of plasmids that had at least one instance of the gene cluster without deletions from either string or tree. The information is retrieved from the run given [above](#reconstruct).
+	- **#p  #q:** Number of P-nodes in the tree followed by the number of Q-nodes in the tree.
+	- **Category:** The categories associated with the gene cluster separated by '\'.
+
 <a name='prerequisites'>Prerequisites</a>
 --------
 
@@ -36,8 +99,8 @@
 <a name='running'>Running PQFinder</a>
 --------
 
-- Download the jar file `PQFinder.jar` in [releases.](https://github.com/GaliaZim/PQFinder/releases)
-- Run the program:  
+- Download the latest version jar file `PQFinder.jar` in [releases.](https://github.com/GaliaZim/PQFinder/releases)
+- Run the program:
   In the terminal (linux) or cmd (windows) type:
 ```
 java -jar .\PQFinder.jar [mode] [options]
@@ -52,33 +115,33 @@ To run in batch mode use ```java -jar .\PQFinder.jar batch [options]```
 ## <a name=single_options>Single Mode Options:</a>
 ### Mandatory:
 - An argument for the PQ-tree using one of the following options:
-  - **-j** PQT_JSON_FILE_NAME      
+  - **-j** PQT_JSON_FILE_NAME
   Input file relative or absolute path containing the JSON representation of the PQ-tree (see format [here](#json_pqt)).
-  - **-p** PARENTHESIS_REPRESENTATION_OF_PQT       
+  - **-p** PARENTHESIS_REPRESENTATION_OF_PQT
   The PQ-tree in its parenthesis representation (see format [here](#paren))
-      
-- An argument for the gene sequence using one of the following options:  
-  - **-g** GENE_SEQUENSE_AS_STRING      
+
+- An argument for the gene sequence using one of the following options:
+  - **-g** GENE_SEQUENCE_AS_STRING
    A string of the genes separated by a single space (see format [here](#genome))
-  - **-gf** GENE_SEQUENCE_JSON_FILE       
+  - **-gf** GENE_SEQUENCE_JSON_FILE
    Input file relative or absolute path containing the JSON representation of the gene sequence as described [here](#json_genome).
-      
-### Optional:     
-- **-m** PATH_TO_SUBSTITUTION_MATRIX_FILE  
+
+### Optional:
+- **-m** PATH_TO_SUBSTITUTION_MATRIX_FILE
   Input file relative or absolute path containing the substitution matrix (see format [here](#subs)).
-  **Default**: a substitution matrix that does not allow substitutions and rewards a match with a score of 1.  
-  
-- **-dt** TREE_DELETION_LIMIT  
-  The number of allowed deletions from the tree. A non-negative number  
-**Default**: 0  
-  
-- **-ds** STRING_DELETION_LIMIT  
-  The number of allowed deletions from the gene sequence. A non-negative number  
+  **Default**: a substitution matrix that does not allow substitutions and rewards a match with a score of 1.
+
+- **-dt** TREE_DELETION_LIMIT
+  The number of allowed deletions from the tree. A non-negative number
+**Default**: 0
+
+- **-ds** STRING_DELETION_LIMIT
+  The number of allowed deletions from the gene sequence. A non-negative number
   **Default**: 0
-  
+
 - **-o** OUTPUT_OPTION
-  Possible values: [all, best]  
-  **all**: outputs all possible derivations in an descending order according to their score  
+  Possible values: [all, best]
+  **all**: outputs all possible derivations in an descending order according to their score
   **best**: outputs only the best derivation
   **distinct**: outputs the best derivation for every start index and every end index (if one exists) in an descending order according to their score
   **Default**: best
@@ -136,7 +199,7 @@ Output directory relative or absolute path. The output of the program will be sa
     THRESHOLD_FACTOR can be any number
     threshold = PQ-tree_span * THRESHOLD_FACTOR
     - **Default**: -t 0
-  
+
 <a name='input'>Input Formats</a>
 --------
 ### <a name='json_pqt'>Input PQ-tree as a JSON File</a>
@@ -159,17 +222,17 @@ In the example below is the JSON format of a PQ-tree rooted in a P-node that has
 * A leaf with a label COG4
 
 The indentation is not important, and given here for convenience.
-```json  
-{"root": 
+```json
+{"root":
     {"type":"PNode",
     "children": [
-        {"type":"PNode", 
+        {"type":"PNode",
         "children": [
             {"type":"LEAF", "cog":"cog1"},
             {"type":"LEAF", "cog":"cog2"},
             {"type":"LEAF", "cog":"cog3"}
         ]},
-        {"type":"QNode", 
+        {"type":"QNode",
         "children": [
             {"type":"LEAF", "cog":"cog1"},
             {"type":"LEAF", "cog":"cog4"}
@@ -201,9 +264,9 @@ In the first three examples we do not quote the PQ-tree.
 * A **Q-node** with three leaf children that have the labels COG1, COG2, and COG3.
 > [COG1 COG2 COG3]
 * A P-node that has three children:
--- A P-node that has three leaf children with labels COG1, COG2, and COG3.
--- A Q-node that has two leaf children with labels COG1 and COG4.
--- A leaf with a label COG4
+	- A P-node that has three leaf children with labels COG1, COG2, and COG3.
+	- A Q-node that has two leaf children with labels COG1 and COG4.
+	- A leaf with a label COG4
 This is the same tree as in the JSON representation example
 > ((COG1 COG2 COG3) [COG1 COG4] COG4)
 * The same PQ-tree as in the last example, but quoted, so it can be sent as an argument to the program.
@@ -215,7 +278,7 @@ In the string representation of the genome the genes of the genome are written i
 This representation is given as input with the input option **-g** when running the program in **single** mode.
 To pass this representation as input to the program it needs to be quoted.
 #### Examples
-* A String representing a genome that have 5 genes (the same genome as in the JSON represantation of the genome).
+* A String representing a genome that have 5 genes (the same genome as in the JSON representation of the genome).
 > COG1 COG2 COG3 COG2 COG5
 * The same genome, but quoted so it can be sent as an argument to the program.
 > "COG1 COG2 COG3 COG2 COG5"
@@ -269,11 +332,11 @@ COG5	+
 A symmetric matrix, where the first line and column are the labels of the PQ-tree leafs and the genes in the genome arranged in the same order. The labels and genes are separated by a TAB character. The score for a substitution is given as a number, or if the substitution is prohibited a dot symbol (.) is given.
 ##### A template of the substitution matrix
 In this template S_1_2 represents the score for substitution GENE_1 with GENE_2.
->[TAB][GENE_1][TAB][GENE_2][TAB][GENE_3][TAB][GENE_4]  
->[GENE_1][TAB][S_1_1][TAB][S_1_2][TAB][S_1_3][TAB][S_1_4]  
->[GENE_2][TAB][S_2_1][TAB][S_2_2][TAB][S_2_3][TAB][S_2_4]  
->[GENE_3][TAB][S_3_1][TAB][S_3_2][TAB][S_3_3][TAB][S_3_4]  
->[GENE_4][TAB][S_4_1][TAB][S_4_2][TAB][S_4_3][TAB][S_4_4]  
+>[TAB][GENE_1][TAB][GENE_2][TAB][GENE_3][TAB][GENE_4]
+>[GENE_1][TAB][S_1_1][TAB][S_1_2][TAB][S_1_3][TAB][S_1_4]
+>[GENE_2][TAB][S_2_1][TAB][S_2_2][TAB][S_2_3][TAB][S_2_4]
+>[GENE_3][TAB][S_3_1][TAB][S_3_2][TAB][S_3_3][TAB][S_3_4]
+>[GENE_4][TAB][S_4_1][TAB][S_4_2][TAB][S_4_3][TAB][S_4_4]
 
 The path to this file is given as input with the input option **-m**.
 
@@ -292,7 +355,7 @@ COG3	1	0.3	1.5	.
 COG4	.	.	.	1.5
 ```
 
-<a name='output'>Output Formats</a>  
+<a name='output'>Output Formats</a>
 --------
 ## <a name=single_out>Single Mode</a>
 ### One derivation
@@ -300,26 +363,26 @@ For one derivation the program outputs the following:
 1. The score of the derivation
 2. The derived substring and its indices in the genome (inclusive, starting from index 1)
 3. The one-to-one mappings of the leafs of the PQ-tree from left to right. separated by a semicolon surrounded by space characters. A mapping is denoted as follows:
--- (LEAF_LABEL,GENE[GENE_INDEX]) if the leaf is mapped to GENEat index GENE_INDEX in the derivation
--- (LEAF_LABEL,DEL) if the leaf is deleted in the derivation.
+	- (LEAF_LABEL,GENE[GENE_INDEX]) if the leaf is mapped to GENEat index GENE_INDEX in the derivation
+	- (LEAF_LABEL,DEL) if the leaf is deleted in the derivation.
 4. The number of deleted genes, the genes and their indices
 5. The number of deleted leafs and a list of their labels
 #### Example
 In the following output example, the output is a derivation with a score of 5.
-The derived substring is COG1060, COG4545, COG2022, COG0476, COG0352, COG0123 and it appears in the genome between the indices 11 and 16 (inclusive).  
+The derived substring is COG1060, COG4545, COG2022, COG0476, COG0352, COG0123 and it appears in the genome between the indices 11 and 16 (inclusive).
 The leftmost leaf in the PQ-tree has the label COG0422 and it is mapped to the gene COG0123 at index 16 in the genome.
 The rightmost leaf in the PQ-tree has the label COG0555 and it is deleted in the derivation.
 Two genes were deleted COG4545 and COG0476 in indices 12 and 14, respectively.
 
-> Derivation score: 5.0  
-> The derived substring is S[11:16] = COG1060,COG4545,COG2022,COG0476,COG0352,COG0123  
-> The one-to-one mapping:  
-> (COG0422,COG0123[16]) ; (COG0352,COG0352[15]) ; (COG2022,COG2022[13]) ; (COG1060,COG1060[11]) ; (COG0555,DEL)  
-> 2 gene(s) deleted in the derivation:  
-> COG4545 at index 12  
-> COG0476 at index 14  
-> 1 leaf(s) deleted in the derivation:  
-> COG555  
+> Derivation score: 5.0
+> The derived substring is S[11:16] = COG1060,COG4545,COG2022,COG0476,COG0352,COG0123
+> The one-to-one mapping:
+> (COG0422,COG0123[16]) ; (COG0352,COG0352[15]) ; (COG2022,COG2022[13]) ; (COG1060,COG1060[11]) ; (COG0555,DEL)
+> 2 gene(s) deleted in the derivation:
+> COG4545 at index 12
+> COG0476 at index 14
+> 1 leaf(s) deleted in the derivation:
+> COG555
 
 ### All Possible Derivations
 If the program was given the ```-o all``` option it will output all the derivations found (at most one derivation for every substring).
@@ -357,8 +420,8 @@ For every substring the file will contain one line containing the following info
 3. The number of deletions from the string
 4. The number of deletions from the tree
 5. The one-to-one mappings of the leafs of the PQ-tree from left to right. separated by a semicolon surrounded by space characters. A mapping is denoted as follows:
-   -- (LEAF_LABEL,GENE[GENE_INDEX]) if the leaf is mapped to GENEat index GENE_INDEX in the derivation
-   -- (LEAF_LABEL,DEL) if the leaf is deleted in the derivation.
+   - (LEAF_LABEL,GENE[GENE_INDEX]) if the leaf is mapped to GENEat index GENE_INDEX in the derivation
+   - (LEAF_LABEL,DEL) if the leaf is deleted in the derivation.
 
 ```[[START_INDEX]:[END_INDEX]][TAB][SCORE][TAB]delS:[#STRING_DELETIONS][TAB]delT:[#TREE_DELETIONS][TAB][ONE_TO_ONE_MAPPING]```
 
