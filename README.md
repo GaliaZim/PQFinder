@@ -54,13 +54,14 @@ java -jar .\PQFinder.jar single -p "[[COG0642 COG0745] [[COG3696 COG0845] COG153
 For more detailed information on how to run the tool and the different input and output options read the rest of this README file.
 
 ### <a name='reconstruct'>Reconstructing the Results</a>
-Note that this run takes about 2 hours. Shorter running examples are given under Quick Demonstration [above](#demo).
-1,487 fully sequenced prokaryotic strains with 552 COG ID annotations were downloaded from GenBank (NCBI; ver 10/2012). Among these
-553 strains, 471 genomes included a total of 933 plasmids.
-**The file containing all plasmid genomes is [here](https://github.com/GaliaZim/PQFinder/blob/master/SupplementMaterial/plasmid_genomes.fasta).**
-The gene clusters were generated from all the genomes in the dataset after removing their plasmids using the tool [CSBFinder-S](https://github.com/dinasv/CSBFinder).
-The generation of PQ-trees was performed using [this program](https://github.com/levgou/pqtrees). **The file containing all 779 generated PQ-trees in their [parenthesis representation](#paren) is [here](https://github.com/GaliaZim/PQFinder/blob/master/SupplementMaterial/dataset_pqt.txt).**
-**The cog-to-cog substitution function used is given as a matrix in this compressed [file](https://github.com/GaliaZim/PQFinder/blob/master/SupplementMaterial/cog-to-cog-substitution-matrix.rar).**
+Note that this run takes about 2 hours. Shorter running examples are given under Quick Demonstration [above](#demo).  
+- 1,487 fully sequenced prokaryotic strains with COG ID annotations were downloaded from GenBank (NCBI; ver 10/2012).  
+- Among these strains, 471 genomes included a total of 933 plasmids.  
+- **The file containing all plasmid genomes is [here](https://github.com/GaliaZim/PQFinder/blob/master/SupplementMaterial/plasmid_genomes.fasta).**  
+- The gene clusters were generated from all the genomes in the dataset after removing their plasmids using the tool [CSBFinder-S](https://github.com/dinasv/CSBFinder).  
+- The generation of PQ-trees was performed using [this program](https://github.com/levgou/pqtrees).  
+- **The file containing all 779 generated PQ-trees in their [parenthesis representation](#paren) is [here](https://github.com/GaliaZim/PQFinder/blob/master/SupplementMaterial/dataset_pqt.txt).**
+- **The cog-to-cog substitution function used is given as a matrix in this compressed [file](https://github.com/GaliaZim/PQFinder/blob/master/SupplementMaterial/cog-to-cog-substitution-matrix.rar).**
 
 To reconstruct the results do the following:
 1. Download the three files mentioned above (they can all be found in the [SupplementMaterial directory](https://github.com/GaliaZim/PQFinder/tree/master/SupplementMaterial)). Let us say that they are all on your machine in the path PATH_TO_DIR.
@@ -77,10 +78,10 @@ The results will be in ```PATH_TO_DESTINATION_FOLDER``` in the format described 
 
 ### <a name='results'>Results</a>
 The materials described bellow can be found in the [SupplementMaterial directory](https://github.com/GaliaZim/PQFinder/tree/master/SupplementMaterial).
-1. The results of the above run were processed into [this session file](https://github.com/GaliaZim/PQFinder/blob/master/SupplementMaterial/pqt-instances-found-in-plasmids.csb). To view it use [CSBFinder](https://github.com/dinasv/CSBFinder).
+1. The results of the above run were processed into [this session file](https://github.com/GaliaZim/PQFinder/blob/master/SupplementMaterial/pqt-instances-found-in-plasmids.csb). To view it use [CSBFinder-S](https://github.com/dinasv/CSBFinder).
 2. The generated PQ-trees along with some useful information is found in [this file](https://github.com/GaliaZim/PQFinder/blob/master/SupplementMaterial/dataset-pqtrees-information.xlsx). The data columns in the file are the following:
 	- **family_id:** The id of the gene cluster that the PQ-tree represents
-	- **#Members:** The number of distinct gene orders of the families found using CSBFinder.
+	- **#Members:** The number of distinct gene orders of the families found using CSBFinder-S.
 	- **COG PQT:** The PQ-tree in parenthesis representation with the full COG ID of the genes.
 	- **Category PQT:** The PQ-tree in parenthesis representation with every gene's COG replaced by its main category letter.
 	- **O PQT:** The PQ-tree in parenthesis representation ignoring the genes. Every gene is represented as the letter O.
@@ -469,6 +470,8 @@ then it means the substring is ```COG5 COG6 COG1 COG2```.
 
 <a name='examples'>Running Examples</a>
 --------  
+**Note that the files refrenced in the below examples do not exist and they are not provided in this repository. They are given below as an example of how to send files as input to this tool.**
+
 The command below runs the program in single mode for the PQ-tree [COG0422 COG0352 ([COG2022 COG1060] COG0476)], the genome that can be found in "C:\data\genome_115.txt", one deletion allowed from the genome, two deletions allowed from the PQ-tree and the default substitution matrix.
 The program will output all the possible derivations.
 ```
