@@ -34,7 +34,8 @@
 <a name='supmat'>Supplement Material</a>
 --------
 This section is for the reader of the paper **Approximate Search for Known Gene Clusters in New Genomes Using PQ-Trees**.
-You can find in this section two small running examples, all the materials needed to reconstruct our results and references to the supplement material mentioned in the paper.
+You can find in this section two small running examples ([here](#demo)), all the materials needed to reconstruct our
+results ([here](#reconstruct)) and references to the supplement material mentioned in the paper ([here](#results)).
 For more detailed information on how to run the tool and the different input and output options read the rest of this README file.
 
 ### <a name='demo'>Quick Demonstration</a>
@@ -43,7 +44,7 @@ To run the tool you need:
 8 or higher
 2. Downloaded the latest version jar file `PQFinder.jar` in [releases.](https://github.com/GaliaZim/PQFinder/releases)
 
-Here are two running examples: (Run them in the terminal (linux) or cmd (windows). The output will be printed there)
+Here are two running examples: (Run them in the terminal (linux) or cmd (windows). The output will be printed terminal/cmd in the format described [here](#single_out))
 ```
 java -jar .\PQFinder.jar single -p "[[COG0642 COG0745] [[COG3696 COG0845] COG1538]]" -g "COG2020 COG1538 COG0845 COG3696 COG1230 COG0745 COG0642 COG3203 COG2801 COG2963" -o best -ds 1
 ```
@@ -71,7 +72,7 @@ To reconstruct the results do the following:
 ```
 java -jar .\PQFinder.jar batch -p "PATH_TO_DIR\dataset_pqt.txt" -gc "PATH_TO_DIR\plasmid_genomes.fasta" -m "PATH_TO_DIR\cog-to-cog-substitution-matrix.txt -tf 0.825 -o all -dest "PATH_TO_DESTINATION_FOLDER"
 ```
-The results will be in ```PATH_TO_DESTINATION_FOLDER```.
+The results will be in ```PATH_TO_DESTINATION_FOLDER``` in the format described [here](#batch_out).
 **This run takes about 2 hours** (depending on your hardware). For a shorter run, remove plasmids from the plasmid_genomes file and remove PQ-trees from the dataset_pqt file, or run the examples under Quick Demonstration [above](#demo).
 
 ### <a name='results'>Results</a>
